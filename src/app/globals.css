@@ -1,2 +1,6 @@
-/* RESTORED - see next commit for full content */
+/* LISTO — Design System. Partes en /src/styles/ */
 @import "tailwindcss";
+@import "../styles/ds-tokens.css";
+@import "../styles/ds-components.css";
+@import "../styles/ds-pages.css";
+@import "./curso-hero.css";
