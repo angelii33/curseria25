@@ -2,13 +2,16 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { usuarioActual } from "@/lib/supabase/server";
-import { getCatalogo, getCurso, folio } from "@/lib/catalogo";
+import { getCatalogo, getCurso, folio, miSemana } from "@/lib/catalogo";
 import { Barra, Pie, Sello } from "@/components/ui";
 import { IconoFichaVacia } from "@/components/iconos-estado";
 import { CursoFicha } from "@/components/curso-ficha";
 import { Pieza } from "@/components/pieza";
 import { emitirCertificado, salir } from "@/app/acciones";
 import { ETAPAS, editorialDe, partesDe } from "@/lib/editorial";
+import { bancoCompleto } from "@/lib/practica";
+import { MetaSemanal } from "@/components/meta-semanal";
+import { RepasoEspaciado } from "@/components/repaso-espaciado";
 
 export const dynamic = "force-dynamic";
 
@@ -36,6 +39,20 @@ export default async function MiAprendizaje() {
         (ETAPAS[editorialDe(a.slug)?.etapa ?? "comprar"].orden) -
         (ETAPAS[editorialDe(b.slug)?.etapa ?? "comprar"].orden)
     );
+  const fechasSemana = await miSemana();
+  // El banco de repaso, con el nombre del curso de cada lección para que la
+  // pregunta tenga contexto («Tu negocio en Google · lección 1»).
+  const tituloDe = new Map(cursos.map((c) => [c.slug, c.title]));
+  const banco = bancoCompleto()
+    .filter((b) => tituloDe.has(b.clave.split("/")[0]))
+    .map((b) => {
+      const [slug, mod, lec] = b.clave.split("/");
+      return {
+        clave: b.clave,
+        origen: `${tituloDe.get(slug)} · ${mod !== "1" ? `módulo ${mod}, ` : ""}lección ${lec}`,
+        preguntas: b.preguntas,
+      };
+    });
   const nombre = usuario.user_metadata?.display_name || usuario.email?.split("@")[0] || "";
   const leccionesHechas = detalles.reduce((a, d) => a + d.completadas, 0);
   const enCurso = detalles.filter((d) => d.pct < 100);
@@ -63,6 +80,11 @@ export default async function MiAprendizaje() {
             <button className="btn btn-fantasma" type="submit">Salir de mi cuenta</button>
           </form>
         </header>
+
+        <div className="mia-habitos">
+          <MetaSemanal fechas={fechasSemana} />
+          <RepasoEspaciado banco={banco} />
+        </div>
 
         {detalles.length === 0 ? (
           <section className="vacio vacio-mia" aria-labelledby="vacio-titulo">

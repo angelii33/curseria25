@@ -272,3 +272,16 @@ export async function getLeccion(slug: string, mod: number, lec: number) {
     ),
   };
 }
+
+/** Fechas en que el usuario completó lecciones en los últimos 7 días.
+ *  Pasa por RLS: cada quien solo ve su propio avance. */
+export async function miSemana(): Promise<string[]> {
+  const sb = await clienteServidor();
+  const desde = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const { data } = await sb
+    .from("lesson_progress")
+    .select("completed_at")
+    .eq("status", "completed")
+    .gte("completed_at", desde);
+  return (data ?? []).map((f) => f.completed_at as string).filter(Boolean);
+}

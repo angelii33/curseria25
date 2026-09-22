@@ -321,6 +321,11 @@ export default async function Inicio() {
             <div>
               <p className="sobretitulo">Qué hay dentro</p>
               <h2 className="t-titulo-1" id="incluye-titulo">Hecho para terminar, no para acumular</h2>
+              <p className="t-lectura incluye-bajada">
+                Cada lección usa técnicas con evidencia científica sobre cómo se aprende
+                de verdad: las mismas que usan las mejores plataformas del mundo,
+                pensadas para quien tiene un negocio y poco tiempo.
+              </p>
             </div>
             <ul className="incluye-lista">
               <li>
@@ -330,6 +335,22 @@ export default async function Inicio() {
               <li>
                 <strong>Plantillas para copiar.</strong> Mensajes, textos e
                 instrucciones para la IA, con botón de copiar.
+              </li>
+              <li>
+                <strong>Una pregunta antes de leer.</strong> Adivinar primero prepara la
+                cabeza para lo que viene, aunque falles.
+              </li>
+              <li>
+                <strong>Comprobación de memoria.</strong> Preguntas al terminar, con el
+                porqué de cada respuesta. Recordar fija más que releer.
+              </li>
+              <li>
+                <strong>Repaso espaciado.</strong> Las preguntas vuelven días después,
+                justo cuando empiezan a olvidarse.
+              </li>
+              <li>
+                <strong>Tu plan de cuándo hacerlo.</strong> Eliges día y hora, y te lo
+                llevas a tu calendario.
               </li>
               <li>
                 <strong>Tu cuaderno.</strong> Escribes tu versión en la misma página,

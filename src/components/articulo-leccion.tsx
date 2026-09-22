@@ -22,10 +22,19 @@ export function ArticuloLeccion({ html }: { html: string }) {
     const alClic = async (e: MouseEvent) => {
       const boton = (e.target as HTMLElement).closest<HTMLButtonElement>("[data-copiar]");
       if (!boton || !nodo.contains(boton)) return;
-      const bloque = boton.closest(".md-codigo, .md-plantilla");
+      const bloque = boton.closest(".md-codigo, .md-plantilla, .md-mensaje, .md-prompt");
       const fuente = bloque?.querySelector("pre, blockquote") as HTMLElement | null;
       if (!fuente) return;
-      const texto = fuente.innerText.trim();
+      // Se copia el texto tal cual se pegaría: sin las palomitas de «visto»
+      // ni otros adornos que solo existen en pantalla.
+      const copia = fuente.cloneNode(true) as HTMLElement;
+      copia.querySelectorAll("[aria-hidden='true']").forEach((n) => n.remove());
+      // Un nodo fuera del documento no tiene saltos de línea en innerText:
+      // se arman a mano, un renglón por párrafo, como en el teléfono.
+      const parrafos = Array.from(copia.querySelectorAll("p"));
+      const texto = (
+        parrafos.length ? parrafos.map((p) => p.textContent ?? "").join("\n") : copia.textContent ?? ""
+      ).trim();
       let ok = false;
       try {
         await navigator.clipboard.writeText(texto);

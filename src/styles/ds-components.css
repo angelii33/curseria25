@@ -418,3 +418,36 @@ textarea.campo { padding: 12px 14px; line-height: 1.55; resize: vertical; }
   animation: aparecer 420ms var(--curva-salida) both;
   animation-delay: calc(var(--i, 0) * 70ms);
 }
+
+/* ─── Pieza: materiales de detalle ────────────────────────────────────── */
+.pz-sombra { fill: rgba(34, 48, 31, 0.07); }
+.pz-bateria { fill: none; stroke: var(--tinta-media); stroke-width: 0.8; }
+.pz-tortilla { fill: #E9C98F; stroke: #C99B55; stroke-width: 0.8; }
+.pz-relleno { fill: none; stroke: #8E4A2A; stroke-width: 2.6; stroke-linecap: round; }
+.pz-cilantro { fill: #5E8A4A; }
+.pz-cebolla { fill: var(--lienzo); }
+.pz-cielo { fill: #DDE6EA; }
+.pz-muro { fill: #EFE3CF; }
+.pz-puerta { fill: var(--musgo-700); }
+.pz-vidrio { fill: #BCD0D6; }
+.pz-avatar { fill: var(--musgo-500); }
+.pz-avatar-2 { fill: var(--cobre-400); }
+.pz-manzana { fill: rgba(251, 249, 244, 0.55); }
+.pz-parque { fill: #C9D8B8; }
+.pz-onda { fill: rgba(156, 72, 28, 0.12); stroke: rgba(156, 72, 28, 0.35); stroke-width: 0.8; }
+.pz-tok { fill: #3F7A3A; }
+.pz-foto-c { fill: #EADFCB; }
+.pz-mesa { fill: #B58A5A; }
+.pz-foco { fill: #F2C66B; }
+.pz-divisor { stroke: var(--linea); stroke-width: 0.6; }
+.pz-tcobre { fill: var(--cobre-700); }
+.pz-tinv2 { fill: var(--musgo-200); }
+.pz-fondo-chat { fill: #EDE7DA; }
+.pz-sol { fill: #F2C66B; }
+.pz-tdia { fill: var(--tinta-tenue); }
+.pz-borde-cobre { fill: none; stroke: var(--cobre-400); stroke-width: 1; }
+.pz-doblez { fill: var(--papel-hundido); stroke: var(--linea-firme); stroke-width: 0.8; }
+.pz-tabla-cab { fill: var(--papel-hundido); }
+.pz-estampa-in { fill: none; stroke: var(--cobre-600); stroke-width: 0.7; }
+.pz-tendencia { fill: none; stroke: var(--cobre-600); stroke-width: 1.4; stroke-dasharray: 2 2; stroke-linecap: round; }
+.pieza .pz-pendiente .pz-sombra { display: none; }

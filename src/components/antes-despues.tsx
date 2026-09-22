@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Pieza, tienePieza } from "@/components/pieza";
+import { Pieza, tienePieza, telefono, sombra } from "@/components/pieza";
 import { editorialDe } from "@/lib/editorial";
 
 // «Hoy» contra «al terminar»: el problema dibujado junto a la pieza hecha.
@@ -30,6 +30,7 @@ const ANTES: Record<string, ReactNode> = {
   // El mapa con la competencia arriba y tu negocio sin aparecer.
   "tu-negocio-en-google": (
     <>
+      {sombra(10, 8, 300, 204, 12)}
       <rect x={10} y={8} width={300} height={204} rx={12} className="pz-hoja" />
       <rect x={24} y={20} width={272} height={24} rx={12} className="pz-chip" />
       <circle cx={40} cy={32} r={5} className="ad-lupa" />
@@ -56,8 +57,7 @@ const ANTES: Record<string, ReactNode> = {
   // La foto borrosa del menú y las mismas preguntas una y otra vez.
   "menu-con-link": (
     <>
-      <rect x={92} y={6} width={136} height={208} rx={16} className="pz-tel" />
-      <rect x={99} y={14} width={122} height={192} rx={10} className="pz-hoja" />
+      {telefono(92, 136)}
       <rect x={140} y={24} width={74} height={58} rx={6} className="ad-borrosa" />
       {[0, 1, 2, 3].map((i) => (
         <path key={i} d={`M146 ${36 + i * 11} q10 -4 20 0 t20 0 t20 0`} className="ad-garabato" />
@@ -76,10 +76,9 @@ const ANTES: Record<string, ReactNode> = {
   // Los chats acumulados mientras atiendes en persona.
   "whatsapp-que-contesta-solo": (
     <>
-      <rect x={92} y={6} width={136} height={208} rx={16} className="pz-tel" />
-      <rect x={99} y={14} width={122} height={192} rx={10} className="pz-hoja" />
-      <path d="M99 24a10 10 0 0 1 10-10h102a10 10 0 0 1 10 10v12H99z" className="pz-musgo" />
-      {T(108, 30, 8, "Chats", "pz-tinv", 700)}
+      {telefono(92, 136)}
+      <rect x={99} y={26} width={122} height={14} className="pz-musgo" />
+      {T(106, 36, 8, "Chats", "pz-tinv", 800)}
       {[12, 5, 8, 3, 9].map((n, i) => (
         <g key={i}>
           <circle cx={116} cy={52 + i * 30} r={9} className="pz-foto" />
@@ -99,6 +98,7 @@ const ANTES: Record<string, ReactNode> = {
   // El perfil que dice «hace 4 meses» y la cuadrícula vacía.
   "un-mes-de-publicaciones": (
     <>
+      {sombra(10, 8, 300, 204, 12)}
       <rect x={10} y={8} width={300} height={204} rx={12} className="pz-hoja" />
       <circle cx={42} cy={40} r={18} className="pz-foto" />
       {T(70, 36, 11, "elguero.tacos", "pz-t", 700)}
@@ -120,8 +120,7 @@ const ANTES: Record<string, ReactNode> = {
   // «Son como 4 mil, más o menos» y el cliente que se queda en visto.
   "cotiza-en-5-minutos": (
     <>
-      <rect x={92} y={6} width={136} height={208} rx={16} className="pz-tel" />
-      <rect x={99} y={14} width={122} height={192} rx={10} className="pz-hoja" />
+      {telefono(92, 136)}
       <rect x={105} y={28} width={84} height={22} rx={7} className="pz-burbuja" />
       {T(111, 42, 7, "¿Cuánto por el baño?", "pz-t", 500)}
       <rect x={123} y={58} width={92} height={32} rx={7} className="pz-burbuja-v" />
@@ -138,6 +137,7 @@ const ANTES: Record<string, ReactNode> = {
   // Contactos regados: notas sueltas, sin orden ni seguimiento.
   "ventas-con-ia": (
     <>
+      {sombra(6, 8, 308, 204, 12)}
       <rect x={6} y={8} width={308} height={204} rx={12} className="pz-hoja" />
       {[
         [30, 30, -8], [120, 22, 5], [210, 36, -3], [60, 104, 6], [160, 96, -6], [236, 120, 4], [104, 160, -4],

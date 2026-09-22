@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getLeccion, folio, precio } from "@/lib/catalogo";
-import { md, secciones } from "@/lib/md";
+import { md, secciones, esencial } from "@/lib/md";
 import { completarLeccion, completarMision } from "@/app/acciones";
 import { Quiz } from "@/components/quiz";
 import { Barra, Perforacion, Sello } from "@/components/ui";
@@ -18,6 +18,10 @@ import { ArticuloLeccion } from "@/components/articulo-leccion";
 import { Pieza } from "@/components/pieza";
 import { Aviso } from "@/components/aviso";
 import { editorialDe, partesDe } from "@/lib/editorial";
+import { practicaDe } from "@/lib/practica";
+import { PreguntaPrevia, Comprobacion } from "@/components/practica";
+import { LoEsencial } from "@/components/lo-esencial";
+import { PlanSiguiente } from "@/components/plan-siguiente";
 
 export const dynamic = "force-dynamic";
 
@@ -110,6 +114,12 @@ export default async function Leccion({
       </section>
     ) : null;
 
+  // Práctica basada en evidencia: pregunta previa, recuperación con
+  // retroalimentación y repaso espaciado. Solo donde hay banco escrito.
+  const clave = `${slug}/${m}/${l}`;
+  const practica = contenido ? practicaDe(slug, m, l) : null;
+  const resumen = contenido ? esencial(contenido) : null;
+
   const tituloSiguiente = tituloDe(siguiente);
   const siguienteAbierta = siguiente
     ? inscrito || Boolean(mapa.find((x) => x.mod === siguiente.mod && x.lec === siguiente.lec)?.gratis)
@@ -182,7 +192,15 @@ export default async function Leccion({
                 primeraSeccion={primera}
               />
 
+              {practica ? <PreguntaPrevia clave={clave} pregunta={practica.preguntas[0]} /> : null}
+
               <ArticuloLeccion html={md(contenido)} />
+
+              {resumen ? <LoEsencial ideas={resumen.ideas} cierre={resumen.cierre} /> : null}
+
+              {practica ? (
+                <Comprobacion clave={clave} preguntas={practica.preguntas} hayPrevia />
+              ) : null}
 
               {/* === APLICA === Cuaderno para trabajar mientras lee. Solo si
                   hay una misión que dé contexto al ejercicio. */}
@@ -232,6 +250,23 @@ export default async function Leccion({
 
               {quiz ? (
                 <Quiz quizId={quiz.id} preguntas={quiz.preguntas} minimo={quiz.minimo} intento={quiz.intento} />
+              ) : null}
+
+              {/* Intención de implementación: decidir cuándo se hace lo
+                  siguiente. Para quien sigue en el curso, la próxima lección;
+                  para quien no puede abrirla, aplicar lo de hoy. */}
+              {siguiente && tituloSiguiente && siguienteAbierta ? (
+                <PlanSiguiente
+                  clave={clave}
+                  accion={`abrir la lección ${posicion + 1}: ${tituloSiguiente}`}
+                  ruta={`/cursos/${slug}/${siguiente.mod}/${siguiente.lec}`}
+                />
+              ) : !inscrito ? (
+                <PlanSiguiente
+                  clave={clave}
+                  accion={`aplicar en mi negocio la lección «${leccion.title}»`}
+                  ruta={ruta}
+                />
               ) : null}
 
               {/* === CIERRE === Completar, celebrar y seguir. */}
