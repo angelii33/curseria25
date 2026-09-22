@@ -10,6 +10,7 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo, Newsreader } from "next/font/google";
 import "./globals.css";
+import "./curso-hero.css";
 import { MARCA } from "@/lib/marca";
 
 // Eje de ancho variable (wdth 62–125). Es lo que habilita la regla de los
