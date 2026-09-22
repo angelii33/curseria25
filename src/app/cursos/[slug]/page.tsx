@@ -6,6 +6,7 @@ import { inscribirse, emitirCertificado } from "@/app/acciones";
 import { Barra, Perforacion, Insignia, Sello, Pie } from "@/components/ui";
 import { Portada, varianteDe } from "@/components/portada";
 import { MARCA } from "@/lib/marca";
+import { PROBLEMA_POR_SLUG } from "@/lib/escenas";
 
 export const dynamic = "force-dynamic";
 
@@ -32,42 +33,71 @@ export default async function Curso({ params }: { params: Promise<{ slug: string
   const usuario = await usuarioActual();
   const { curso, modulos, precio_cents, moneda, inscrito, hechas, total, completadas, pct, siguiente } = d;
 
-  // Cada módulo se cuenta UNA vez. Sumarlo por lección infla el número.
   const minSemana = modulos.reduce((a, m) => a + (m.minutes_saved_weekly ?? 0), 0);
   const entregables = modulos.flatMap((m) =>
     m.lecciones.filter((l) => l.outcome).map((l) => l.outcome as string)
   );
-  const gratis = modulos.flatMap((m) => m.lecciones).filter((l) => l.is_preview).length;
+  const todasLecciones = modulos.flatMap((m) => m.lecciones);
+  const gratis = todasLecciones.filter((l) => l.is_preview).length;
+  const primeraGratis = todasLecciones.find((l) => l.is_preview);
+  const problema = PROBLEMA_POR_SLUG[curso.slug] ?? null;
+  const nivel =
+    curso.level === "beginner" ? "Principiante"
+    : curso.level === "intermediate" ? "Intermedio"
+    : curso.level === "advanced" ? "Avanzado"
+    : curso.level;
 
   return (
     <>
       <Barra volver={{ href: "/", texto: "Todos los cursos" }} />
-      <main className="marco" style={{ paddingBlock: "var(--e-8)" }}>
-        <div className="t-folio">
-          {curso.level === "beginner" ? "Principiante" : curso.level} · {modulos.length} módulos
-        </div>
-        <h1 className="t-titulo-1" style={{ marginTop: "var(--e-3)" }}>{curso.title}</h1>
-        {!inscrito && (
-          <div className="portada-curso" style={{ marginTop: "var(--e-6)" }}>
-            <Portada
-              id="pcurso"
-              piezas={total}
-              variante={varianteDe(curso.slug)}
-              slug={curso.slug}
-              imagen={curso.cover_url}
-              alt=""
-              contexto="cabecera"
-              prioridad
-            />
-          </div>
-        )}
-        {curso.subtitle && (
-          <p className="t-lectura-guia" style={{ marginTop: "var(--e-5)", color: "var(--tinta-media)" }}>
-            {curso.subtitle}
-          </p>
-        )}
+      <main className="marco" style={{ paddingBlock: "var(--e-7)" }}>
 
-        <section className="superficie" style={{ marginTop: "var(--e-7)" }}>
+        {/* ─── HERO DEL CURSO ─── */}
+        <header className="curso-hero">
+          <div className="curso-hero-meta">
+            <span className="t-folio">{nivel}</span>
+            <span className="t-folio" aria-hidden="true">·</span>
+            <span className="t-folio">{modulos.length} {modulos.length === 1 ? "módulo" : "módulos"}</span>
+            <span className="t-folio" aria-hidden="true">·</span>
+            <span className="t-folio">{total} lecciones</span>
+            {curso.duration_minutes ? (
+              <>
+                <span className="t-folio" aria-hidden="true">·</span>
+                <span className="t-folio">{horas(curso.duration_minutes)}</span>
+              </>
+            ) : null}
+          </div>
+
+          {problema && (
+            <p className="curso-hero-problema t-dato">{problema}</p>
+          )}
+
+          <h1 className="t-titulo-1 curso-hero-titulo">{curso.title}</h1>
+
+          {curso.subtitle && (
+            <p className="t-lectura-guia curso-hero-subtitulo">
+              {curso.subtitle}
+            </p>
+          )}
+
+          {!inscrito && (
+            <div className="portada-curso curso-hero-portada">
+              <Portada
+                id="pcurso"
+                piezas={total}
+                variante={varianteDe(curso.slug)}
+                slug={curso.slug}
+                imagen={curso.cover_url}
+                alt=""
+                contexto="cabecera"
+                prioridad
+              />
+            </div>
+          )}
+        </header>
+
+        {/* ─── CTA PRINCIPAL / PROGRESO ─── */}
+        <section className="superficie curso-cta-card" aria-label={inscrito ? "Tu avance" : "Inscripción"}>
           {inscrito ? (
             <>
               <div className="t-dato">Tu avance</div>
@@ -84,7 +114,10 @@ export default async function Curso({ params }: { params: Promise<{ slug: string
                   <h2 className="t-titulo-4" style={{ margin: "var(--e-2) 0 var(--e-5)" }}>
                     {siguiente.title}
                   </h2>
-                  <Link className="btn btn-primario" href={`/cursos/${slug}/${siguiente.mod}/${siguiente.lec}`}>
+                  <Link
+                    className="btn btn-primario"
+                    href={`/cursos/${slug}/${siguiente.mod}/${siguiente.lec}`}
+                  >
                     Continuar donde ibas
                   </Link>
                 </>
@@ -111,35 +144,49 @@ export default async function Curso({ params }: { params: Promise<{ slug: string
                   <Insignia tono="precio">{precio(precio_cents, moneda)}</Insignia>
                 )}
                 <span className="t-dato" style={{ color: "var(--tinta-media)" }}>
-                  {total} lecciones{curso.duration_minutes ? ` · ${horas(curso.duration_minutes)}` : ""} · acceso sin caducidad
+                  Acceso sin caducidad
                 </span>
               </div>
+
               <Perforacion sangrada />
-              <form action={inscribirse}>
+
+              <form action={inscribirse} className="curso-cta-form">
                 <input type="hidden" name="curso_id" value={curso.id} />
                 <input type="hidden" name="slug" value={slug} />
                 <button className="btn btn-primario" type="submit">
-                  {usuario ? "Inscribirme" : "Entrar e inscribirme"}
+                  {usuario ? "Inscribirme al curso" : "Entrar e inscribirme"}
                 </button>
               </form>
-              <p className="t-dato" style={{ marginTop: "var(--e-4)", color: "var(--tinta-tenue)" }}>
-                {gratis > 0
-                  ? `${gratis} lecciones abiertas sin inscripción. Léelas antes de decidir.`
-                  : "Acceso inmediato en cuanto te inscribes."}
-              </p>
+
+              {gratis > 0 && primeraGratis && (
+                <p className="curso-cta-gratis t-dato">
+                  <Insignia tono="estado">{gratis} {gratis === 1 ? "lección gratis" : "lecciones gratis"}</Insignia>
+                  {" "}
+                  <Link href={`/cursos/${slug}/${modulos.find(m => m.lecciones.some(l => l.id === primeraGratis.id))?.sort_order ?? 1}/${primeraGratis.sort_order}`} className="curso-cta-gratis-link">
+                    Empieza por «{primeraGratis.title}» sin registrarte
+                  </Link>
+                </p>
+              )}
+
+              {gratis === 0 && (
+                <p className="t-dato" style={{ marginTop: "var(--e-4)", color: "var(--tinta-tenue)" }}>
+                  Acceso inmediato en cuanto te inscribes.
+                </p>
+              )}
             </>
           )}
         </section>
 
+        {/* ─── LO QUE TE LLEVAS ─── */}
         {!inscrito && entregables.length > 0 && (
-          <section className="superficie" style={{ marginTop: "var(--e-7)" }}>
+          <section className="superficie curso-entregables" style={{ marginTop: "var(--e-7)" }}>
             <div className="t-folio">Lo que te llevas</div>
             <h2 className="t-titulo-2" style={{ marginTop: "var(--e-2)" }}>
-              {entregables.length} piezas listas, no {entregables.length} videos
+              {entregables.length} {entregables.length === 1 ? "pieza lista" : "piezas listas"}, no {entregables.length} {entregables.length === 1 ? "video" : "videos"}
             </h2>
             <p className="t-cuerpo" style={{ marginTop: "var(--e-4)", color: "var(--tinta-media)", maxWidth: "62ch" }}>
-              Cada lección termina con algo hecho y aplicado a tu negocio. Esta es
-              la lista completa, sin adornos:
+              Cada lección termina con algo hecho y aplicado a tu negocio.
+              Esta es la lista completa:
             </p>
 
             <Perforacion sangrada />
@@ -167,7 +214,13 @@ export default async function Curso({ params }: { params: Promise<{ slug: string
           </section>
         )}
 
-        <h2 className="t-titulo-2" style={{ margin: "var(--e-8) 0 var(--e-5)" }}>Temario</h2>
+        {/* ─── TEMARIO ─── */}
+        <div className="curso-temario-cab">
+          <h2 className="t-titulo-2">Temario</h2>
+          <p className="t-dato" style={{ color: "var(--tinta-media)" }}>
+            {total} lecciones · {gratis > 0 ? `${gratis} abiertas sin inscripción` : "acceso completo al inscribirte"}
+          </p>
+        </div>
 
         {modulos.map((m) => (
           <section key={m.id} className="modulo superficie">
@@ -177,8 +230,15 @@ export default async function Curso({ params }: { params: Promise<{ slug: string
                   <div>
                     <div className="t-folio">Módulo {String(m.sort_order).padStart(2, "0")}</div>
                     <h3 className="t-titulo-3" style={{ marginTop: "var(--e-2)" }}>{m.title}</h3>
+                    {m.capability && (
+                      <p className="t-dato" style={{ marginTop: "var(--e-2)", color: "var(--tinta-media)" }}>
+                        {m.capability}
+                      </p>
+                    )}
                   </div>
-                  {!!m.minutes_saved_weekly && <Insignia>{m.minutes_saved_weekly} min/semana</Insignia>}
+                  {!!m.minutes_saved_weekly && (
+                    <Insignia>{m.minutes_saved_weekly} min/semana</Insignia>
+                  )}
                 </div>
                 <Perforacion sangrada />
               </>
@@ -190,12 +250,12 @@ export default async function Curso({ params }: { params: Promise<{ slug: string
               const cuerpo = (
                 <>
                   <Sello estado={hecha ? "logrado" : abierta ? "pendiente" : "bloqueado"} />
-                  <span>
+                  <span className="leccion-cuerpo">
                     <span className="t-folio">{folio(m.sort_order, l.sort_order)}</span>
                     <span className="leccion-t">{l.title}</span>
                     {l.outcome && <span className="leccion-o t-dato">{l.outcome}</span>}
                   </span>
-                  <span className="t-dato" style={{ color: "var(--tinta-tenue)", whiteSpace: "nowrap" }}>
+                  <span className="leccion-meta t-dato">
                     {!inscrito && l.is_preview
                       ? <Insignia tono="estado">Gratis</Insignia>
                       : l.duration_minutes ? `${l.duration_minutes} min` : ""}
@@ -216,6 +276,37 @@ export default async function Curso({ params }: { params: Promise<{ slug: string
             })}
           </section>
         ))}
+
+        {/* ─── CTA FINAL (solo no inscritos) ─── */}
+        {!inscrito && (
+          <section className="superficie curso-cta-final" style={{ marginTop: "var(--e-8)" }}>
+            <div className="t-folio">Listo para empezar</div>
+            <h2 className="t-titulo-3" style={{ marginTop: "var(--e-2)" }}>
+              {problema
+                ? `Resuelve «${problema.toLowerCase()}» con este curso`
+                : `Empieza ${curso.title}`}
+            </h2>
+            <p className="t-cuerpo" style={{ marginTop: "var(--e-4)", color: "var(--tinta-media)", maxWidth: "52ch" }}>
+              {gratis > 0
+                ? `Prueba las ${gratis} lecciones abiertas. Si te sirve, te inscribes y sigues con el resto.`
+                : "Acceso inmediato a todas las lecciones, misiones y entregables."}
+            </p>
+            <Perforacion sangrada />
+            <div className="curso-cta-final-acciones">
+              {precio_cents !== null && (
+                <Insignia tono="precio">{precio(precio_cents, moneda)}</Insignia>
+              )}
+              <form action={inscribirse}>
+                <input type="hidden" name="curso_id" value={curso.id} />
+                <input type="hidden" name="slug" value={slug} />
+                <button className="btn btn-primario" type="submit">
+                  {usuario ? "Inscribirme" : "Entrar e inscribirme"}
+                </button>
+              </form>
+            </div>
+          </section>
+        )}
+
       </main>
       <Pie />
     </>
