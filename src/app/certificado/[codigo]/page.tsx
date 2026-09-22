@@ -21,9 +21,9 @@ export async function generateMetadata({
 }) {
   const { codigo } = await params;
   const cert = await getCertificado(codigo);
-  if (!cert) return { title: `Certificado no encontrado — ${MARCA.nombre}` };
+  if (!cert) return { title: "Certificado no encontrado" };
   return {
-    title: `Certificado · ${cert.course_title} — ${MARCA.nombre}`,
+    title: `Certificado · ${cert.course_title}`,
     description: `Certificado verificado de ${cert.course_title}, emitido por ${MARCA.nombre}.`,
   };
 }
@@ -45,7 +45,7 @@ export default async function Certificado({
   return (
     <>
       <Barra volver={{ href: "/", texto: "Cursos" }} />
-      <main className="marco" style={{ paddingBlock: "var(--e-9)" }}>
+      <main id="contenido" className="marco" style={{ paddingBlock: "var(--e-9)" }}>
         <div style={{ maxWidth: "62ch", marginInline: "auto" }}>
           <div className="t-folio" style={{ textAlign: "center" }}>
             Certificado verificado

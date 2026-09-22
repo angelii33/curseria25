@@ -57,13 +57,13 @@ export function Formulario({ volver }: { volver?: string }) {
             <input id="c-clave" name="clave" type="password" required className="campo"
               style={{ marginTop: "var(--e-3)" }} autoComplete="current-password" />
           </div>
-          {claveEstado.error && <p className="t-cuerpo aviso-falla">{claveEstado.error}</p>}
-          <button className="btn btn-primario" disabled={entrandoClave}>
+          {claveEstado.error && <p className="t-cuerpo aviso-falla" role="alert">{claveEstado.error}</p>}
+          <button className="btn btn-primario btn-bloque" disabled={entrandoClave}>
             {entrandoClave ? "Comprobando…" : "Entrar"}
           </button>
         </form>
         <div className="perforacion perforacion-sangrada" />
-        <button className="btn btn-fantasma" type="button" onClick={() => setModo("codigo")}>
+        <button className="btn btn-fantasma btn-bloque" type="button" onClick={() => setModo("codigo")}>
           Mejor mándame un código
         </button>
       </div>
@@ -110,15 +110,15 @@ export function Formulario({ volver }: { volver?: string }) {
             />
           </div>
 
-          {correoEstado.error && <p className="t-cuerpo aviso-falla">{correoEstado.error}</p>}
+          {correoEstado.error && <p className="t-cuerpo aviso-falla" role="alert">{correoEstado.error}</p>}
 
-          <button className="btn btn-primario" disabled={pidiendo}>
+          <button className="btn btn-primario btn-bloque" disabled={pidiendo}>
             {pidiendo ? "Enviando…" : "Mandarme el código"}
           </button>
         </form>
 
         <div className="perforacion perforacion-sangrada" />
-        <button className="btn btn-fantasma" type="button" onClick={() => setModo("clave")}>
+        <button className="btn btn-fantasma btn-bloque" type="button" onClick={() => setModo("clave")}>
           Ya tengo contraseña, entrar con ella
         </button>
       </div>
@@ -156,9 +156,9 @@ export function Formulario({ volver }: { volver?: string }) {
           />
         </div>
 
-        {codigoEstado.error && <p className="t-cuerpo aviso-falla">{codigoEstado.error}</p>}
+        {codigoEstado.error && <p className="t-cuerpo aviso-falla" role="alert">{codigoEstado.error}</p>}
 
-        <button className="btn btn-primario" disabled={verificando}>
+        <button className="btn btn-primario btn-bloque" disabled={verificando}>
           {verificando ? "Comprobando…" : "Entrar"}
         </button>
       </form>
@@ -167,7 +167,7 @@ export function Formulario({ volver }: { volver?: string }) {
 
       <form action={pedir}>
         <input type="hidden" name="correo" value={correo} />
-        <button className="btn btn-fantasma" type="submit" disabled={pidiendo}>
+        <button className="btn btn-fantasma btn-bloque" type="submit" disabled={pidiendo}>
           {pidiendo ? "Enviando…" : "No me llegó, mándalo otra vez"}
         </button>
       </form>

@@ -9,6 +9,7 @@ function mensaje(error: string): string {
   const t = error.toLowerCase();
   if (t.includes("not_authenticated")) return "Necesitas iniciar sesión para esto.";
   if (t.includes("not_authorized_for_course")) return "Necesitas acceso a este curso para continuar.";
+  if (t.includes("payment_required")) return "Este curso requiere compra antes de inscribirte.";
   if (t.includes("course_not_published")) return "Este curso no está disponible ahora mismo.";
   if (t.includes("course_not_completed")) return "Termina las lecciones que faltan para emitir tu certificado.";
   if (t.includes("quizzes_not_passed")) return "Aprueba todos los quizzes del curso para emitir tu certificado.";
@@ -19,6 +20,12 @@ function mensaje(error: string): string {
   if (t.includes("email not confirmed")) return "Confirma tu correo con el enlace que te enviamos y vuelve a entrar.";
   if (t.includes("for security purposes")) return "Espera un minuto antes de volver a intentarlo.";
   return "Algo salió mal. Vuelve a intentarlo.";
+}
+
+/** Solo rutas internas. Un campo oculto del formulario lo puede editar
+ *  cualquiera: sin esto, `redirect()` serviría de trampolín a otro sitio. */
+function rutaInterna(ruta: string, porDefecto = "/"): string {
+  return ruta.startsWith("/") && !ruta.startsWith("//") && !ruta.includes("\\") ? ruta : porDefecto;
 }
 
 export type Estado = { error?: string; aviso?: string; enviado?: boolean; correo?: string };
@@ -61,7 +68,7 @@ export async function verificarCodigo(_prev: Estado, datos: FormData): Promise<E
 
   const volver = String(datos.get("volver") ?? "");
   revalidatePath("/", "layout");
-  redirect(volver.startsWith("/") ? volver : "/mi-aprendizaje");
+  redirect(rutaInterna(volver, "/mi-aprendizaje"));
 }
 
 /** Vía de respaldo: contraseña. Se mantiene mientras el correo por código
@@ -77,7 +84,7 @@ export async function entrarConClave(_prev: Estado, datos: FormData): Promise<Es
 
   const volver = String(datos.get("volver") ?? "");
   revalidatePath("/", "layout");
-  redirect(volver.startsWith("/") ? volver : "/mi-aprendizaje");
+  redirect(rutaInterna(volver, "/mi-aprendizaje"));
 }
 
 export async function salir() {
@@ -97,10 +104,17 @@ export async function inscribirse(datos: FormData) {
   if (!usuario.user) redirect(`/entrar?volver=/cursos/${slug}`);
 
   const { error } = await sb.rpc("enroll_in_course", { check_course_id: cursoId });
-  if (error) throw new Error(mensaje(error.message));
+  if (error) {
+    // Curso de pago sin compra registrada: no es un fallo, es un estado.
+    // Se vuelve al curso con un aviso claro en vez de romper la página.
+    if (error.message.toLowerCase().includes("payment_required")) {
+      redirect(`/cursos/${slug}?acceso=pendiente#comprar`);
+    }
+    throw new Error(mensaje(error.message));
+  }
 
   revalidatePath("/", "layout");
-  redirect(`/cursos/${slug}`);
+  redirect(`/cursos/${slug}?bienvenida=1`);
 }
 
 /** Marca la lección. El backend valida el acceso antes de escribir. */
@@ -113,7 +127,8 @@ export async function completarLeccion(datos: FormData) {
   if (error) throw new Error(mensaje(error.message));
 
   revalidatePath("/", "layout");
-  redirect(ruta);
+  // ?hecha=1 dispara el aviso breve de «lección completada» en la página.
+  redirect(`${rutaInterna(ruta)}?hecha=1#cierre`);
 }
 
 export type ResultadoQuiz = {
@@ -164,7 +179,7 @@ export async function completarMision(datos: FormData) {
   if (error) throw new Error(mensaje(error.message));
 
   revalidatePath("/", "layout");
-  redirect(ruta);
+  redirect(`${rutaInterna(ruta)}?mision=1#comprueba`);
 }
 
 /**

@@ -9,8 +9,9 @@ import { useEffect, useState } from "react";
 // cierre a la mitad. Con el índice, el alumno ve el tamaño real del camino
 // (cinco secciones, no un muro) y por dónde va.
 //
-// Usa IntersectionObserver, que es nativo del navegador: cero dependencias
-// nuevas y cero coste de descarga.
+// En el teléfono vive pegado bajo la barra, plegado: una línea con la
+// sección actual y el avance. En escritorio va en la columna lateral con la
+// lista completa. Usa IntersectionObserver, nativo del navegador.
 
 export function IndiceLeccion({
   secciones,
@@ -20,6 +21,7 @@ export function IndiceLeccion({
   const [activa, setActiva] = useState<string | null>(
     secciones.length ? secciones[0].id : null
   );
+  const [abierto, setAbierto] = useState(false);
 
   useEffect(() => {
     if (!secciones.length) return;
@@ -36,7 +38,7 @@ export function IndiceLeccion({
       },
       // El margen superior descuenta la barra fija; sin él, la sección se
       // marca activa cuando todavía está tapada por la barra.
-      { rootMargin: "-88px 0px -55% 0px", threshold: 0 }
+      { rootMargin: "-120px 0px -55% 0px", threshold: 0 }
     );
 
     const nodos = secciones
@@ -50,28 +52,40 @@ export function IndiceLeccion({
   if (secciones.length < 2) return null;
 
   const i = secciones.findIndex((s) => s.id === activa);
-  const pct = i >= 0 ? Math.round(((i + 1) / secciones.length) * 100) : 0;
+  const pos = i >= 0 ? i + 1 : 1;
+  const pct = Math.round((pos / secciones.length) * 100);
 
   return (
     <nav className="indice" aria-label="Secciones de la lección">
-      <div className="indice-cab">
-        <p className="t-folio">En esta lección</p>
-        <p className="t-dato indice-pos">
-          {i >= 0 ? i + 1 : 1} de {secciones.length}
-        </p>
-      </div>
+      <button
+        type="button"
+        className="indice-cab"
+        aria-expanded={abierto}
+        aria-controls="indice-lista"
+        onClick={() => setAbierto((v) => !v)}
+      >
+        <span className="indice-cab-texto">
+          <span className="t-folio">
+            Sección {pos} de {secciones.length}
+          </span>
+          <span className="indice-actual">{secciones[pos - 1]?.titulo}</span>
+        </span>
+        <span className="indice-flecha" aria-hidden="true" />
+      </button>
+      <p className="t-folio indice-titulo">En esta lección</p>
 
       <div className="pista indice-pista" aria-hidden="true">
         <span style={{ width: `${pct}%` }} />
       </div>
 
-      <ol className="indice-lista">
-        {secciones.map((s) => (
+      <ol id="indice-lista" className={`indice-lista ${abierto ? "" : "indice-plegada"}`}>
+        {secciones.map((s, k) => (
           <li key={s.id}>
             <a
               href={`#${s.id}`}
-              className={`indice-enlace ${s.id === activa ? "indice-activa" : ""}`}
-              aria-current={s.id === activa ? "true" : undefined}
+              className={`indice-enlace ${s.id === activa ? "indice-activa" : ""} ${k < pos - 1 ? "indice-leida" : ""}`}
+              aria-current={s.id === activa ? "location" : undefined}
+              onClick={() => setAbierto(false)}
             >
               {s.titulo}
             </a>

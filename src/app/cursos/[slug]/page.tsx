@@ -1,312 +1,452 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { getCurso, precio, horas, folio } from "@/lib/catalogo";
 import { usuarioActual } from "@/lib/supabase/server";
 import { inscribirse, emitirCertificado } from "@/app/acciones";
-import { Barra, Perforacion, Insignia, Sello, Pie } from "@/components/ui";
-import { Portada, varianteDe } from "@/components/portada";
+import { Barra, Pie } from "@/components/ui";
+import { MediaCurso } from "@/components/curso-ficha";
+import { PiezaPartes } from "@/components/pieza-partes";
+import { Temario } from "@/components/temario";
+import { Preguntas } from "@/components/preguntas";
+import { Aviso } from "@/components/aviso";
+import { ETAPAS, NIVEL, editorialDe, partesDe } from "@/lib/editorial";
 import { MARCA } from "@/lib/marca";
-import { PROBLEMA_POR_SLUG } from "@/lib/escenas";
+import { URL_SITIO } from "@/lib/sitio";
 
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
   const { slug } = await params;
   const d = await getCurso(slug);
   if (!d) return { title: "Curso no encontrado" };
+  const ed = editorialDe(slug);
+  const descripcion = ed
+    ? `${d.curso.subtitle ? `${d.curso.subtitle}. ` : ""}Sales con: ${ed.pieza.nombre.toLowerCase()}. ${d.total} lecciones prácticas.`
+    : d.curso.subtitle ?? MARCA.descripcionCorta;
   return {
-    title: `${d.curso.title} — ${MARCA.nombre}`,
-    description: d.curso.subtitle ?? undefined,
-    openGraph: {
-      title: d.curso.title,
-      description: d.curso.subtitle ?? undefined,
-      type: "website" as const,
-    },
+    title: d.curso.title,
+    description: descripcion,
+    alternates: { canonical: `/cursos/${slug}` },
+    openGraph: { title: d.curso.title, description: descripcion, type: "website", url: `/cursos/${slug}` },
+    twitter: { card: "summary_large_image", title: d.curso.title, description: descripcion },
   };
 }
 
-export default async function Curso({ params }: { params: Promise<{ slug: string }> }) {
+export default async function Curso({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ acceso?: string; bienvenida?: string }>;
+}) {
   const { slug } = await params;
+  const { acceso, bienvenida } = await searchParams;
   const d = await getCurso(slug);
   if (!d) notFound();
 
   const usuario = await usuarioActual();
   const { curso, modulos, precio_cents, moneda, inscrito, hechas, total, completadas, pct, siguiente } = d;
+  const ed = editorialDe(slug);
+  const partes = partesDe(slug, modulos, hechas);
 
-  const minSemana = modulos.reduce((a, m) => a + (m.minutes_saved_weekly ?? 0), 0);
-  const entregables = modulos.flatMap((m) =>
-    m.lecciones.filter((l) => l.outcome).map((l) => l.outcome as string)
+  const todas = modulos.flatMap((m) => m.lecciones.map((l) => ({ ...l, mod: m.sort_order })));
+  const abiertas = todas.filter((l) => l.is_preview);
+  const primera = abiertas[0] ?? null;
+  const rutaPrimera = primera ? `/cursos/${slug}/${primera.mod}/${primera.sort_order}` : null;
+  const siguienteLeccion = siguiente
+    ? todas.find((l) => l.mod === siguiente.mod && l.sort_order === siguiente.lec)
+    : null;
+  const terminado = inscrito && total > 0 && completadas >= total;
+  const esPago = precio_cents !== null && precio_cents > 0;
+  const precioTexto = precio_cents !== null ? precio(precio_cents, moneda) : null;
+  const nivel = curso.level ? NIVEL[curso.level] ?? curso.level : null;
+  const pagoPendiente = acceso === "pendiente" && !inscrito;
+
+  const botonCompra = (
+    <form action={inscribirse}>
+      <input type="hidden" name="curso_id" value={curso.id} />
+      <input type="hidden" name="slug" value={slug} />
+      <button className={`btn ${rutaPrimera ? "btn-secundario" : "btn-primario"} btn-bloque`} type="submit">
+        {esPago ? "Obtener el curso completo" : "Inscribirme gratis"}
+      </button>
+    </form>
   );
-  const todasLecciones = modulos.flatMap((m) => m.lecciones);
-  const gratis = todasLecciones.filter((l) => l.is_preview).length;
-  const primeraGratis = todasLecciones.find((l) => l.is_preview);
-  const problema = PROBLEMA_POR_SLUG[curso.slug] ?? null;
-  const nivel =
-    curso.level === "beginner" ? "Principiante"
-    : curso.level === "intermediate" ? "Intermedio"
-    : curso.level === "advanced" ? "Avanzado"
-    : curso.level;
+
+  // Datos estructurados: permiten que Google muestre el curso como curso,
+  // con su proveedor y su precio reales. Nada que no esté en la base.
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    name: curso.title,
+    description: curso.subtitle ?? ed?.promesa ?? MARCA.descripcionCorta,
+    url: `${URL_SITIO}/cursos/${slug}`,
+    inLanguage: "es-MX",
+    provider: { "@type": "Organization", name: MARCA.nombre, url: URL_SITIO },
+    ...(precio_cents !== null
+      ? {
+          offers: {
+            "@type": "Offer",
+            price: (precio_cents / 100).toFixed(2),
+            priceCurrency: moneda,
+            category: esPago ? "Paid" : "Free",
+          },
+        }
+      : {}),
+    hasCourseInstance: {
+      "@type": "CourseInstance",
+      courseMode: "online",
+      ...(curso.duration_minutes ? { courseWorkload: `PT${curso.duration_minutes}M` } : {}),
+    },
+  };
 
   return (
     <>
-      <Barra volver={{ href: "/", texto: "Todos los cursos" }} />
-      <main className="marco" style={{ paddingBlock: "var(--e-7)" }}>
+      <Barra volver={{ href: "/#cursos", texto: "Cursos" }} />
+      <main id="contenido" className="pagina-curso">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
+        />
 
-        {/* ─── HERO DEL CURSO ─── */}
-        <header className="curso-hero">
-          <div className="curso-hero-meta">
-            <span className="t-folio">{nivel}</span>
-            <span className="t-folio" aria-hidden="true">·</span>
-            <span className="t-folio">{modulos.length} {modulos.length === 1 ? "módulo" : "módulos"}</span>
-            <span className="t-folio" aria-hidden="true">·</span>
-            <span className="t-folio">{total} lecciones</span>
-            {curso.duration_minutes ? (
-              <>
-                <span className="t-folio" aria-hidden="true">·</span>
-                <span className="t-folio">{horas(curso.duration_minutes)}</span>
-              </>
-            ) : null}
-          </div>
+        {/* ─── HERO: problema, curso, resultado, acción ─── */}
+        <header className="curso-cab">
+          <div className="marco curso-cab-in">
+            <div className="curso-cab-texto">
+              <nav aria-label="Ruta" className="migas">
+                <Link href="/#cursos">Cursos</Link>
+                {ed ? (
+                  <>
+                    <span aria-hidden="true">/</span>
+                    <span>{ETAPAS[ed.etapa].titulo}</span>
+                  </>
+                ) : null}
+              </nav>
+              {ed ? <p className="curso-problema">«{ed.problema}»</p> : null}
+              <h1 className="t-rotulo curso-titulo">{curso.title}</h1>
+              {curso.subtitle ? <p className="t-lectura-guia curso-bajada">{curso.subtitle}</p> : null}
+              {ed ? (
+                <p className="curso-sales">
+                  <span className="curso-sales-et">Sales con</span>
+                  <strong>{ed.pieza.nombre}</strong>
+                </p>
+              ) : null}
 
-          {problema && (
-            <p className="curso-hero-problema t-dato">{problema}</p>
-          )}
+              <dl className="curso-datos">
+                <div>
+                  <dt>Lecciones</dt>
+                  <dd>{total}</dd>
+                </div>
+                {curso.duration_minutes ? (
+                  <div>
+                    <dt>Tiempo total</dt>
+                    <dd>{horas(curso.duration_minutes)}</dd>
+                  </div>
+                ) : null}
+                {nivel ? (
+                  <div>
+                    <dt>Nivel</dt>
+                    <dd>{nivel}</dd>
+                  </div>
+                ) : null}
+                <div>
+                  <dt>Acceso</dt>
+                  <dd>Sin caducidad</dd>
+                </div>
+              </dl>
+            </div>
 
-          <h1 className="t-titulo-1 curso-hero-titulo">{curso.title}</h1>
-
-          {curso.subtitle && (
-            <p className="t-lectura-guia curso-hero-subtitulo">
-              {curso.subtitle}
-            </p>
-          )}
-
-          {!inscrito && (
-            <div className="portada-curso curso-hero-portada">
-              <Portada
-                id="pcurso"
-                piezas={total}
-                variante={varianteDe(curso.slug)}
-                slug={curso.slug}
-                imagen={curso.cover_url}
-                alt=""
+            <div className="curso-cab-media">
+              <MediaCurso
+                slug={slug}
+                cover={curso.cover_url}
+                lecciones={total}
+                titulo={curso.title}
                 contexto="cabecera"
                 prioridad
               />
             </div>
-          )}
+          </div>
         </header>
 
-        {/* ─── CTA PRINCIPAL / PROGRESO ─── */}
-        <section className="superficie curso-cta-card" aria-label={inscrito ? "Tu avance" : "Inscripción"}>
-          {inscrito ? (
-            <>
-              <div className="t-dato">Tu avance</div>
-              <div className="pista" style={{ marginTop: "var(--e-3)" }}>
-                <span style={{ width: `${pct}%` }} />
-              </div>
-              <div className="t-dato" style={{ marginTop: "var(--e-3)", color: "var(--tinta-media)" }}>
-                {completadas} de {total} lecciones · {pct}%
-              </div>
-              {siguiente ? (
-                <>
-                  <Perforacion sangrada />
-                  <div className="t-folio">{folio(siguiente.mod, siguiente.lec)}</div>
-                  <h2 className="t-titulo-4" style={{ margin: "var(--e-2) 0 var(--e-5)" }}>
-                    {siguiente.title}
+        <div className="marco curso-cuerpo">
+          <div className="curso-principal">
+            {bienvenida && inscrito ? (
+              <Aviso tono="logrado" titulo="Ya estás dentro">
+                El curso completo quedó en tu cuenta. Empieza por la lección 1 o sigue
+                donde ibas.
+              </Aviso>
+            ) : null}
+
+            {/* ─── LO QUE TE LLEVAS ─── */}
+            {ed && partes ? (
+              <section className="bloque" aria-labelledby="pieza-titulo">
+                <p className="sobretitulo">{inscrito ? "Tu pieza" : "Lo que vas a tener terminado"}</p>
+                <h2 className="t-titulo-2 pieza-titular" id="pieza-titulo">
+                  {inscrito ? ed.pieza.nombre : ed.promesa}
+                </h2>
+                <p className="t-lectura bloque-bajada">
+                  {inscrito
+                    ? terminado
+                      ? "Construiste todas las partes. Esto ya trabaja para tu negocio."
+                      : `Cada ${ed.pieza.porModulo ? "módulo" : "lección"} construye una parte. Así va la tuya.`
+                    : `Cada ${ed.pieza.porModulo ? "módulo" : "lección"} construye una parte de la pieza. Al terminar no tienes apuntes: tienes esto funcionando en tu negocio.`}
+                </p>
+                <PiezaPartes
+                  slug={slug}
+                  nombre={ed.pieza.nombre}
+                  partes={partes}
+                  modo={inscrito ? "avance" : "venta"}
+                  etiquetaParte={ed.pieza.porModulo ? "Módulo" : "Lección"}
+                />
+              </section>
+            ) : null}
+
+            {/* ─── PARA QUIÉN ES ─── */}
+            {ed && !inscrito ? (
+              <section className="bloque para-quien" aria-labelledby="quien-titulo">
+                <div>
+                  <p className="sobretitulo">Para quién es</p>
+                  <h2 className="t-titulo-2" id="quien-titulo">Este curso es para ti si…</h2>
+                  <ul className="lista-check">
+                    {ed.paraQuien.map((p) => (
+                      <li key={p}>{p}</li>
+                    ))}
+                  </ul>
+                  <p className="t-cuerpo no-es">
+                    <strong>No es para ti si…</strong> {ed.noEsPara.charAt(0).toLowerCase() + ed.noEsPara.slice(1)}
+                  </p>
+                </div>
+                <div className="necesitas">
+                  <p className="sobretitulo">Vas a necesitar</p>
+                  <ul>
+                    {ed.necesitas.map((n) => (
+                      <li key={n}>{n}</li>
+                    ))}
+                  </ul>
+                  <p className="t-dato necesitas-nota">Nada más. Nada que instalar en la computadora.</p>
+                </div>
+              </section>
+            ) : null}
+
+            {/* ─── EMPIEZA GRATIS ─── */}
+            {!inscrito && primera && rutaPrimera ? (
+              <section className="bloque gratis-destacada" aria-labelledby="gratis-titulo">
+                <div className="gratis-destacada-in">
+                  <p className="sobretitulo">Pruébalo sin registrarte</p>
+                  <h2 className="t-titulo-2" id="gratis-titulo">
+                    Empieza por «{primera.title}»
                   </h2>
-                  <Link
-                    className="btn btn-primario"
-                    href={`/cursos/${slug}/${siguiente.mod}/${siguiente.lec}`}
-                  >
-                    Continuar donde ibas
+                  {primera.outcome ? (
+                    <p className="t-lectura">
+                      <strong>Al terminarla vas a tener:</strong> {primera.outcome}
+                    </p>
+                  ) : null}
+                  <p className="t-cuerpo gratis-nota">
+                    Es la lección completa, no un resumen: con pasos, ejercicio y lista
+                    para comprobar. {primera.duration_minutes ? `Unos ${primera.duration_minutes} minutos.` : ""}
+                  </p>
+                  <Link className="btn btn-primario btn-grande" href={rutaPrimera}>
+                    {ed ? `${ed.accion}, gratis` : "Empezar la lección gratis"}
                   </Link>
+                </div>
+              </section>
+            ) : null}
+
+            {/* ─── TEMARIO ─── */}
+            <section className="bloque" aria-labelledby="temario-titulo" id="temario">
+              <div className="bloque-cab">
+                <div>
+                  <p className="sobretitulo">Temario</p>
+                  <h2 className="t-titulo-2" id="temario-titulo">
+                    {total} lecciones, cada una con algo hecho
+                  </h2>
+                </div>
+                <p className="t-dato bloque-cab-nota">
+                  {inscrito
+                    ? `${completadas} de ${total} completadas`
+                    : abiertas.length > 0
+                      ? `${abiertas.length} ${abiertas.length === 1 ? "abierta" : "abiertas"} sin registro`
+                      : "Acceso completo al obtener el curso"}
+                </p>
+              </div>
+              <Temario
+                slug={slug}
+                modulos={modulos}
+                inscrito={inscrito}
+                hechas={hechas}
+                siguienteId={inscrito ? siguienteLeccion?.id ?? null : null}
+              />
+            </section>
+
+            {/* ─── PREGUNTAS DEL CURSO ─── */}
+            {!inscrito ? (
+              <section className="bloque" aria-labelledby="dudas-titulo">
+                <p className="sobretitulo">Antes de decidir</p>
+                <h2 className="t-titulo-2" id="dudas-titulo">Dudas sobre este curso</h2>
+                <Preguntas
+                  items={[
+                    ...(primera
+                      ? [
+                          {
+                            p: "¿Qué pasa si hago la lección gratis y no compro?",
+                            r: "Nada. Lo que construyas en esa lección es tuyo y funciona aunque no sigas. El resto del curso queda disponible para cuando lo necesites.",
+                          },
+                        ]
+                      : []),
+                    {
+                      p: "¿Cuánto tiempo necesito?",
+                      r: curso.duration_minutes
+                        ? `En total, unas ${horas(curso.duration_minutes)} repartidas en ${total} lecciones. Puedes hacer una al día o todo en un fin de semana: tu avance se guarda.`
+                        : `Son ${total} lecciones y tu avance se guarda: vas a tu ritmo.`,
+                    },
+                    ...(ed
+                      ? [{ p: "¿Qué necesito tener?", r: `${ed.necesitas.join(", ")}. Nada que instalar en la computadora.` }]
+                      : []),
+                    {
+                      p: "¿El acceso caduca?",
+                      r: "No. Cuando tienes el curso, es tuyo: puedes volver a cualquier lección cuando quieras.",
+                    },
+                  ]}
+                />
+              </section>
+            ) : null}
+          </div>
+
+          {/* ─── PANEL DE ACCIÓN (lateral en escritorio) ─── */}
+          <aside className="curso-panel" id="comprar" aria-label={inscrito ? "Tu avance" : "Empezar este curso"}>
+            <div className="panel">
+              {inscrito ? (
+                <>
+                  <p className="sobretitulo">Tu avance</p>
+                  <p className="panel-cifra">
+                    {pct}
+                    <small>%</small>
+                  </p>
+                  <div
+                    className="pista pista-grande"
+                    role="progressbar"
+                    aria-valuenow={pct}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-label="Avance del curso"
+                  >
+                    <span style={{ width: `${pct}%` }} />
+                  </div>
+                  <p className="t-dato panel-nota">
+                    {completadas} de {total} lecciones
+                    {!terminado && total - completadas === 1 ? " · te falta una" : ""}
+                  </p>
+                  {siguiente ? (
+                    <>
+                      <p className="panel-sigue">
+                        <span className="t-folio">{folio(siguiente.mod, siguiente.lec)}</span>
+                        <span>{siguiente.title}</span>
+                      </p>
+                      <Link className="btn btn-primario btn-bloque" href={`/cursos/${slug}/${siguiente.mod}/${siguiente.lec}`}>
+                        {completadas === 0 ? "Empezar la lección 1" : "Continuar donde ibas"}
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      <p className="t-cuerpo panel-hecho">Terminaste las {total} lecciones. Tu certificado ya está listo.</p>
+                      <form action={emitirCertificado}>
+                        <input type="hidden" name="curso_id" value={curso.id} />
+                        <button className="btn btn-primario btn-bloque" type="submit">
+                          Ver mi certificado
+                        </button>
+                      </form>
+                    </>
+                  )}
                 </>
               ) : (
                 <>
-                  <Perforacion sangrada />
-                  <div className="t-folio">Curso completo</div>
-                  <h2 className="t-titulo-4" style={{ margin: "var(--e-2) 0 var(--e-4)" }}>
-                    Terminaste las {total} lecciones. Tu certificado ya está listo.
-                  </h2>
-                  <form action={emitirCertificado}>
-                    <input type="hidden" name="curso_id" value={curso.id} />
-                    <button className="btn btn-primario" type="submit">
-                      Ver mi certificado
-                    </button>
-                  </form>
+                  {precioTexto ? (
+                    <p className="panel-precio">
+                      {precioTexto} <small>{moneda}</small>
+                    </p>
+                  ) : null}
+                  <p className="t-dato panel-nota">
+                    {total} lecciones · acceso sin caducidad
+                  </p>
+
+                  {pagoPendiente ? (
+                    <Aviso tono="atencion" titulo="La compra en línea aún no está disponible">
+                      Tu cuenta está lista, pero este curso todavía no se puede comprar desde
+                      aquí. {rutaPrimera ? "Mientras tanto, la lección gratis está completa y abierta." : ""}
+                    </Aviso>
+                  ) : null}
+
+                  <div className="panel-acciones">
+                    {rutaPrimera ? (
+                      <Link className="btn btn-primario btn-bloque" href={rutaPrimera}>
+                        Empezar la lección gratis
+                      </Link>
+                    ) : null}
+                    {botonCompra}
+                  </div>
+                  <ul className="panel-incluye">
+                    <li>{total} lecciones con pasos y ejercicio</li>
+                    <li>Plantillas listas para copiar</li>
+                    <li>Avance guardado en tu cuenta</li>
+                    <li>Certificado verificable al terminar</li>
+                  </ul>
+                  {!usuario ? (
+                    <p className="t-dato panel-legal">
+                      Para guardar tu avance te pedimos solo tu correo. Sin contraseñas.
+                    </p>
+                  ) : null}
                 </>
               )}
-            </>
-          ) : (
-            <>
-              <div className="curso-metas">
-                {precio_cents !== null && (
-                  <Insignia tono="precio">{precio(precio_cents, moneda)}</Insignia>
-                )}
-                <span className="t-dato" style={{ color: "var(--tinta-media)" }}>
-                  Acceso sin caducidad
-                </span>
-              </div>
-
-              <Perforacion sangrada />
-
-              <form action={inscribirse} className="curso-cta-form">
-                <input type="hidden" name="curso_id" value={curso.id} />
-                <input type="hidden" name="slug" value={slug} />
-                <button className="btn btn-primario" type="submit">
-                  {usuario ? "Inscribirme al curso" : "Entrar e inscribirme"}
-                </button>
-              </form>
-
-              {gratis > 0 && primeraGratis && (
-                <p className="curso-cta-gratis t-dato">
-                  <Insignia tono="estado">{gratis} {gratis === 1 ? "lección gratis" : "lecciones gratis"}</Insignia>
-                  {" "}
-                  <Link href={`/cursos/${slug}/${modulos.find(m => m.lecciones.some(l => l.id === primeraGratis.id))?.sort_order ?? 1}/${primeraGratis.sort_order}`} className="curso-cta-gratis-link">
-                    Empieza por «{primeraGratis.title}» sin registrarte
-                  </Link>
-                </p>
-              )}
-
-              {gratis === 0 && (
-                <p className="t-dato" style={{ marginTop: "var(--e-4)", color: "var(--tinta-tenue)" }}>
-                  Acceso inmediato en cuanto te inscribes.
-                </p>
-              )}
-            </>
-          )}
-        </section>
-
-        {/* ─── LO QUE TE LLEVAS ─── */}
-        {!inscrito && entregables.length > 0 && (
-          <section className="superficie curso-entregables" style={{ marginTop: "var(--e-7)" }}>
-            <div className="t-folio">Lo que te llevas</div>
-            <h2 className="t-titulo-2" style={{ marginTop: "var(--e-2)" }}>
-              {entregables.length} {entregables.length === 1 ? "pieza lista" : "piezas listas"}, no {entregables.length} {entregables.length === 1 ? "video" : "videos"}
-            </h2>
-            <p className="t-cuerpo" style={{ marginTop: "var(--e-4)", color: "var(--tinta-media)", maxWidth: "62ch" }}>
-              Cada lección termina con algo hecho y aplicado a tu negocio.
-              Esta es la lista completa:
-            </p>
-
-            <Perforacion sangrada />
-
-            <ul className="entregables">
-              {entregables.map((e, i) => (
-                <li key={i}>
-                  <Sello mini />
-                  <span className="t-cuerpo">{e}</span>
-                </li>
-              ))}
-            </ul>
-
-            {minSemana > 0 && (
-              <>
-                <Perforacion sangrada />
-                <p className="t-lectura-guia">
-                  Los módulos de este curso suman{" "}
-                  <strong>{minSemana} minutos a la semana</strong> de trabajo que
-                  dejas de hacer a mano. Son{" "}
-                  {Math.round((minSemana * 52) / 60)} horas al año.
-                </p>
-              </>
-            )}
-          </section>
-        )}
-
-        {/* ─── TEMARIO ─── */}
-        <div className="curso-temario-cab">
-          <h2 className="t-titulo-2">Temario</h2>
-          <p className="t-dato" style={{ color: "var(--tinta-media)" }}>
-            {total} lecciones · {gratis > 0 ? `${gratis} abiertas sin inscripción` : "acceso completo al inscribirte"}
-          </p>
+            </div>
+          </aside>
         </div>
 
-        {modulos.map((m) => (
-          <section key={m.id} className="modulo superficie">
-            {modulos.length > 1 && (
-              <>
-                <div className="modulo-cab">
-                  <div>
-                    <div className="t-folio">Módulo {String(m.sort_order).padStart(2, "0")}</div>
-                    <h3 className="t-titulo-3" style={{ marginTop: "var(--e-2)" }}>{m.title}</h3>
-                    {m.capability && (
-                      <p className="t-dato" style={{ marginTop: "var(--e-2)", color: "var(--tinta-media)" }}>
-                        {m.capability}
-                      </p>
-                    )}
-                  </div>
-                  {!!m.minutes_saved_weekly && (
-                    <Insignia>{m.minutes_saved_weekly} min/semana</Insignia>
-                  )}
-                </div>
-                <Perforacion sangrada />
-              </>
-            )}
-
-            {m.lecciones.map((l) => {
-              const hecha = hechas.has(l.id);
-              const abierta = inscrito || l.is_preview;
-              const cuerpo = (
-                <>
-                  <Sello estado={hecha ? "logrado" : abierta ? "pendiente" : "bloqueado"} />
-                  <span className="leccion-cuerpo">
-                    <span className="t-folio">{folio(m.sort_order, l.sort_order)}</span>
-                    <span className="leccion-t">{l.title}</span>
-                    {l.outcome && <span className="leccion-o t-dato">{l.outcome}</span>}
-                  </span>
-                  <span className="leccion-meta t-dato">
-                    {!inscrito && l.is_preview
-                      ? <Insignia tono="estado">Gratis</Insignia>
-                      : l.duration_minutes ? `${l.duration_minutes} min` : ""}
-                  </span>
-                </>
-              );
-              return abierta ? (
-                <Link
-                  key={l.id}
-                  className={`leccion ${hecha ? "leccion-hecha" : ""}`}
-                  href={`/cursos/${slug}/${m.sort_order}/${l.sort_order}`}
-                >
-                  {cuerpo}
+        {/* ─── CIERRE ─── */}
+        {!inscrito ? (
+          <section className="seccion seccion-tinta">
+            <div className="marco cierre">
+              <h2 className="t-titulo-1">
+                {ed ? `«${ed.problema}» tiene arreglo esta semana.` : `Empieza ${curso.title} hoy.`}
+              </h2>
+              <p className="t-lectura">
+                {rutaPrimera
+                  ? "La primera lección es gratis y completa. Si al terminarla ya tienes algo hecho, sabrás cómo son las demás."
+                  : "Acceso inmediato a todas las lecciones, ejercicios y listas de comprobación."}
+              </p>
+              {rutaPrimera ? (
+                <Link className="btn btn-claro btn-grande" href={rutaPrimera}>
+                  Empezar la lección gratis
                 </Link>
               ) : (
-                <div key={l.id} className="leccion leccion-bloqueada">{cuerpo}</div>
-              );
-            })}
-          </section>
-        ))}
-
-        {/* ─── CTA FINAL (solo no inscritos) ─── */}
-        {!inscrito && (
-          <section className="superficie curso-cta-final" style={{ marginTop: "var(--e-8)" }}>
-            <div className="t-folio">Listo para empezar</div>
-            <h2 className="t-titulo-3" style={{ marginTop: "var(--e-2)" }}>
-              {problema
-                ? `Resuelve «${problema.toLowerCase()}» con este curso`
-                : `Empieza ${curso.title}`}
-            </h2>
-            <p className="t-cuerpo" style={{ marginTop: "var(--e-4)", color: "var(--tinta-media)", maxWidth: "52ch" }}>
-              {gratis > 0
-                ? `Prueba las ${gratis} lecciones abiertas. Si te sirve, te inscribes y sigues con el resto.`
-                : "Acceso inmediato a todas las lecciones, misiones y entregables."}
-            </p>
-            <Perforacion sangrada />
-            <div className="curso-cta-final-acciones">
-              {precio_cents !== null && (
-                <Insignia tono="precio">{precio(precio_cents, moneda)}</Insignia>
+                <a className="btn btn-claro btn-grande" href="#comprar">
+                  Obtener el curso
+                </a>
               )}
-              <form action={inscribirse}>
-                <input type="hidden" name="curso_id" value={curso.id} />
-                <input type="hidden" name="slug" value={slug} />
-                <button className="btn btn-primario" type="submit">
-                  {usuario ? "Inscribirme" : "Entrar e inscribirme"}
-                </button>
-              </form>
             </div>
           </section>
-        )}
+        ) : null}
 
+        {/* Barra fija en el teléfono: la acción siempre a un pulgar. */}
+        {!inscrito ? (
+          <div className="barra-accion">
+            <span className="barra-accion-texto">
+              <strong>{curso.title}</strong>
+              <span className="t-dato">
+                {rutaPrimera ? "Lección 1 gratis" : precioTexto ? `${precioTexto} ${moneda}` : ""}
+              </span>
+            </span>
+            {rutaPrimera ? (
+              <Link className="btn btn-primario" href={rutaPrimera}>Empezar gratis</Link>
+            ) : (
+              <a className="btn btn-primario" href="#comprar">Obtener</a>
+            )}
+          </div>
+        ) : null}
       </main>
       <Pie />
     </>

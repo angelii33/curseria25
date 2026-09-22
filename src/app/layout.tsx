@@ -10,8 +10,8 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo, Newsreader } from "next/font/google";
 import "./globals.css";
-import "./curso-hero.css";
 import { MARCA } from "@/lib/marca";
+import { URL_SITIO } from "@/lib/sitio";
 
 // Eje de ancho variable (wdth 62–125). Es lo que habilita la regla de los
 // tres anchos del Design System: 118 rótulo / 100 interfaz / 88 folio.
@@ -34,17 +34,29 @@ const newsreader = Newsreader({
 });
 
 export const metadata: Metadata = {
-  title: `${MARCA.nombre} — ${MARCA.promesa}`,
+  // Cada página pone su título; la plantilla le agrega la marca. La Home
+  // usa el título por defecto: marca + promesa.
+  title: {
+    default: `${MARCA.nombre} — ${MARCA.promesa}`,
+    template: `%s · ${MARCA.nombre}`,
+  },
   description: MARCA.descripcionCorta,
+  applicationName: MARCA.nombre,
   manifest: "/manifest.json",
   // Sin esto, un link compartido por WhatsApp se ve como texto plano.
   // metadataBase permite que las rutas relativas de las imágenes OG
   // (generadas por opengraph-image.tsx) se resuelvan a URL absolutas.
-  metadataBase: new URL("https://app-cursos-mu.vercel.app"),
+  metadataBase: new URL(URL_SITIO),
+  alternates: { canonical: "/" },
   openGraph: {
     type: "website",
     locale: "es_MX",
     siteName: MARCA.nombre,
+    title: `${MARCA.nombre} — ${MARCA.promesa}`,
+    description: MARCA.descripcionCorta,
+  },
+  twitter: {
+    card: "summary_large_image",
     title: `${MARCA.nombre} — ${MARCA.promesa}`,
     description: MARCA.descripcionCorta,
   },

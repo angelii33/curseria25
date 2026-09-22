@@ -7,7 +7,7 @@ const clave =
   process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
   "sb_publishable_OZiGkBUbrDvp4NltADfITw_oHzWweJk";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let respuesta = NextResponse.next({ request });
 
   const sb = createServerClient(url, clave, {
@@ -23,7 +23,8 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  // Refresca el token si tocaba. No hacerlo aquí provoca sesiones que
+  // Refresca el token si tocaba (Next 16 llama «proxy» a lo que antes era
+  // middleware). No hacerlo aquí provoca sesiones que
   // "se caen solas" a los pocos minutos.
   await sb.auth.getUser();
 

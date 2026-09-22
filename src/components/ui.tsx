@@ -5,41 +5,69 @@ import { MARCA } from "@/lib/marca";
 
 export { Perforacion, Sello, Insignia } from "@/components/ui-puro";
 
+/** La marca: el nombre con su sello. Es el mismo sello de «lección
+ *  completada» — la marca es literalmente la marca de lo que quedó hecho. */
+export function Marca({ inversa = false }: { inversa?: boolean }) {
+  return (
+    <span className={`marca ${inversa ? "marca-inversa" : ""}`}>
+      <span className="marca-sello" aria-hidden="true">✓</span>
+      {MARCA.nombre}
+    </span>
+  );
+}
+
 export async function Barra({ volver }: { volver?: { href: string; texto: string } }) {
   const usuario = await usuarioActual();
   return (
-    <header className="barra">
-      <div className="barra-in">
-        <Link href="/" className="marca">{MARCA.nombre}</Link>
-        <nav className="barra-nav">
-          {volver && <Link href={volver.href} className="volver">{volver.texto}</Link>}
-          {usuario ? (
-            <>
-              <Link href="/mi-aprendizaje" className="volver">Mi aprendizaje</Link>
-              <form action={salir}>
-                <button className="volver" type="submit">Salir</button>
-              </form>
-            </>
-          ) : (
-            <Link href="/entrar" className="volver">Entrar</Link>
-          )}
-        </nav>
-      </div>
-    </header>
+    <>
+      <a href="#contenido" className="saltar">Saltar al contenido</a>
+      <header className="barra">
+        <div className="barra-in">
+          <Link href="/" className="marca-enlace" aria-label={`${MARCA.nombre}, inicio`}>
+            <Marca />
+          </Link>
+          <nav className="barra-nav" aria-label="Principal">
+            {volver ? (
+              <Link href={volver.href} className="barra-volver">
+                <span aria-hidden="true">←</span> {volver.texto}
+              </Link>
+            ) : (
+              <Link href="/#cursos" className="barra-enlace barra-solo-ancho">Cursos</Link>
+            )}
+            {usuario ? (
+              <>
+                <Link href="/mi-aprendizaje" className="barra-enlace">Mi aprendizaje</Link>
+                <form action={salir} className="barra-solo-ancho">
+                  <button className="barra-enlace" type="submit">Salir</button>
+                </form>
+              </>
+            ) : (
+              <Link href="/entrar" className="barra-entrar">Entrar</Link>
+            )}
+          </nav>
+        </div>
+      </header>
+    </>
   );
 }
+
 export function Pie() {
   return (
     <footer className="pie">
       <div className="marco pie-in">
-        <div>
-          <div className="marca-pie">{MARCA.nombre}</div>
-          <p className="t-dato" style={{ marginTop: "var(--e-3)", color: "var(--musgo-300)" }}>
-            {MARCA.eslogan} Para dueños de negocio en México.
+        <div className="pie-marca">
+          <Marca inversa />
+          <p className="pie-promesa">{MARCA.promesa}</p>
+          <p className="t-dato pie-nota">
+            Cursos prácticos para dueños de negocio en México. Cada uno termina con
+            algo hecho y funcionando en tu negocio.
           </p>
         </div>
-        <nav className="pie-enlaces">
-          <Link href="/">Cursos</Link>
+        <nav className="pie-enlaces" aria-label="Pie de página">
+          <p className="t-folio pie-folio">Plataforma</p>
+          <Link href="/#cursos">Todos los cursos</Link>
+          <Link href="/#problemas">Buscar por problema</Link>
+          <Link href="/#gratis">Empezar gratis</Link>
           <Link href="/mi-aprendizaje">Mi aprendizaje</Link>
         </nav>
       </div>

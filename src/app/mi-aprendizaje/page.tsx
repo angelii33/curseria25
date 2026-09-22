@@ -1,13 +1,21 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 import { usuarioActual } from "@/lib/supabase/server";
-import { getCatalogo, folio } from "@/lib/catalogo";
-import { getCurso } from "@/lib/catalogo";
-import { Barra, Perforacion, Insignia, Sello, Pie } from "@/components/ui";
+import { getCatalogo, getCurso, folio } from "@/lib/catalogo";
+import { Barra, Pie, Sello } from "@/components/ui";
 import { IconoFichaVacia } from "@/components/iconos-estado";
-import { Portada, varianteDe } from "@/components/portada";
+import { CursoFicha } from "@/components/curso-ficha";
+import { Pieza } from "@/components/pieza";
+import { emitirCertificado, salir } from "@/app/acciones";
+import { ETAPAS, editorialDe, partesDe } from "@/lib/editorial";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Mi aprendizaje",
+  robots: { index: false, follow: false },
+};
 
 export default async function MiAprendizaje() {
   const usuario = await usuarioActual();
@@ -15,117 +23,153 @@ export default async function MiAprendizaje() {
 
   const cursos = await getCatalogo();
   const mios = cursos.filter((c) => c.inscrito);
-  const otros = cursos.filter((c) => !c.inscrito);
+  const detalles = (await Promise.all(mios.map((c) => getCurso(c.slug)))).filter(
+    (d): d is NonNullable<typeof d> => d !== null
+  );
 
-  const detalles = await Promise.all(mios.map((c) => getCurso(c.slug)));
+  // Recomendaciones con sentido: los cursos que no tienes, en el orden en
+  // que llega un cliente (encontrar → pedir → comprar).
+  const otros = cursos
+    .filter((c) => !c.inscrito)
+    .sort(
+      (a, b) =>
+        (ETAPAS[editorialDe(a.slug)?.etapa ?? "comprar"].orden) -
+        (ETAPAS[editorialDe(b.slug)?.etapa ?? "comprar"].orden)
+    );
   const nombre = usuario.user_metadata?.display_name || usuario.email?.split("@")[0] || "";
+  const leccionesHechas = detalles.reduce((a, d) => a + d.completadas, 0);
+  const enCurso = detalles.filter((d) => d.pct < 100);
+  const terminados = detalles.filter((d) => d.pct === 100);
+  const abiertas = otros.filter((c) => c.abiertaRuta).slice(0, 3);
 
   return (
     <>
-      <Barra volver={{ href: "/", texto: "Cursos" }} />
-      <main className="marco" style={{ paddingBlock: "var(--e-8)" }}>
-        <div className="t-folio">Mi aprendizaje</div>
-        <h1 className="t-titulo-1" style={{ marginTop: "var(--e-3)" }}>
-          {nombre ? `Hola, ${nombre}` : "Tu avance"}
-        </h1>
-
-        {mios.length === 0 ? (
-          <section className="superficie" style={{ marginTop: "var(--e-7)", maxWidth: "66ch" }}>
-            <IconoFichaVacia />
-            <h2 className="t-titulo-3" style={{ marginTop: "var(--e-4)" }}>Todavía no empiezas ningún curso</h2>
-            <Perforacion sangrada />
-            <p className="t-cuerpo" style={{ marginBottom: "var(--e-5)" }}>
-              Inscríbete en uno y tu avance empieza a guardarse aquí.
+      <Barra volver={{ href: "/#cursos", texto: "Cursos" }} />
+      <main id="contenido" className="marco pagina-mia">
+        <header className="mia-cab">
+          <p className="sobretitulo">Mi aprendizaje</p>
+          <h1 className="t-titulo-1">{nombre ? `Hola, ${nombre}` : "Tu avance"}</h1>
+          {detalles.length > 0 ? (
+            <p className="t-lectura mia-resumen">
+              {enCurso.length > 0
+                ? `${enCurso.length === 1 ? "Tienes un curso en marcha" : `Tienes ${enCurso.length} cursos en marcha`}`
+                : "Terminaste todo lo que empezaste"}
+              {leccionesHechas > 0 ? ` y ${leccionesHechas} ${leccionesHechas === 1 ? "lección completada" : "lecciones completadas"}.` : "."}
+              {terminados.length > 0 ? ` ${terminados.length === 1 ? "Una pieza terminada" : `${terminados.length} piezas terminadas`}.` : ""}
             </p>
-            <Link className="btn btn-primario" href="/">Ver el catálogo</Link>
+          ) : null}
+          {/* En el teléfono la barra no tiene sitio para «Salir»: vive aquí. */}
+          <form action={salir} className="mia-salir">
+            <button className="btn btn-fantasma" type="submit">Salir de mi cuenta</button>
+          </form>
+        </header>
+
+        {detalles.length === 0 ? (
+          <section className="vacio vacio-mia" aria-labelledby="vacio-titulo">
+            <IconoFichaVacia />
+            <h2 className="t-titulo-2" id="vacio-titulo">Todavía no empiezas ningún curso</h2>
+            <p className="t-lectura">
+              Aquí vas a ver cada pieza construyéndose conforme avanzas. Lo más rápido
+              para empezar: una lección gratis, completa, de media hora.
+            </p>
+            {abiertas.length > 0 ? (
+              <ul className="vacio-lista">
+                {abiertas.map((c) => (
+                  <li key={c.id}>
+                    <Link href={c.abiertaRuta!}>
+                      <span className="t-folio">{c.title}</span>
+                      <span>{c.abiertaTitulo}</span>
+                      <span aria-hidden="true">→</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            <Link className="btn btn-secundario" href="/#problemas">Elegir por problema</Link>
           </section>
         ) : (
-          <div className="fila-curso" style={{ marginTop: "var(--e-7)" }}>
-            {detalles.map((d) =>
-              !d ? null : (
-                <section key={d.curso.id} className="superficie">
-                  <div className="curso-metas" style={{ marginBottom: "var(--e-4)" }}>
-                    <h2 className="t-titulo-3">{d.curso.title}</h2>
-                    <span style={{ marginLeft: "auto" }}>
-                      <Sello estado={d.pct === 100 ? "logrado" : "pendiente"} />
-                    </span>
+          <div className="mis-cursos">
+            {detalles.map((d) => {
+              const ed = editorialDe(d.curso.slug);
+              const partes = partesDe(d.curso.slug, d.modulos, d.hechas);
+              const terminado = d.pct === 100;
+              const faltan = d.total - d.completadas;
+              return (
+                <article key={d.curso.id} className={`mi-curso ${terminado ? "mi-curso-terminado" : ""}`}>
+                  {ed && partes ? (
+                    <div className="mi-curso-pieza">
+                      <Pieza
+                        slug={d.curso.slug}
+                        estados={partes.map((p) => (p.hecha ? "hecha" : "pendiente"))}
+                        etiqueta={`${ed.pieza.nombre}: ${partes.filter((p) => p.hecha).length} de ${partes.length} partes construidas`}
+                      />
+                    </div>
+                  ) : null}
+                  <div className="mi-curso-cuerpo">
+                    <div className="mi-curso-cab">
+                      <h2 className="t-titulo-3">
+                        <Link href={`/cursos/${d.curso.slug}`}>{d.curso.title}</Link>
+                      </h2>
+                      <Sello estado={terminado ? "logrado" : "pendiente"} />
+                    </div>
+                    {ed ? <p className="t-dato mi-curso-pieza-nombre">{ed.pieza.nombre}</p> : null}
+                    <div
+                      className="pista pista-grande"
+                      role="progressbar"
+                      aria-valuenow={d.pct}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-label={`Avance en ${d.curso.title}`}
+                    >
+                      <span style={{ width: `${d.pct}%` }} />
+                    </div>
+                    <p className="t-dato mi-curso-cuenta">
+                      {d.completadas} de {d.total} lecciones · {d.pct}%
+                      {!terminado ? ` · ${faltan === 1 ? "te falta una" : `te faltan ${faltan}`}` : ""}
+                    </p>
+
+                    {d.siguiente ? (
+                      <div className="mi-curso-sigue">
+                        <p>
+                          <span className="t-folio">Sigue · {folio(d.siguiente.mod, d.siguiente.lec)}</span>
+                          <span className="mi-curso-sigue-titulo">{d.siguiente.title}</span>
+                        </p>
+                        <Link
+                          className="btn btn-primario"
+                          href={`/cursos/${d.curso.slug}/${d.siguiente.mod}/${d.siguiente.lec}`}
+                        >
+                          {d.completadas === 0 ? "Empezar" : "Continuar"}
+                        </Link>
+                      </div>
+                    ) : (
+                      <div className="mi-curso-sigue">
+                        <p className="t-cuerpo">Curso terminado. Tu certificado está listo.</p>
+                        <form action={emitirCertificado}>
+                          <input type="hidden" name="curso_id" value={d.curso.id} />
+                          <button className="btn btn-secundario" type="submit">Ver mi certificado</button>
+                        </form>
+                      </div>
+                    )}
                   </div>
-
-                  <div className="pista"><span style={{ width: `${d.pct}%` }} /></div>
-                  <div className="t-dato" style={{ marginTop: "var(--e-3)", color: "var(--tinta-media)" }}>
-                    {d.completadas} de {d.total} lecciones · {d.pct}%
-                  </div>
-
-                  <Perforacion sangrada />
-
-                  {d.siguiente ? (
-                    <>
-                      <div className="t-folio">{folio(d.siguiente.mod, d.siguiente.lec)}</div>
-                      <h3 className="t-titulo-4" style={{ margin: "var(--e-2) 0 var(--e-5)" }}>
-                        {d.siguiente.title}
-                      </h3>
-                      <Link
-                        className="btn btn-primario"
-                        href={`/cursos/${d.curso.slug}/${d.siguiente.mod}/${d.siguiente.lec}`}
-                      >
-                        Continuar donde ibas
-                      </Link>
-                    </>
-                  ) : (
-                    <>
-                      <p className="t-cuerpo" style={{ marginBottom: "var(--e-5)" }}>
-                        Terminaste el curso completo. Buen trabajo.
-                      </p>
-                      <Link className="btn btn-secundario" href={`/cursos/${d.curso.slug}`}>
-                        Repasar el temario
-                      </Link>
-                    </>
-                  )}
-                </section>
-              )
-            )}
+                </article>
+              );
+            })}
           </div>
         )}
 
-        {otros.length > 0 && (
-          <>
-            <h2 className="t-titulo-2" style={{ margin: "var(--e-8) 0 var(--e-5)" }}>
-              Todavía no tienes estos
+        {otros.length > 0 ? (
+          <section className="mia-otros" aria-labelledby="otros-titulo">
+            <p className="sobretitulo">Tu siguiente pieza</p>
+            <h2 className="t-titulo-2" id="otros-titulo">
+              {detalles.length ? "Lo que puedes resolver después" : "Todos los cursos"}
             </h2>
-            <div className="catalogo">
+            <div className="rejilla-fichas rejilla-fichas-3">
               {otros.map((c) => (
-                <Link
-                  key={c.id}
-                  href={`/cursos/${c.slug}`}
-                  className="superficie curso curso-con-portada"
-                >
-                  <Portada
-                    id={`ma-${c.slug}`}
-                    piezas={c.lecciones}
-                    variante={varianteDe(c.slug)}
-                    slug={c.slug}
-                    imagen={c.cover_url}
-                    alt=""
-                    contexto="tarjeta"
-                  />
-                  <div className="curso-cuerpo">
-                    <h3 className="t-titulo-3">{c.title}</h3>
-                    {c.subtitle && (
-                      <p className="t-cuerpo" style={{ color: "var(--tinta-media)" }}>{c.subtitle}</p>
-                    )}
-                    <Perforacion sangrada />
-                    <div className="curso-metas">
-                      <span className="t-dato" style={{ color: "var(--tinta-media)" }}>
-                        {c.lecciones} lecciones
-                      </span>
-                      {c.gratis > 0 && <Insignia tono="estado">{c.gratis} gratis</Insignia>}
-                    </div>
-                  </div>
-                </Link>
+                <CursoFicha key={c.id} curso={c} variante="compacta" />
               ))}
             </div>
-          </>
-        )}
+          </section>
+        ) : null}
       </main>
       <Pie />
     </>

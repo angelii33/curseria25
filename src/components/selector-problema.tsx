@@ -1,48 +1,53 @@
 import Link from "next/link";
-import { ESCENA_POR_SLUG, PROBLEMA_POR_SLUG, escena } from "@/lib/escenas";
+import { ESCENA_POR_SLUG, escena } from "@/lib/escenas";
+import { editorialDe } from "@/lib/editorial";
 
-// "¿Qué necesitas resolver?" — la entrada por problema, no por catálogo.
+// «¿Qué necesitas resolver?» — la entrada por problema, no por catálogo.
 //
-// El comprador no llega buscando "un curso": llega porque algo concreto no
-// le funciona. Esta franja le deja entrar por donde le duele, en sus
-// palabras, y lo lleva directo al curso que lo arregla. No es un filtro ni
-// una categoría nueva: son enlaces a los mismos 6 cursos que ya existen.
+// El dueño del negocio no llega buscando «un curso»: llega porque algo
+// concreto no le funciona. Aquí entra por donde le duele, en sus palabras,
+// y ve en la misma línea qué curso lo arregla y con qué pieza sale. No es
+// un cuestionario ni un filtro: son seis atajos, un toque cada uno.
 //
-// Un curso sin escena o sin problema definido simplemente no aparece aquí,
-// así que agregar cursos nuevos nunca rompe esta sección.
+// Un curso sin editorial simplemente no aparece aquí, así que agregar
+// cursos nuevos nunca rompe esta sección.
 
 export function SelectorProblema({
   cursos,
 }: {
-  cursos: { id: string; slug: string }[];
+  cursos: { id: string; slug: string; title: string; gratis: number; inscrito: boolean }[];
 }) {
-  const conProblema = cursos.filter(
-    (c) => ESCENA_POR_SLUG[c.slug] && PROBLEMA_POR_SLUG[c.slug]
-  );
-  if (conProblema.length < 3) return null;
+  const con = cursos.filter((c) => editorialDe(c.slug));
+  if (con.length < 3) return null;
 
   return (
-    <section className="selector" aria-labelledby="selector-titulo">
-      <h2 className="t-titulo-4" id="selector-titulo">
-        ¿Qué necesitas resolver?
-      </h2>
-      <div className="selector-rejilla">
-        {conProblema.map((c) => (
-          <Link key={c.id} href={`/cursos/${c.slug}`} className="selector-ficha">
-            <svg
-              viewBox="0 0 56 56"
-              width="30"
-              height="30"
-              role="img"
-              aria-hidden="true"
-              className="selector-icono"
-            >
-              {escena(ESCENA_POR_SLUG[c.slug], "var(--musgo-600)", "var(--cobre-600)")}
-            </svg>
-            <span className="t-interfaz">{PROBLEMA_POR_SLUG[c.slug]}</span>
-          </Link>
-        ))}
-      </div>
-    </section>
+    <ul className="problemas">
+      {con.map((c) => {
+        const ed = editorialDe(c.slug)!;
+        const tipo = ESCENA_POR_SLUG[c.slug];
+        return (
+          <li key={c.id}>
+            <Link href={`/cursos/${c.slug}`} className="problema">
+              {tipo ? (
+                <svg viewBox="0 0 56 56" width="40" height="40" aria-hidden="true" className="problema-icono">
+                  {escena(tipo, "var(--musgo-600)", "var(--cobre-600)")}
+                </svg>
+              ) : null}
+              <span className="problema-texto">
+                <span className="problema-dolor">«{ed.problema}»</span>
+                <span className="problema-sol">
+                  {c.title}
+                  <span className="problema-meta">
+                    {" · "}
+                    {c.inscrito ? "ya lo tienes" : c.gratis > 0 ? "empieza gratis" : "curso completo"}
+                  </span>
+                </span>
+              </span>
+              <span className="problema-flecha" aria-hidden="true">→</span>
+            </Link>
+          </li>
+        );
+      })}
+    </ul>
   );
 }

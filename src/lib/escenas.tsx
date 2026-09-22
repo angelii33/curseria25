@@ -11,6 +11,8 @@
 // Esa distinción es la que hace que se lean como una historia y no como
 // un ícono más.
 
+import { editorialDe } from "./editorial";
+
 export type TipoEscena =
   | "mapa"
   | "menu"
@@ -29,15 +31,13 @@ export const ESCENA_POR_SLUG: Record<string, TipoEscena> = {
 };
 
 /** El problema que resuelve cada curso, en las palabras del dueño del
- *  negocio. Se usa en la franja "¿Qué necesitas resolver?" de la Home. */
-export const PROBLEMA_POR_SLUG: Record<string, string> = {
-  "tu-negocio-en-google": "Que me encuentren en Google",
-  "menu-con-link": "Que mi menú tenga link",
-  "whatsapp-que-contesta-solo": "Que WhatsApp no me coma el día",
-  "un-mes-de-publicaciones": "Tener qué publicar",
-  "cotiza-en-5-minutos": "Cotizar sin tardarme",
-  "ventas-con-ia": "Ordenar mis ventas",
-};
+ *  negocio. La fuente es la capa editorial (lib/editorial.ts); esto se
+ *  mantiene por compatibilidad con quien ya lo importaba. */
+export const PROBLEMA_POR_SLUG: Record<string, string> = Object.fromEntries(
+  Object.keys(ESCENA_POR_SLUG)
+    .map((slug) => [slug, editorialDe(slug)?.problema])
+    .filter((par): par is [string, string] => Boolean(par[1]))
+);
 
 /**
  * Dibuja una escena dentro de un viewBox de 56×56.

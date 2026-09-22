@@ -20,8 +20,14 @@ export const precio = (cents: number, moneda = "MXN") =>
 export const folio = (m: number, l: number) =>
   `M${String(m).padStart(2, "0")}\u00b7L${String(l).padStart(2, "0")}`;
 
-export const horas = (min: number | null) =>
-  !min ? "" : min < 60 ? `${min} min` : `${Math.round((min / 60) * 10) / 10} h`;
+/** 135 → «2 h 15 min». Redondea a 5 minutos: nadie planea con 2,1 horas. */
+export const horas = (min: number | null) => {
+  if (!min) return "";
+  if (min < 60) return `${min} min`;
+  const h = Math.floor(min / 60);
+  const m = Math.round((min % 60) / 5) * 5;
+  return m === 0 ? `${h} h` : m === 60 ? `${h + 1} h` : `${h} h ${m} min`;
+};
 
 /** Ids de cursos en los que el usuario está inscrito. */
 async function misInscripciones() {
@@ -105,11 +111,12 @@ export async function getCatalogo() {
   const modIds = (mods ?? []).map((m) => m.id);
   const { data: lecs } = modIds.length
     ? await sb.from("lessons")
-        .select("id,module_id,is_preview,title,sort_order,duration_minutes")
+        .select("id,module_id,is_preview,title,sort_order,duration_minutes,outcome")
         .in("module_id", modIds)
     : { data: [] as {
         id: string; module_id: string; is_preview: boolean;
         title: string; sort_order: number; duration_minutes: number | null;
+        outcome: string | null;
       }[] };
 
   return (cursos as Curso[])
@@ -142,6 +149,12 @@ export async function getCatalogo() {
         pct: misLecs.length ? Math.round((completadas / misLecs.length) * 100) : 0,
         abiertaTitulo: abierta?.title ?? null,
         abiertaMin: abierta?.duration_minutes ?? null,
+        abiertaResultado: abierta?.outcome ?? null,
+        // Ruta directa a la lección abierta: el visitante entra a la
+        // lección, no a otra página que le pida un clic más.
+        abiertaRuta: abierta
+          ? `/cursos/${c.slug}/${orden.get(abierta.module_id) ?? 1}/${abierta.sort_order}`
+          : null,
       };
     })
     .filter((c) => c.lecciones > 0);
