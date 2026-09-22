@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { getCatalogo, precio } from "@/lib/catalogo";
+import { getCatalogo, getOfertas, precio } from "@/lib/catalogo";
+import { Opiniones } from "@/components/opiniones";
 import { ETAPAS, editorialDe, type Etapa } from "@/lib/editorial";
 import { Barra, Pie } from "@/components/ui";
 import { CursoFicha } from "@/components/curso-ficha";
@@ -51,13 +52,21 @@ const PREGUNTAS = [
     r: "En tu cuenta, no en el teléfono. Empiezas una lección en el celular y la sigues en la computadora donde la dejaste.",
   },
   {
+    p: "¿Cómo pago y qué pasa si no me sirve?",
+    r: "Pagas con Mercado Pago: tarjeta, saldo o efectivo en OXXO. Si en los primeros 7 días ves que no era para ti, te devolvemos el dinero completo.",
+  },
+  {
     p: "¿Tengo que usar inteligencia artificial?",
     r: "Solo donde ahorra trabajo de verdad, y siempre con tus datos reales. Las lecciones dicen también cuándo NO usarla.",
   },
 ];
 
 export default async function Inicio() {
-  const cursos = await getCatalogo();
+  const [cursos, ofertas] = await Promise.all([getCatalogo(), getOfertas().catch(() => [])]);
+  const completo = ofertas.find((o) => o.destacado) ?? null;
+  const pro = ofertas.find((o) => o.tipo === "membership") ?? null;
+  const conPrecio = cursos.filter((c) => c.precio_cents);
+  const minimo = conPrecio.length ? Math.min(...conPrecio.map((c) => c.precio_cents!)) : null;
   const { grupos, sueltos } = porEtapa(cursos);
   const conGratis = cursos.filter((c) => c.abiertaRuta);
   const precios = cursos.map((c) => c.precio_cents).filter((p): p is number => p !== null && p > 0);
@@ -353,8 +362,8 @@ export default async function Inicio() {
                 llevas a tu calendario.
               </li>
               <li>
-                <strong>Tu cuaderno.</strong> Escribes tu versión en la misma página,
-                sin perder el hilo.
+                <strong>Tu cuaderno y tu taller.</strong> Escribes tu versión en la misma
+                página y queda guardada en tu cuenta, lista para copiar.
               </li>
               <li>
                 <strong>Lista de comprobación.</strong> Criterios concretos para que
@@ -371,6 +380,54 @@ export default async function Inicio() {
             </ul>
           </div>
         </section>
+
+        {/* ─── PRECIOS, en corto ─── */}
+        {ofertas.length ? (
+          <section className="seccion seccion-hundida" aria-labelledby="precios-titulo">
+            <div className="marco">
+              <div className="seccion-cab">
+                <p className="sobretitulo">Precios</p>
+                <h2 className="t-titulo-1" id="precios-titulo">Paga solo por lo que vas a usar</h2>
+                <p className="t-lectura seccion-bajada">
+                  La primera lección de cada curso es gratis. Después, eliges.
+                </p>
+              </div>
+              <ul className="precios-resumen">
+                {minimo !== null ? (
+                  <li>
+                    <span className="t-folio">Un curso</span>
+                    <strong>desde {precio(minimo)}</strong>
+                    <span className="t-dato">Pago único, sin caducidad</span>
+                  </li>
+                ) : null}
+                {completo ? (
+                  <li className="precios-resumen-destacado">
+                    <span className="t-folio">{completo.nombre}</span>
+                    <strong>{precio(completo.precio_cents, completo.moneda)}</strong>
+                    <span className="t-dato">
+                      {completo.suelto_cents > completo.precio_cents
+                        ? `En vez de ${precio(completo.suelto_cents, completo.moneda)} por separado`
+                        : "Pago único"}
+                    </span>
+                  </li>
+                ) : null}
+                {pro ? (
+                  <li>
+                    <span className="t-folio">{pro.nombre}</span>
+                    <strong>{precio(pro.precio_cents, pro.moneda)} al mes</strong>
+                    <span className="t-dato">Todos los cursos · cancelas cuando quieras</span>
+                  </li>
+                ) : null}
+              </ul>
+              <div className="acciones precios-resumen-acciones">
+                <Link className="btn btn-primario" href="/precios">Ver precios y paquetes</Link>
+                <span className="t-dato">Pago con Mercado Pago · 7 días para pedir tu reembolso</span>
+              </div>
+            </div>
+          </section>
+        ) : null}
+
+        <Opiniones />
 
         {/* ─── 7 · PREGUNTAS ─── */}
         <section className="seccion seccion-hundida" aria-labelledby="preguntas-titulo">

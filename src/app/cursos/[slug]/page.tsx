@@ -1,9 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getCurso, precio, horas, folio } from "@/lib/catalogo";
+import { getCurso, getOfertas, precio, horas, folio } from "@/lib/catalogo";
 import { usuarioActual } from "@/lib/supabase/server";
-import { inscribirse, emitirCertificado } from "@/app/acciones";
+import { inscribirse, emitirCertificado, comprar } from "@/app/acciones";
+import { clienteServidor } from "@/lib/supabase/server";
+import { OpinionForm } from "@/components/opinion-form";
+import { Opiniones } from "@/components/opiniones";
 import { Barra, Pie } from "@/components/ui";
 import { MediaCurso } from "@/components/curso-ficha";
 import { PiezaPartes } from "@/components/pieza-partes";
@@ -52,7 +55,20 @@ export default async function Curso({
   if (!d) notFound();
 
   const usuario = await usuarioActual();
-  const { curso, modulos, precio_cents, moneda, inscrito, hechas, total, completadas, pct, siguiente } = d;
+  const { curso, modulos, precio_cents, moneda, producto_id, lanzamiento, inscrito, hechas, total, completadas, pct, siguiente } = d;
+
+  // Con Listo Pro activo, has_course_access ya es verdadero: se inscribe
+  // directo, sin pagar otra vez. La RPC decide; aquí solo cambia el botón.
+  let incluidoEnPro = false;
+  if (usuario && !inscrito) {
+    const sb = await clienteServidor();
+    const { data } = await sb.rpc("has_course_access", { check_course_id: curso.id });
+    incluidoEnPro = data === true;
+  }
+  const ofertas = !inscrito ? await getOfertas() : [];
+  const alternativas = ofertas.filter(
+    (o) => o.tipo === "membership" || o.cursos.some((c) => c.id === curso.id)
+  ).sort((a, b) => Number(a.tipo === "membership") - Number(b.tipo === "membership"));
   const ed = editorialDe(slug);
   const partes = partesDe(slug, modulos, hechas);
 
@@ -68,16 +84,26 @@ export default async function Curso({
   const precioTexto = precio_cents !== null ? precio(precio_cents, moneda) : null;
   const nivel = curso.level ? NIVEL[curso.level] ?? curso.level : null;
   const pagoPendiente = acceso === "pendiente" && !inscrito;
+  const claseCompra = `btn ${rutaPrimera ? "btn-secundario" : "btn-primario"} btn-bloque`;
 
-  const botonCompra = (
-    <form action={inscribirse}>
-      <input type="hidden" name="curso_id" value={curso.id} />
-      <input type="hidden" name="slug" value={slug} />
-      <button className={`btn ${rutaPrimera ? "btn-secundario" : "btn-primario"} btn-bloque`} type="submit">
-        {esPago ? "Obtener el curso completo" : "Inscribirme gratis"}
-      </button>
-    </form>
-  );
+  const botonCompra =
+    esPago && producto_id && !incluidoEnPro ? (
+      <form action={comprar}>
+        <input type="hidden" name="producto_id" value={producto_id} />
+        <input type="hidden" name="volver" value={`/cursos/${slug}#comprar`} />
+        <button className={claseCompra} type="submit">
+          Comprar el curso completo
+        </button>
+      </form>
+    ) : (
+      <form action={inscribirse}>
+        <input type="hidden" name="curso_id" value={curso.id} />
+        <input type="hidden" name="slug" value={slug} />
+        <button className={claseCompra} type="submit">
+          {incluidoEnPro ? "Inscribirme (incluido en Listo Pro)" : esPago ? "Obtener el curso completo" : "Inscribirme gratis"}
+        </button>
+      </form>
+    );
 
   // Datos estructurados: permiten que Google muestre el curso como curso,
   // con su proveedor y su precio reales. Nada que no esté en la base.
@@ -386,7 +412,10 @@ export default async function Curso({
                 </>
               ) : (
                 <>
-                  {precioTexto ? (
+                  {lanzamiento && esPago && !incluidoEnPro ? (
+                    <span className="panel-lanzamiento">Precio de lanzamiento</span>
+                  ) : null}
+                  {precioTexto && !incluidoEnPro ? (
                     <p className="panel-precio">
                       {precioTexto} <small>{moneda}</small>
                     </p>
@@ -399,6 +428,10 @@ export default async function Curso({
                     <Aviso tono="atencion" titulo="La compra en línea aún no está disponible">
                       Tu cuenta está lista, pero este curso todavía no se puede comprar desde
                       aquí. {rutaPrimera ? "Mientras tanto, la lección gratis está completa y abierta." : ""}
+                    </Aviso>
+                  ) : acceso === "ya" ? (
+                    <Aviso tono="logrado" titulo="Este curso ya es tuyo">
+                      Inscríbete con el botón de abajo y empieza.
                     </Aviso>
                   ) : null}
 
@@ -416,6 +449,22 @@ export default async function Curso({
                     <li>Avance guardado en tu cuenta</li>
                     <li>Certificado verificable al terminar</li>
                   </ul>
+                  {esPago && !incluidoEnPro ? (
+                    <p className="t-dato panel-garantia">
+                      Pago seguro con Mercado Pago. <Link href="/reembolsos">7 días para pedir tu reembolso.</Link>
+                    </p>
+                  ) : null}
+                  {esPago && !incluidoEnPro && alternativas.length ? (
+                    <div className="panel-otras">
+                      <p className="t-folio">También viene en</p>
+                      {alternativas.map((o) => (
+                        <Link key={o.id} href="/precios#paquetes-titulo">
+                          <strong>{o.nombre}</strong> · {precio(o.precio_cents, o.moneda)}
+                          {o.tipo === "membership" ? " al mes, todos los cursos" : ` por ${o.cursos.length} cursos`}
+                        </Link>
+                      ))}
+                    </div>
+                  ) : null}
                   {!usuario ? (
                     <p className="t-dato panel-legal">
                       Para guardar tu avance te pedimos solo tu correo. Sin contraseñas.
@@ -426,6 +475,22 @@ export default async function Curso({
             </div>
           </aside>
         </div>
+
+        {inscrito && completadas > 0 ? (
+          <section className="marco opinion-seccion" aria-labelledby="opinar-titulo">
+            <h2 className="t-titulo-3" id="opinar-titulo">¿Ya lo estás usando en tu negocio?</h2>
+            <p className="t-cuerpo">
+              Tu opinión le ayuda a otro dueño de negocio a decidir. La publicamos solo si nos das
+              permiso.
+            </p>
+            <OpinionForm
+              cursoId={curso.id}
+              nombre={(usuario?.user_metadata?.display_name as string | undefined) ?? ""}
+            />
+          </section>
+        ) : null}
+
+        <Opiniones cursoId={curso.id} />
 
         {/* ─── CIERRE ─── */}
         {!inscrito ? (

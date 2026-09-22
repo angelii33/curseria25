@@ -2,6 +2,7 @@ import Link from "next/link";
 import { usuarioActual } from "@/lib/supabase/server";
 import { salir } from "@/app/acciones";
 import { MARCA } from "@/lib/marca";
+import { LEGAL } from "@/lib/legal";
 
 export { Perforacion, Sello, Insignia } from "@/components/ui-puro";
 
@@ -34,6 +35,7 @@ export async function Barra({ volver }: { volver?: { href: string; texto: string
             ) : (
               <Link href="/#cursos" className="barra-enlace barra-solo-ancho">Cursos</Link>
             )}
+            <Link href="/precios" className="barra-enlace barra-solo-ancho">Precios</Link>
             {usuario ? (
               <>
                 <Link href="/mi-aprendizaje" className="barra-enlace">Mi aprendizaje</Link>
@@ -68,7 +70,15 @@ export function Pie() {
           <Link href="/#cursos">Todos los cursos</Link>
           <Link href="/#problemas">Buscar por problema</Link>
           <Link href="/#gratis">Empezar gratis</Link>
+          <Link href="/precios">Precios y paquetes</Link>
           <Link href="/mi-aprendizaje">Mi aprendizaje</Link>
+        </nav>
+        <nav className="pie-enlaces" aria-label="Legal">
+          <p className="t-folio pie-folio">Lo legal</p>
+          <Link href="/terminos">Términos y condiciones</Link>
+          <Link href="/aviso-de-privacidad">Aviso de privacidad</Link>
+          <Link href="/reembolsos">Reembolsos (7 días)</Link>
+          {LEGAL.correo ? <a href={`mailto:${LEGAL.correo}`}>{LEGAL.correo}</a> : null}
         </nav>
       </div>
     </footer>

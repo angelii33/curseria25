@@ -75,6 +75,10 @@ export default async function MiAprendizaje() {
               {terminados.length > 0 ? ` ${terminados.length === 1 ? "Una pieza terminada" : `${terminados.length} piezas terminadas`}.` : ""}
             </p>
           ) : null}
+          <p className="t-dato mia-taller">
+            Lo que escribes en los cuadernos de las lecciones queda en{" "}
+            <Link href="/mi-taller">Mi taller →</Link>
+          </p>
           {/* En el teléfono la barra no tiene sitio para «Salir»: vive aquí. */}
           <form action={salir} className="mia-salir">
             <button className="btn btn-fantasma" type="submit">Salir de mi cuenta</button>

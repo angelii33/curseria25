@@ -180,7 +180,7 @@ export async function getCurso(slug: string) {
     : { data: [] as Leccion[] };
 
   const [{ data: prod }, inscritos, hechas] = await Promise.all([
-    sb.from("products").select("price_cents,currency")
+    sb.from("products").select("id,price_cents,currency,metadata")
       .eq("course_id", curso.id).eq("status", "active").eq("type", "course").maybeSingle(),
     misInscripciones(),
     misCompletadas(),
@@ -198,6 +198,8 @@ export async function getCurso(slug: string) {
     curso: curso as Curso,
     precio_cents: prod?.price_cents ?? null,
     moneda: prod?.currency ?? "MXN",
+    producto_id: (prod?.id as string | undefined) ?? null,
+    lanzamiento: Boolean((prod?.metadata as { es_lanzamiento?: boolean } | null)?.es_lanzamiento),
     modulos,
     inscrito: inscritos.has(curso.id),
     hechas,
@@ -284,4 +286,56 @@ export async function miSemana(): Promise<string[]> {
     .eq("status", "completed")
     .gte("completed_at", desde);
   return (data ?? []).map((f) => f.completed_at as string).filter(Boolean);
+}
+
+export type Oferta = {
+  id: string;
+  slug: string;
+  nombre: string;
+  tipo: "bundle" | "membership";
+  precio_cents: number;
+  moneda: string;
+  descripcion: string | null;
+  destacado: boolean;
+  /** Cursos publicados que incluye, con su precio suelto. */
+  cursos: { id: string; slug: string; titulo: string; precio_cents: number | null }[];
+  /** Suma de los precios sueltos: solo se muestra si es mayor que el precio. */
+  suelto_cents: number;
+};
+
+/** Paquetes y membresía activos, con los cursos que abren. Todo de la base. */
+export async function getOfertas(): Promise<Oferta[]> {
+  const sb = await clienteServidor();
+  const [{ data: prods }, { data: enlaces }, { data: cursos }, { data: sueltos }] = await Promise.all([
+    sb.from("products").select("id,slug,name,type,price_cents,currency,metadata")
+      .eq("status", "active").in("type", ["bundle", "membership"]).order("price_cents"),
+    sb.from("product_courses").select("product_id,course_id"),
+    sb.from("courses").select("id,slug,title").eq("status", "published"),
+    sb.from("products").select("course_id,price_cents").eq("status", "active").eq("type", "course"),
+  ]);
+  const publicados = cursos ?? [];
+  const precioDe = new Map((sueltos ?? []).map((p) => [p.course_id as string, p.price_cents as number]));
+
+  return (prods ?? []).map((p) => {
+    const meta = (p.metadata ?? {}) as { descripcion?: string; destacado?: boolean };
+    const ids = new Set((enlaces ?? []).filter((e) => e.product_id === p.id).map((e) => e.course_id as string));
+    // La membresía abre todo lo publicado.
+    const incluidos = p.type === "membership" ? publicados : publicados.filter((c) => ids.has(c.id));
+    const lista = incluidos.map((c) => ({
+      id: c.id as string, slug: c.slug as string, titulo: c.title as string,
+      precio_cents: precioDe.get(c.id as string) ?? null,
+    }));
+    return {
+      id: p.id as string,
+      slug: p.slug as string,
+      nombre: p.name as string,
+      tipo: p.type as Oferta["tipo"],
+      precio_cents: p.price_cents as number,
+      moneda: (p.currency as string) ?? "MXN",
+      descripcion: meta.descripcion ?? null,
+      destacado: Boolean(meta.destacado),
+      cursos: lista,
+      suelto_cents: lista.reduce((s, c) => s + (c.precio_cents ?? 0), 0),
+    };
+  }).filter((o) => o.tipo === "membership" || o.cursos.length > 0);
 }

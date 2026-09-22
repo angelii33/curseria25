@@ -1,18 +1,11 @@
 import { notFound } from "next/navigation";
 import { Barra, Perforacion, Pie } from "@/components/ui";
-import { clienteServidor } from "@/lib/supabase/server";
+import { getCertificado, fechaLarga as fecha } from "@/lib/certificado";
+import { CompartirCertificado } from "@/components/compartir-certificado";
+import { URL_SITIO } from "@/lib/sitio";
 import { MARCA } from "@/lib/marca";
 
 export const dynamic = "force-dynamic";
-
-async function getCertificado(codigo: string) {
-  const sb = await clienteServidor();
-  const { data, error } = await sb.rpc("verify_certificate", { check_code: codigo });
-  if (error) return null;
-  const fila = Array.isArray(data) ? data[0] : data;
-  if (!fila) return null;
-  return fila as { course_title: string; issued_at: string; verification_code: string };
-}
 
 export async function generateMetadata({
   params,
@@ -27,11 +20,6 @@ export async function generateMetadata({
     description: `Certificado verificado de ${cert.course_title}, emitido por ${MARCA.nombre}.`,
   };
 }
-
-const fecha = (iso: string) =>
-  new Intl.DateTimeFormat("es-MX", { day: "numeric", month: "long", year: "numeric" }).format(
-    new Date(iso)
-  );
 
 export default async function Certificado({
   params,
@@ -85,6 +73,13 @@ export default async function Certificado({
           <p className="t-dato" style={{ textAlign: "center", marginTop: "var(--e-5)", color: "var(--tinta-tenue)" }}>
             Cualquiera con este enlace puede verificar que este certificado es real.
           </p>
+
+          <CompartirCertificado
+            url={`${URL_SITIO}/certificado/${cert.verification_code}`}
+            curso={cert.course_title}
+            codigo={cert.verification_code}
+            emitido={cert.issued_at}
+          />
         </div>
       </main>
       <Pie />

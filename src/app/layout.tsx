@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/next";
 // ============================================================================
 // LISTO — "La marca de lo que ya quedó hecho"
 // Destino: src/app/layout.tsx
@@ -73,7 +74,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es-MX" className={`${archivo.variable} ${newsreader.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        {/* Visitas y conversiones anónimas, sin cookies. Se activa en el
+            panel de Vercel (Analytics); si no está activado, no hace nada. */}
+        <Analytics />
+      </body>
     </html>
   );
 }

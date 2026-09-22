@@ -22,6 +22,9 @@ import { practicaDe } from "@/lib/practica";
 import { PreguntaPrevia, Comprobacion } from "@/components/practica";
 import { LoEsencial } from "@/components/lo-esencial";
 import { PlanSiguiente } from "@/components/plan-siguiente";
+import { CapturaCorreo } from "@/components/captura-correo";
+import { iaLista } from "@/lib/ia";
+import { clienteServidor, usuarioActual } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
@@ -67,6 +70,21 @@ export default async function Leccion({
     precio_cents, moneda, modulosTotales, leccionesAbiertas, mapa,
   } = d;
   const ruta = `/cursos/${slug}/${m}/${l}`;
+
+  // Con sesión, el cuaderno arranca con lo que ya guardó en su taller.
+  const usuario = await usuarioActual();
+  let borrador: string | null = null;
+  if (usuario && mision) {
+    const sb = await clienteServidor();
+    const { data } = await sb
+      .from("user_assets")
+      .select("content")
+      .eq("lesson_id", leccion.id)
+      .order("updated_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    borrador = (data?.content as string | undefined) ?? null;
+  }
   // El índice y los ids de los <h2> salen de la MISMA función: nunca se
   // desincronizan aunque cambie el texto en la base.
   const indice = contenido ? secciones(contenido) : [];
@@ -207,6 +225,9 @@ export default async function Leccion({
               {mision ? (
                 <div id="aplica" className="ancla-seccion">
                   <CuadernoLeccion
+                    conCuenta={Boolean(usuario)}
+                    conIA={iaLista() && (inscrito || leccion.is_preview)}
+                    inicial={borrador}
                     leccionId={leccion.id}
                     titulo={mision.title}
                     ayuda={
@@ -387,6 +408,10 @@ export default async function Leccion({
           {/* El mapa del curso: primero se ve el camino entero, luego se
               ofrece. Al inscrito le muestra su avance real. */}
           <MapaCurso slug={slug} puntos={mapa} inscrito={inscrito} />
+
+          {!usuario && contenido ? (
+            <CapturaCorreo origen="leccion_gratis" curso={slug} />
+          ) : null}
 
           {!inscrito && contenido ? (
             <ContinuarCurso

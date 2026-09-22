@@ -138,7 +138,7 @@
 }
 .pie-enlaces a:hover { opacity: 1; text-decoration: underline; }
 @media (min-width: 800px) {
-  .pie-in { grid-template-columns: 1fr auto; }
+  .pie-in { grid-template-columns: 1fr auto auto; column-gap: clamp(32px, 5vw, 72px); }
 }
 
 /* ─── Secciones ───────────────────────────────────────────────────────── */
