@@ -1,0 +1,14 @@
+{
+  "name": "Listo — Entras con un problema. Sales con la solución lista.",
+  "short_name": "Listo",
+  "description": "Resuelve una cosa concreta de tu negocio y sal con esa cosa hecha. Para dueños de negocio en México.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F2EEE4",
+  "theme_color": "#22301F",
+  "lang": "es-MX",
+  "icons": [
+    { "src": "/apple-icon", "sizes": "180x180", "type": "image/png" },
+    { "src": "/apple-icon", "sizes": "180x180", "type": "image/png", "purpose": "maskable" }
+  ]
+}
