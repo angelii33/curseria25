@@ -1,4 +1,4 @@
-/* LISTO — Design System. Partes en /src/styles/ */
+/* LISTO — Design System modular */
 @import "tailwindcss";
 @import "../styles/ds-tokens.css";
 @import "../styles/ds-components.css";
