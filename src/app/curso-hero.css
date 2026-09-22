@@ -1,0 +1,104 @@
+/* Estilos del hero editorial de la página de curso */
+
+.curso-hero {
+  margin-bottom: var(--e-7);
+}
+
+.curso-hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e-2) var(--e-3);
+  align-items: center;
+  margin-bottom: var(--e-3);
+}
+
+.curso-hero-problema {
+  display: inline-block;
+  margin-bottom: var(--e-3);
+  padding: 4px 10px;
+  background: var(--musgo-100);
+  color: var(--musgo-700);
+  border-radius: var(--r-placa);
+  letter-spacing: 0.02em;
+}
+
+.curso-hero-titulo {
+  margin-top: var(--e-2);
+  max-width: 18ch;
+}
+
+.curso-hero-subtitulo {
+  margin-top: var(--e-5);
+  color: var(--tinta-media);
+  max-width: 42ch;
+}
+
+.curso-hero-portada {
+  margin-top: var(--e-6);
+}
+
+.curso-cta-card {
+  margin-top: 0;
+}
+
+.curso-cta-form {
+  margin-top: 0;
+}
+
+.curso-cta-gratis {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--e-3);
+  margin-top: var(--e-5);
+  color: var(--tinta-media);
+}
+
+.curso-cta-gratis-link {
+  color: var(--musgo-600);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+.curso-cta-gratis-link:hover {
+  color: var(--musgo-700);
+}
+
+.curso-temario-cab {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--e-3);
+  margin: var(--e-8) 0 var(--e-5);
+}
+
+.leccion-cuerpo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.leccion-meta {
+  color: var(--tinta-tenue);
+  white-space: nowrap;
+  justify-self: end;
+}
+
+.curso-cta-final-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--e-4);
+}
+
+@media (max-width: 639px) {
+  .curso-hero-titulo {
+    max-width: none;
+  }
+  .curso-hero-subtitulo {
+    max-width: none;
+  }
+}
