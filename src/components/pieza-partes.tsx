@@ -17,6 +17,7 @@ export function PiezaPartes({
   modo,
   actual = null,
   etiquetaParte = "Lección",
+  sinFigura = false,
 }: {
   slug: string;
   nombre: string;
@@ -26,6 +27,8 @@ export function PiezaPartes({
   actual?: number | null;
   /** «Lección» o «Módulo», según cómo se reparten las partes. */
   etiquetaParte?: string;
+  /** Solo la lista: cuando la pieza ya se dibujó justo arriba. */
+  sinFigura?: boolean;
 }) {
   const estados = partes.map((p, i) =>
     modo === "venta" ? "hecha" : i === actual ? "actual" : p.hecha ? "hecha" : "pendiente"
@@ -37,7 +40,8 @@ export function PiezaPartes({
       : `${nombre}: ${hechas} de ${partes.length} partes construidas`;
 
   return (
-    <div className={`pp pp-${modo}`}>
+    <div className={`pp pp-${modo} ${sinFigura ? "pp-sin-figura" : ""}`}>
+      {sinFigura ? null : (
       <figure className="pp-figura">
         <Pieza slug={slug} estados={estados} etiqueta={etiqueta} />
         {modo === "avance" ? (
@@ -48,6 +52,7 @@ export function PiezaPartes({
           </figcaption>
         ) : null}
       </figure>
+      )}
       <ol className="pp-lista">
         {partes.map((p, i) => {
           const e = estados[i];

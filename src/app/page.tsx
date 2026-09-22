@@ -7,6 +7,9 @@ import { Pieza } from "@/components/pieza";
 import { IconoProceso } from "@/components/iconos-proceso";
 import { SelectorProblema } from "@/components/selector-problema";
 import { Preguntas } from "@/components/preguntas";
+import { Pestanas } from "@/components/pestanas";
+import { AntesDespues, tieneAntesDespues } from "@/components/antes-despues";
+import { LeccionPorDentro } from "@/components/leccion-por-dentro";
 import { MARCA } from "@/lib/marca";
 
 export const dynamic = "force-dynamic";
@@ -110,6 +113,9 @@ export default async function Inicio() {
               <div className="mesa-hoja mesa-hoja-3">
                 <Pieza slug="whatsapp-que-contesta-solo" etiqueta="" />
               </div>
+              <span className="mesa-nota mesa-nota-1">Tu ficha de Google</span>
+              <span className="mesa-nota mesa-nota-2">Tu cotización en PDF</span>
+              <span className="mesa-nota mesa-nota-3">Tu WhatsApp que contesta solo</span>
             </div>
           </div>
         </section>
@@ -140,6 +146,42 @@ export default async function Inicio() {
                 </p>
               </div>
               <SelectorProblema cursos={cursos} />
+            </div>
+          </section>
+        ) : null}
+
+        {/* ─── 2b · ASÍ CAMBIA: el problema dibujado contra la pieza hecha ─── */}
+        {cursos.some((c) => tieneAntesDespues(c.slug)) ? (
+          <section className="seccion seccion-cambio" aria-labelledby="cambio-titulo">
+            <div className="marco">
+              <div className="seccion-cab">
+                <p className="sobretitulo">Antes y después</p>
+                <h2 className="t-titulo-1" id="cambio-titulo">Así cambia tu negocio</h2>
+                <p className="t-lectura seccion-bajada">
+                  A la izquierda, lo que pasa hoy. A la derecha, la pieza con la que sales
+                  del curso. Elige un problema.
+                </p>
+              </div>
+              <Pestanas
+                etiqueta="Problemas que resuelven los cursos"
+                pestanas={cursos
+                  .filter((c) => tieneAntesDespues(c.slug))
+                  .map((c) => ({
+                    id: c.slug,
+                    titulo: editorialDe(c.slug)!.problema,
+                    panel: (
+                      <>
+                        <AntesDespues slug={c.slug} />
+                        <p className="cambio-pie">
+                          <Link href={`/cursos/${c.slug}`} className="cambio-enlace">
+                            {c.title}: {c.lecciones} lecciones
+                            {c.abiertaRuta ? ", la primera gratis" : ""} <span aria-hidden="true">→</span>
+                          </Link>
+                        </p>
+                      </>
+                    ),
+                  }))}
+              />
             </div>
           </section>
         ) : null}
@@ -198,7 +240,9 @@ export default async function Inicio() {
                 con tu negocio abierto en la otra pestaña.
               </p>
             </div>
-            <ol className="metodo">
+            <div className="como">
+            <LeccionPorDentro />
+            <ol className="metodo metodo-vertical">
               <li>
                 <IconoProceso paso={1} />
                 <p className="metodo-num">01 · Antes de empezar</p>
@@ -227,6 +271,7 @@ export default async function Inicio() {
                 </p>
               </li>
             </ol>
+            </div>
           </div>
         </section>
 

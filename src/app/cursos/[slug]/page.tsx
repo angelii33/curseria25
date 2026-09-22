@@ -8,6 +8,8 @@ import { Barra, Pie } from "@/components/ui";
 import { MediaCurso } from "@/components/curso-ficha";
 import { PiezaPartes } from "@/components/pieza-partes";
 import { Temario } from "@/components/temario";
+import { AntesDespues, tieneAntesDespues } from "@/components/antes-despues";
+import { RitmoCurso } from "@/components/ritmo-curso";
 import { Preguntas } from "@/components/preguntas";
 import { Aviso } from "@/components/aviso";
 import { ETAPAS, NIVEL, editorialDe, partesDe } from "@/lib/editorial";
@@ -182,6 +184,15 @@ export default async function Curso({
               </Aviso>
             ) : null}
 
+            {/* ─── HOY → AL TERMINAR ─── */}
+            {!inscrito && tieneAntesDespues(slug) ? (
+              <section className="bloque" aria-labelledby="cambio-titulo">
+                <p className="sobretitulo">Antes y después</p>
+                <h2 className="t-titulo-2" id="cambio-titulo">De esto, a esto</h2>
+                <AntesDespues slug={slug} />
+              </section>
+            ) : null}
+
             {/* ─── LO QUE TE LLEVAS ─── */}
             {ed && partes ? (
               <section className="bloque" aria-labelledby="pieza-titulo">
@@ -202,6 +213,7 @@ export default async function Curso({
                   partes={partes}
                   modo={inscrito ? "avance" : "venta"}
                   etiquetaParte={ed.pieza.porModulo ? "Módulo" : "Lección"}
+                  sinFigura={!inscrito && tieneAntesDespues(slug)}
                 />
               </section>
             ) : null}
@@ -274,6 +286,15 @@ export default async function Curso({
                       : "Acceso completo al obtener el curso"}
                 </p>
               </div>
+              <RitmoCurso
+                lecciones={todas.map((l) => ({
+                  id: l.id,
+                  titulo: l.title,
+                  minutos: l.duration_minutes,
+                  gratis: l.is_preview,
+                  hecha: hechas.has(l.id),
+                }))}
+              />
               <Temario
                 slug={slug}
                 modulos={modulos}
