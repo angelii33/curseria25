@@ -2173,3 +2173,14 @@ body {
   .otp { gap: 5px; }
   .otp-casilla { height: 50px; font-size: 22px; }
 }
+.boton-google {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  background: #FFFFFF; color: #1F1F1F; border: 1.5px solid var(--linea-firme);
+  font-weight: 650;
+}
+.boton-google:hover:not(:disabled) { border-color: var(--musgo-600); }
+.acceso-separador {
+  display: flex; align-items: center; gap: 12px; margin: var(--e-5) 0;
+  font-size: 14px; color: var(--tinta-media);
+}
+.acceso-separador::before, .acceso-separador::after { content: ""; flex: 1; border-top: 1px solid var(--linea); }

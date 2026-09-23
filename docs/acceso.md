@@ -19,6 +19,29 @@
 Lo único que guarda el navegador es el correo y la hora del último envío
 (`sessionStorage`, clave `listo:acceso`), para no perder el paso 2 al recargar.
 
+## Entrar con Google (sin correos, sin límite de envíos)
+
+El botón «Continuar con Google» aparece solo cuando Google está activado en
+Supabase (se consulta `/auth/v1/settings` cada 5 minutos). Flujo:
+`entrarConGoogle` → Google → Supabase → `/auth/confirm?code=…` →
+`exchangeCodeForSession` (PKCE) → página de origen. Si la persona cancela,
+vuelve a `/entrar?error=google` con aviso. El perfil toma el nombre de Google
+(`full_name`).
+
+Para activarlo:
+
+1. console.cloud.google.com → crear proyecto → «APIs y servicios» →
+   «Pantalla de consentimiento de OAuth»: tipo Externo, nombre «Listo», tu
+   correo. Publicar la app (estado «En producción»).
+2. «Credenciales» → «Crear credenciales» → «ID de cliente de OAuth» →
+   Aplicación web. En «URI de redireccionamiento autorizados» pegar:
+   `https://ppcjjmejawxjlfblbudt.supabase.co/auth/v1/callback`
+3. Copiar el «ID de cliente» y el «Secreto del cliente».
+4. Supabase → Authentication → Sign In / Providers → Google → activar,
+   pegar los dos datos y guardar.
+5. Supabase → Authentication → URL Configuration: Site URL = dominio de
+   producción y en Redirect URLs `https://<dominio>/**`.
+
 ## Configuración en Supabase (panel, no está en el código)
 
 **Authentication → URL Configuration**

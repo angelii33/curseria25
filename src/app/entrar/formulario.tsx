@@ -4,9 +4,10 @@ import {
   useActionState, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode, type RefObject,
 } from "react";
 import { useRouter } from "next/navigation";
-import { pedirCodigo, verificarCodigo, entrarConClave, type Estado } from "../acciones";
+import { pedirCodigo, verificarCodigo, entrarConClave, entrarConGoogle, type Estado } from "../acciones";
 import { IconoSobre, IconoTicket, IconoCandado } from "@/components/iconos-acceso";
 import { CodigoOtp } from "@/components/codigo-otp";
+import { BotonGoogle } from "@/components/boton-google";
 import { ocultarCorreo } from "@/lib/auth";
 
 const inicial: Estado = {};
@@ -103,7 +104,16 @@ function useCuentaAtras(hasta: number) {
   return Math.max(0, Math.ceil((hasta - ahora) / 1000));
 }
 
-export function Formulario({ volver, falloEnlace }: { volver?: string; falloEnlace?: boolean }) {
+export function Formulario({
+  volver,
+  google,
+  fallo,
+}: {
+  volver?: string;
+  /** «Entrar con Google» activado en Supabase. */
+  google?: boolean;
+  fallo?: "enlace" | "google";
+}) {
   const router = useRouter();
   const enLinea = useEnLinea();
   const [modo, setModo] = useState<"codigo" | "clave">("codigo");
@@ -238,22 +248,45 @@ export function Formulario({ volver, falloEnlace }: { volver?: string; falloEnla
     return (
       <div className="superficie acceso">
         <IconoSobre />
-        <div className="t-folio" style={{ marginTop: "var(--e-3)" }}>Paso 1 de 2</div>
-        <h2 className="t-titulo-3" style={{ marginTop: "var(--e-2)" }}>
-          Escribe tu correo
-        </h2>
-        <p className="t-cuerpo" style={{ marginTop: "var(--e-3)" }}>
-          Te mandamos un código de 6 dígitos. Sin contraseñas que inventar ni
-          recordar.
-        </p>
+        {google ? (
+          <>
+            <h2 className="t-titulo-3" style={{ marginTop: "var(--e-3)" }}>Entra a tu cuenta</h2>
+            <p className="t-cuerpo" style={{ marginTop: "var(--e-3)" }}>
+              Con tu cuenta de Google es un clic. Si es tu primera vez, la cuenta se crea sola.
+            </p>
+          </>
+        ) : (
+          <>
+            <div className="t-folio" style={{ marginTop: "var(--e-3)" }}>Paso 1 de 2</div>
+            <h2 className="t-titulo-3" style={{ marginTop: "var(--e-2)" }}>
+              Escribe tu correo
+            </h2>
+            <p className="t-cuerpo" style={{ marginTop: "var(--e-3)" }}>
+              Te mandamos un código de 6 dígitos. Sin contraseñas que inventar ni
+              recordar.
+            </p>
+          </>
+        )}
 
-        {falloEnlace && !pedido.n && (
+        {fallo && !pedido.n && (
           <p className="t-cuerpo aviso-falla" role="alert" style={{ marginTop: "var(--e-4)" }}>
-            Ese enlace ya se usó o caducó. Pide un código nuevo aquí abajo.
+            {fallo === "google"
+              ? "No se completó la entrada con Google. Vuelve a intentarlo o entra con tu correo."
+              : "Ese enlace ya se usó o caducó. Pide un código nuevo aquí abajo."}
           </p>
         )}
 
         <div className="perforacion perforacion-sangrada" />
+
+        {google && (
+          <>
+            <form action={entrarConGoogle}>
+              {volver && <input type="hidden" name="volver" value={volver} />}
+              <BotonGoogle deshabilitado={!enLinea} />
+            </form>
+            <p className="acceso-separador"><span>o con un código a tu correo</span></p>
+          </>
+        )}
 
         <form action={pedir} style={{ display: "grid", gap: "var(--e-5)" }}>
           {volver && <input type="hidden" name="volver" value={volver} />}
@@ -303,6 +336,7 @@ export function Formulario({ volver, falloEnlace }: { volver?: string; falloEnla
 
   return (
     <PasoCodigo
+      google={google}
       flujo={flujo}
       volver={volver}
       aviso={aviso}
@@ -322,9 +356,10 @@ export function Formulario({ volver, falloEnlace }: { volver?: string; falloEnla
 }
 
 function PasoCodigo({
-  flujo, volver, aviso, errorPedir, estado, verificando, pidiendo, enLinea, sinConexion, reinicio,
+  google, flujo, volver, aviso, errorPedir, estado, verificando, pidiendo, enLinea, sinConexion, reinicio,
   formCodigo, verificar, pedir, cambiarCorreo,
 }: {
+  google?: boolean;
   flujo: Flujo;
   volver?: string;
   aviso: string | null;
@@ -431,6 +466,12 @@ function PasoCodigo({
             un botón para entrar, también sirve, pero es el mismo acceso: al usar uno, el otro ya no.
           </li>
         </ol>
+        {google && (
+          <form action={entrarConGoogle} style={{ marginTop: "var(--e-4)" }}>
+            {volver && <input type="hidden" name="volver" value={volver} />}
+            <BotonGoogle deshabilitado={!enLinea} />
+          </form>
+        )}
       </details>
     </div>
   );

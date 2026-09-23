@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { usuarioActual } from "@/lib/supabase/server";
 import { Barra } from "@/components/ui";
 import { rutaInterna } from "@/lib/rutas";
+import { googleActivo } from "@/lib/supabase/proveedores";
 import { Formulario } from "./formulario";
 
 export const dynamic = "force-dynamic";
@@ -44,7 +45,11 @@ export default async function Entrar({
             <li>Tu avance, tus misiones y tus certificados, en un solo lugar.</li>
           </ul>
         </div>
-        <Formulario volver={volver} falloEnlace={params.error === "enlace"} />
+        <Formulario
+          volver={volver}
+          google={await googleActivo()}
+          fallo={params.error === "enlace" || params.error === "google" ? params.error : undefined}
+        />
       </main>
     </>
   );

@@ -156,6 +156,28 @@ export async function entrarConClave(_prev: Estado, datos: FormData): Promise<Es
   return { correo, destino: rutaInterna(String(datos.get("volver") ?? ""), "/mi-aprendizaje"), n };
 }
 
+/**
+ * «Entrar con Google». Sin correos de por medio: Google confirma la
+ * identidad y Supabase crea la cuenta la primera vez. El regreso pasa por
+ * /auth/confirm, que canjea el código (PKCE) por la sesión en galletas.
+ */
+export async function entrarConGoogle(datos: FormData) {
+  const volver = rutaInterna(String(datos.get("volver") ?? ""), "/mi-aprendizaje");
+  const sb = await clienteServidor();
+  const { data, error } = await sb.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${await origen()}/auth/confirm?next=${encodeURIComponent(volver)}`,
+      queryParams: { prompt: "select_account" },
+    },
+  });
+  if (error || !data.url) {
+    if (error) console.warn("[acceso] google", { code: error.code ?? "?", status: error.status ?? 0 });
+    redirect(conParametro(`/entrar${volver === "/mi-aprendizaje" ? "" : `?volver=${encodeURIComponent(volver)}`}`, "error=google"));
+  }
+  redirect(data.url);
+}
+
 /** Cierra la sesión de ESTE navegador. Las de otros dispositivos siguen. */
 export async function salir() {
   const sb = await clienteServidor();

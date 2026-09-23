@@ -22,6 +22,15 @@ export async function GET(request: NextRequest) {
   const tipo = p.get("type") as EmailOtpType | null;
   const code = p.get("code");
 
+  // Quien cancela en la pantalla de Google (o Google falla) vuelve con ?error.
+  if (p.has("error") && !code && !tokenHash) {
+    console.warn("[acceso] proveedor", { code: p.get("error_code") ?? p.get("error") ?? "?" });
+    const destino = new URL("/entrar", request.url);
+    destino.searchParams.set("error", "google");
+    if (next !== "/mi-aprendizaje") destino.searchParams.set("volver", next);
+    return NextResponse.redirect(destino);
+  }
+
   const sb = await clienteServidor();
   let error: { code?: string; status?: number } | null = null;
 
