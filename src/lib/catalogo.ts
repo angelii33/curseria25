@@ -194,6 +194,27 @@ export async function getCurso(slug: string) {
   const todas = modulos.flatMap((m) => m.lecciones);
   const completadas = todas.filter((l) => hechas.has(l.id)).length;
 
+  // Quizzes del curso que faltan por aprobar. issue_certificate exige TODOS:
+  // sin esto, «Ver mi certificado» aparecía y la RPC lo rechazaba. Solo se
+  // consulta para quien está inscrito (RLS no deja ver quizzes sin acceso).
+  let quizzesPendientes: { mod: number; lec: number; titulo: string }[] = [];
+  if (inscritos.has(curso.id) && todas.length) {
+    const { data: qs } = await sb.from("quizzes").select("id,lesson_id").in("lesson_id", todas.map((l) => l.id));
+    if (qs?.length) {
+      const { data: aprobados } = await sb
+        .from("quiz_attempts").select("quiz_id").eq("passed", true).in("quiz_id", qs.map((q) => q.id));
+      const ok = new Set((aprobados ?? []).map((a) => a.quiz_id as string));
+      quizzesPendientes = qs
+        .filter((q) => !ok.has(q.id as string))
+        .map((q) => {
+          const m = modulos.find((x) => x.lecciones.some((l) => l.id === q.lesson_id))!;
+          const l = m.lecciones.find((x) => x.id === q.lesson_id)!;
+          return { mod: m.sort_order, lec: l.sort_order, titulo: l.title };
+        })
+        .sort((a, b) => a.mod - b.mod || a.lec - b.lec);
+    }
+  }
+
   return {
     curso: curso as Curso,
     precio_cents: prod?.price_cents ?? null,
@@ -205,6 +226,7 @@ export async function getCurso(slug: string) {
     hechas,
     total: todas.length,
     completadas,
+    quizzesPendientes,
     pct: todas.length ? Math.round((completadas / todas.length) * 100) : 0,
     siguiente: (() => {
       for (const m of modulos)

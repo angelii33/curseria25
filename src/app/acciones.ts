@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { clienteServidor } from "@/lib/supabase/server";
 import { registrar } from "@/lib/analitica";
+import { conParametro, rutaInterna } from "@/lib/rutas";
 import { crearPreferencia, crearSuscripcion, mercadoPagoListo } from "@/lib/mercadopago";
 
 /** Traduce los errores de la base a algo que un dueño de negocio entienda. */
@@ -28,11 +29,6 @@ function mensaje(error: string): string {
   return "Algo salió mal. Vuelve a intentarlo.";
 }
 
-/** Solo rutas internas. Un campo oculto del formulario lo puede editar
- *  cualquiera: sin esto, `redirect()` serviría de trampolín a otro sitio. */
-function rutaInterna(ruta: string, porDefecto = "/"): string {
-  return ruta.startsWith("/") && !ruta.startsWith("//") && !ruta.includes("\\") ? ruta : porDefecto;
-}
 
 export type Estado = { error?: string; aviso?: string; enviado?: boolean; correo?: string };
 
@@ -124,6 +120,35 @@ export async function inscribirse(datos: FormData) {
   redirect(`/cursos/${slug}?bienvenida=1`);
 }
 
+/**
+ * XP e insignias. Las RPC award_xp_* validan que la lección esté completada o
+ * el quiz aprobado y no repiten puntos (on conflict do nothing). Si fallan,
+ * el avance ya quedó guardado: los puntos nunca bloquean al alumno.
+ */
+async function premiar(
+  sb: Awaited<ReturnType<typeof clienteServidor>>,
+  rpc: "award_xp_for_lesson" | "award_xp_for_quiz",
+  args: Record<string, string>
+): Promise<{ xp: number; insignia: string | null }> {
+  try {
+    const antes = new Date(Date.now() - 1000).toISOString();
+    const { data, error } = await sb.rpc(rpc, args);
+    if (error) return { xp: 0, insignia: null };
+    const fila = Array.isArray(data) ? data[0] : data;
+    const { data: nueva } = await sb
+      .from("user_badges")
+      .select("badges(code)")
+      .gte("awarded_at", antes)
+      .order("awarded_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const code = (nueva?.badges as unknown as { code: string } | null)?.code ?? null;
+    return { xp: Number(fila?.xp_awarded ?? 0), insignia: code };
+  } catch {
+    return { xp: 0, insignia: null };
+  }
+}
+
 /** Marca la lección. El backend valida el acceso antes de escribir. */
 export async function completarLeccion(datos: FormData) {
   const leccionId = String(datos.get("leccion_id") ?? "");
@@ -134,9 +159,12 @@ export async function completarLeccion(datos: FormData) {
   if (error) throw new Error(mensaje(error.message));
 
   await registrar("leccion_completada", { ruta: rutaInterna(ruta) });
+  const premio = await premiar(sb, "award_xp_for_lesson", { check_lesson_id: leccionId });
   revalidatePath("/", "layout");
-  // ?hecha=1 dispara el aviso breve de «lección completada» en la página.
-  redirect(`${rutaInterna(ruta)}?hecha=1#cierre`);
+  // ?hecha=1 dispara el aviso breve de «lección completada» en la página;
+  // xp e insignia solo cambian el texto del aviso (la fuente es la base).
+  const extra = `${premio.xp ? `&xp=${premio.xp}` : ""}${premio.insignia ? `&insignia=${premio.insignia}` : ""}`;
+  redirect(`${rutaInterna(ruta)}?hecha=1${extra}#cierre`);
 }
 
 export type ResultadoQuiz = {
@@ -144,6 +172,8 @@ export type ResultadoQuiz = {
   /** Porcentaje 0-100 que devuelve submit_quiz_attempt, no numero de aciertos. */
   puntaje?: number;
   aprobado?: boolean;
+  /** XP ganados en este intento (0 si ya se habían dado antes). */
+  xp?: number;
 };
 
 /** Califica el quiz en el servidor. El navegador nunca ve cuál es la correcta. */
@@ -170,10 +200,14 @@ export async function responderQuiz(
   if (error) return { error: mensaje(error.message) };
 
   const fila = Array.isArray(data) ? data[0] : data;
+  const premio = fila?.passed
+    ? await premiar(sb, "award_xp_for_quiz", { check_quiz_id: quizId })
+    : { xp: 0, insignia: null };
   revalidatePath("/", "layout");
   return {
     puntaje: fila?.score ?? 0,
     aprobado: Boolean(fila?.passed),
+    xp: premio.xp,
   };
 }
 
@@ -210,11 +244,6 @@ export async function emitirCertificado(datos: FormData) {
   redirect(`/certificado/${codigo}`);
 }
 
-/** Añade un parámetro a una ruta interna respetando su «#ancla». */
-function conParametro(ruta: string, param: string) {
-  const [camino, ancla] = ruta.split("#");
-  return `${camino}${camino.includes("?") ? "&" : "?"}${param}${ancla ? `#${ancla}` : ""}`;
-}
 
 /**
  * Compra de un curso o un paquete. El precio lo fija la base al crear la

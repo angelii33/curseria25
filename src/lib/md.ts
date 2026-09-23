@@ -226,13 +226,13 @@ export function md(texto: string): string {
       const cab = celdas(filas[0]);
       const cuerpo = filas.slice(2).map(celdas);
       salida +=
-        // Con 3 columnas o más la tabla se desplaza de lado en el teléfono;
-        // con 2 cabe y no debe esconder la segunda columna.
+        // Con 3 columnas o más, en el teléfono cada fila se vuelve una ficha
+        // (CSS con data-etiqueta); con 2 columnas la tabla cabe tal cual.
         `<div class="md-tabla${cab.length >= 3 ? " md-tabla-ancha" : ""}" role="region" aria-label="Tabla" tabindex="0"><table><thead><tr>` +
         cab.map((c) => `<th scope="col">${linea(c)}</th>`).join("") +
         "</tr></thead><tbody>" +
         cuerpo
-          .map((f) => "<tr>" + f.map((c, i) => (i === 0 ? `<th scope="row">${linea(c)}</th>` : `<td>${linea(c)}</td>`)).join("") + "</tr>")
+          .map((f) => "<tr>" + f.map((c, i) => (i === 0 ? `<th scope="row">${linea(c)}</th>` : `<td data-etiqueta="${esc(cab[i]?.replace(/[*_`]/g, "") ?? "")}">${linea(c)}</td>`)).join("") + "</tr>")
           .join("") +
         "</tbody></table></div>";
       anterior = "";

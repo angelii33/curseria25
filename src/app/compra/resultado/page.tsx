@@ -3,15 +3,13 @@ import Link from "next/link";
 import { Barra, Pie } from "@/components/ui";
 import { Aviso } from "@/components/aviso";
 import { mercadoPagoListo } from "@/lib/mercadopago";
+import { rutaInterna } from "@/lib/rutas";
 import { procesarPago, procesarSuscripcion, type Resultado } from "@/lib/pagos";
 
 export const metadata: Metadata = {
   title: "Tu compra",
   robots: { index: false, follow: false },
 };
-
-const rutaInterna = (r: string | undefined) =>
-  r && r.startsWith("/") && !r.startsWith("//") && !r.includes("\\") ? r : "/mi-aprendizaje";
 
 // Página de regreso de Mercado Pago. Lo que viene en la URL solo se usa como
 // id para CONSULTAR el pago: el estado que se muestra es el que responde
@@ -22,7 +20,7 @@ export default async function ResultadoCompra({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const q = await searchParams;
-  const volver = rutaInterna(q.volver);
+  const volver = rutaInterna(q.volver, "/mi-aprendizaje");
   const pagoId = q.payment_id ?? q.collection_id;
   const suscripcionId = q.preapproval_id;
 

@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getCurso, getOfertas, precio, horas, folio } from "@/lib/catalogo";
 import { usuarioActual } from "@/lib/supabase/server";
-import { inscribirse, emitirCertificado, comprar } from "@/app/acciones";
+import { inscribirse, comprar } from "@/app/acciones";
+import { CierreCurso } from "@/components/cierre-curso";
 import { clienteServidor } from "@/lib/supabase/server";
 import { OpinionForm } from "@/components/opinion-form";
 import { Opiniones } from "@/components/opiniones";
@@ -84,7 +85,9 @@ export default async function Curso({
   const precioTexto = precio_cents !== null ? precio(precio_cents, moneda) : null;
   const nivel = curso.level ? NIVEL[curso.level] ?? curso.level : null;
   const pagoPendiente = acceso === "pendiente" && !inscrito;
-  const claseCompra = `btn ${rutaPrimera ? "btn-secundario" : "btn-primario"} btn-bloque`;
+  // La lección gratis ya completada (se puede guardar con cuenta, sin compra).
+  const gratisHecha = Boolean(primera && hechas.has(primera.id));
+  const claseCompra = `btn ${rutaPrimera && !gratisHecha ? "btn-secundario" : "btn-primario"} btn-bloque`;
 
   const botonCompra =
     esPago && producto_id && !incluidoEnPro ? (
@@ -399,15 +402,7 @@ export default async function Curso({
                       </Link>
                     </>
                   ) : (
-                    <>
-                      <p className="t-cuerpo panel-hecho">Terminaste las {total} lecciones. Tu certificado ya está listo.</p>
-                      <form action={emitirCertificado}>
-                        <input type="hidden" name="curso_id" value={curso.id} />
-                        <button className="btn btn-primario btn-bloque" type="submit">
-                          Ver mi certificado
-                        </button>
-                      </form>
-                    </>
+                    <CierreCurso slug={slug} cursoId={curso.id} total={total} pendientes={d.quizzesPendientes} bloque />
                   )}
                 </>
               ) : (
@@ -435,13 +430,24 @@ export default async function Curso({
                     </Aviso>
                   ) : null}
 
+                  {gratisHecha ? (
+                    <p className="t-dato panel-gratis-hecha">
+                      <span aria-hidden="true">✓</span> Ya hiciste la lección gratis. Te faltan {total - 1} para
+                      terminar {ed ? ed.pieza.nombre.charAt(0).toLowerCase() + ed.pieza.nombre.slice(1) : "el curso"}.
+                    </p>
+                  ) : null}
                   <div className="panel-acciones">
-                    {rutaPrimera ? (
+                    {rutaPrimera && !gratisHecha ? (
                       <Link className="btn btn-primario btn-bloque" href={rutaPrimera}>
                         Empezar la lección gratis
                       </Link>
                     ) : null}
                     {botonCompra}
+                    {rutaPrimera && gratisHecha ? (
+                      <Link className="btn btn-fantasma btn-bloque" href={rutaPrimera}>
+                        Repasar la lección gratis
+                      </Link>
+                    ) : null}
                   </div>
                   <ul className="panel-incluye">
                     <li>{total} lecciones con pasos y ejercicio</li>

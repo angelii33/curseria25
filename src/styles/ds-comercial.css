@@ -167,3 +167,71 @@
 
 /* Enlaces dentro de texto: subrayados, no solo por color (WCAG 1.4.1) */
 .garantia .t-lectura a, .cuaderno-aviso a, .panel-garantia a, .legal-resumen a { text-decoration: underline; text-underline-offset: 3px; color: var(--musgo-700); }
+
+/* Cierre del curso: certificado o quizzes pendientes */
+.cierre-curso { display: grid; gap: 12px; margin-top: var(--e-5); }
+.cierre-curso-lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.cierre-curso-lista li { font-family: var(--tipo-titular); font-weight: 650; font-size: 15.5px; }
+.cierre-curso-lista .t-folio { color: var(--cobre-600); margin-right: 6px; }
+
+/* Logros: XP, racha, insignias */
+.logros { margin-top: var(--e-7); display: grid; gap: 18px; }
+.logros-cifras { display: grid; gap: 12px; }
+@media (min-width: 720px) { .logros-cifras { grid-template-columns: 1.3fr 1fr 1fr; } }
+.logro-cifra { display: grid; gap: 6px; align-content: start; padding: 18px 20px; background: var(--lienzo); border: 1px solid var(--linea-firme); border-bottom: 3px solid var(--linea-sombra); border-radius: var(--r-hoja); }
+.logro-cifra strong { font-family: var(--tipo-titular); font-size: 30px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.05; }
+.logro-cifra .t-dato { color: var(--tinta-media); }
+.logro-barra { display: block; height: 8px; border-radius: var(--r-sello); background: var(--papel-hundido); overflow: hidden; }
+.logro-barra span { display: block; height: 100%; background: var(--musgo-600); border-radius: inherit; transition: width 600ms var(--curva-salida); }
+.insignias-cab { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; align-items: baseline; }
+.insignias-cab .t-dato { color: var(--tinta-media); }
+.insignias { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); }
+.insignia-item { display: flex; gap: 12px; align-items: center; padding: 12px 14px; border: 1px dashed var(--linea-firme); border-radius: var(--r-papel); color: var(--tinta-media); }
+.insignia-item strong { display: block; font-family: var(--tipo-titular); font-size: 15px; color: var(--tinta); }
+.insignia-ganada { border-style: solid; border-color: var(--musgo-300); background: var(--musgo-100); }
+.insignia-sello { flex: none; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; border: 2px dashed var(--linea-firme); font-family: var(--tipo-titular); font-weight: 800; }
+.insignia-ganada .insignia-sello { border: 0; background: var(--musgo-600); color: var(--papel); }
+@media (prefers-reduced-motion: reduce) { .logro-barra span { transition: none; } }
+
+/* Premio al completar: XP e insignia */
+.hecho-premio { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.hecho-xp, .hecho-insignia { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: var(--r-sello); font-family: var(--tipo-titular); font-weight: 750; font-size: 14px; }
+.hecho-xp { background: var(--cobre-100); color: var(--cobre-700); animation: premio 520ms var(--curva-cuno) both 200ms; }
+.hecho-insignia { background: var(--musgo-100); color: var(--musgo-800); animation: premio 520ms var(--curva-cuno) both 380ms; }
+@keyframes premio { from { opacity: 0; transform: translateY(6px) scale(0.92); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .hecho-xp, .hecho-insignia { animation: none; } }
+.panel-gratis-hecha { margin-top: var(--e-5); padding: 10px 12px; border-radius: var(--r-papel); background: var(--musgo-100); color: var(--musgo-800); }
+
+/* Tablas de 3+ columnas en el teléfono: cada fila es una ficha legible,
+   sin desplazamiento lateral ni texto cortado. */
+@media (max-width: 559px) {
+  .md-tabla-ancha { overflow: visible; border: 0; background: transparent; }
+  .md-tabla-ancha table { min-width: 0; width: 100%; }
+  .md-tabla-ancha thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .md-tabla-ancha tbody, .md-tabla-ancha tr, .md-tabla-ancha th, .md-tabla-ancha td { display: block; }
+  .md-tabla-ancha tr { margin-bottom: 10px; padding: 12px 14px; background: var(--lienzo); border: 1px solid var(--linea-firme); border-radius: var(--r-papel); }
+  .md-tabla-ancha tbody th { padding: 0 0 6px; border: 0; font-size: 16px; }
+  .md-tabla-ancha td { padding: 4px 0; border: 0; }
+  .md-tabla-ancha td::before { content: attr(data-etiqueta); display: block; font-family: var(--tipo-titular); font-size: 11.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--tinta-tenue); }
+}
+.plan-hora .campo { width: 136px; }
+@media (max-width: 719px) {
+  .logros-cifras { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .logro-cifra { padding: 12px; }
+  .logro-cifra strong { font-size: 22px; }
+  .logro-cifra .t-dato { font-size: 12.5px; line-height: 1.3; }
+  .insignias { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .insignia-item { flex-direction: column; align-items: flex-start; gap: 8px; padding: 10px; }
+  .insignia-sello { width: 28px; height: 28px; }
+}
+
+/* 320–359 px: la barra y la semana caben sin desplazamiento lateral */
+@media (max-width: 359px) {
+  .barra-enlace, .barra-volver { padding-inline: 6px; font-size: 13.5px; }
+  .semana { gap: 12px; }
+  .semana-anillo { width: 60px; height: 60px; }
+  .semana-cifra { font-size: 21px; }
+  .semana-texto { min-width: 0; }
+  .semana-dias { gap: 3px; }
+  .semana-punto { width: 18px; height: 18px; }
+}

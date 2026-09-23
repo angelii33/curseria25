@@ -50,7 +50,7 @@ export default async function MiTaller() {
 
   return (
     <>
-      <Barra volver={{ href: "/mi-aprendizaje", texto: "Mi aprendizaje" }} />
+      <Barra />
       <main id="contenido" className="seccion pagina-taller">
         <div className="marco">
           <div className="seccion-cab">

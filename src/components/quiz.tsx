@@ -1,28 +1,37 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { responderQuiz, type ResultadoQuiz } from "@/app/acciones";
 import type { Pregunta } from "@/lib/catalogo";
 import { IconoAprobado, IconoReintentar } from "@/components/iconos-estado";
 
 const inicial: ResultadoQuiz = {};
 
-export function Quiz({
-  quizId,
-  preguntas,
-  minimo,
-  intento,
-}: {
+type Props = {
   quizId: string;
   preguntas: Pregunta[];
   minimo: number;
   intento: { score: number; passed: boolean } | null;
-}) {
+};
+
+/** Cada «Intentar de nuevo» monta un formulario limpio (nuevo key). */
+export function Quiz(props: Props) {
+  const [ronda, setRonda] = useState(0);
+  return <QuizRonda key={ronda} {...props} otraVez={() => setRonda((r) => r + 1)} />;
+}
+
+function QuizRonda({
+  quizId,
+  preguntas,
+  minimo,
+  intento,
+  otraVez,
+}: Props & { otraVez: () => void }) {
   const [estado, ejecutar, pendiente] = useActionState(responderQuiz, inicial);
   const hayResultado = estado.puntaje !== undefined;
 
   return (
-    <section className="superficie" style={{ marginTop: "var(--e-8)", maxWidth: "66ch" }}>
+    <section id="quiz" className="superficie ancla-seccion" style={{ marginTop: "var(--e-8)", maxWidth: "66ch" }}>
       <div className="t-folio">Paso 3 · Comprueba</div>
       <h2 className="t-titulo-3" style={{ marginTop: "var(--e-2)" }}>
         Confirma que quedó claro
@@ -53,6 +62,14 @@ export function Quiz({
               ? "Quedó claro. Puedes seguir con la siguiente lección."
               : `Te faltan algunas. Con ${minimo}% queda aprobado — vuelve al texto de arriba y repite el quiz las veces que quieras.`}
           </p>
+          {estado.aprobado && estado.xp ? (
+            <p className="hecho-premio"><span className="hecho-xp">+{estado.xp} XP</span></p>
+          ) : null}
+          {!estado.aprobado ? (
+            <button type="button" className="btn btn-secundario" style={{ marginTop: "var(--e-4)" }} onClick={otraVez}>
+              Intentar de nuevo
+            </button>
+          ) : null}
         </div>
       ) : (
         <form action={ejecutar} style={{ display: "grid", gap: "var(--e-7)" }}>

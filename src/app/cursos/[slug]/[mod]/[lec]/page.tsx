@@ -24,6 +24,7 @@ import { LoEsencial } from "@/components/lo-esencial";
 import { PlanSiguiente } from "@/components/plan-siguiente";
 import { CapturaCorreo } from "@/components/captura-correo";
 import { iaLista } from "@/lib/ia";
+import { tituloInsignia } from "@/lib/logros";
 import { clienteServidor, usuarioActual } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -54,7 +55,7 @@ export default async function Leccion({
   searchParams,
 }: {
   params: Promise<{ slug: string; mod: string; lec: string }>;
-  searchParams: Promise<{ hecha?: string; mision?: string }>;
+  searchParams: Promise<{ hecha?: string; mision?: string; xp?: string; insignia?: string }>;
 }) {
   const { slug, mod, lec } = await params;
   const aviso = await searchParams;
@@ -70,9 +71,15 @@ export default async function Leccion({
     precio_cents, moneda, modulosTotales, leccionesAbiertas, mapa,
   } = d;
   const ruta = `/cursos/${slug}/${m}/${l}`;
+  // XP e insignia recién ganados: solo cambian el texto del aviso.
+  const xpGanados = Math.min(Math.max(Number(aviso.xp) || 0, 0), 500);
+  const insignia = aviso.hecha && aviso.insignia ? await tituloInsignia(aviso.insignia) : null;
 
   // Con sesión, el cuaderno arranca con lo que ya guardó en su taller.
   const usuario = await usuarioActual();
+  // Quien tiene cuenta puede marcar la lección gratis aunque no tenga el
+  // curso (mark_lesson_complete lo permite solo para is_preview).
+  const puedeMarcar = inscrito || (leccion.is_preview && Boolean(usuario));
   let borrador: string | null = null;
   if (usuario && mision) {
     const sb = await clienteServidor();
@@ -292,7 +299,7 @@ export default async function Leccion({
 
               {/* === CIERRE === Completar, celebrar y seguir. */}
               <section id="cierre" className="cierre-leccion ancla-seccion" aria-label="Terminar la lección">
-                {inscrito ? (
+                {puedeMarcar ? (
                   hecha ? (
                     <div className={`hecho ${aviso.hecha ? "hecho-nuevo" : ""}`} role={aviso.hecha ? "status" : undefined}>
                       <Sello estado="logrado" />
@@ -304,6 +311,12 @@ export default async function Leccion({
                           {hechasCurso} de {total} lecciones del curso
                           {partes && iParte >= 0 ? ` · parte ${iParte + 1} de tu pieza construida` : ""}
                         </p>
+                        {aviso.hecha && (xpGanados > 0 || insignia) ? (
+                          <p className="hecho-premio">
+                            {xpGanados > 0 ? <span className="hecho-xp">+{xpGanados} XP</span> : null}
+                            {insignia ? <span className="hecho-insignia">Nueva insignia: {insignia}</span> : null}
+                          </p>
+                        ) : null}
                       </div>
                     </div>
                   ) : (
@@ -319,6 +332,20 @@ export default async function Leccion({
                       </button>
                     </form>
                   )
+                ) : leccion.is_preview && !usuario ? (
+                  /* Lección gratis sin cuenta: la demostración también
+                     termina en «hecho», con un solo paso para guardarlo. */
+                  <div className="completar">
+                    <div>
+                      <p className="t-titulo-4">¿Terminaste?</p>
+                      <p className="t-dato">
+                        Guárdala como hecha con tu correo: sin contraseña y sin pagar nada.
+                      </p>
+                    </div>
+                    <Link className="btn btn-primario btn-grande" href={`/entrar?volver=${encodeURIComponent(`${ruta}#cierre`)}`}>
+                      Guardar mi avance
+                    </Link>
+                  </div>
                 ) : null}
 
                 {siguiente && tituloSiguiente ? (

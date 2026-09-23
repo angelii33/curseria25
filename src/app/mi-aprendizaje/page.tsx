@@ -7,7 +7,9 @@ import { Barra, Pie, Sello } from "@/components/ui";
 import { IconoFichaVacia } from "@/components/iconos-estado";
 import { CursoFicha } from "@/components/curso-ficha";
 import { Pieza } from "@/components/pieza";
-import { emitirCertificado, salir } from "@/app/acciones";
+import { salir } from "@/app/acciones";
+import { CierreCurso } from "@/components/cierre-curso";
+import { Logros } from "@/components/logros";
 import { ETAPAS, editorialDe, partesDe } from "@/lib/editorial";
 import { bancoCompleto } from "@/lib/practica";
 import { MetaSemanal } from "@/components/meta-semanal";
@@ -59,6 +61,16 @@ export default async function MiAprendizaje() {
   const terminados = detalles.filter((d) => d.pct === 100);
   const abiertas = otros.filter((c) => c.abiertaRuta).slice(0, 3);
 
+  const habitos = (
+    <>
+      <Logros />
+      <div className="mia-habitos">
+        <MetaSemanal fechas={fechasSemana} />
+        <RepasoEspaciado banco={banco} />
+      </div>
+    </>
+  );
+
   return (
     <>
       <Barra volver={{ href: "/#cursos", texto: "Cursos" }} />
@@ -85,10 +97,9 @@ export default async function MiAprendizaje() {
           </form>
         </header>
 
-        <div className="mia-habitos">
-          <MetaSemanal fechas={fechasSemana} />
-          <RepasoEspaciado banco={banco} />
-        </div>
+        {/* Con cursos, primero el avance. Sin cursos, primero la primera
+            acción: los contadores en cero van después, no delante. */}
+        {detalles.length > 0 ? habitos : null}
 
         {detalles.length === 0 ? (
           <section className="vacio vacio-mia" aria-labelledby="vacio-titulo">
@@ -169,11 +180,7 @@ export default async function MiAprendizaje() {
                       </div>
                     ) : (
                       <div className="mi-curso-sigue">
-                        <p className="t-cuerpo">Curso terminado. Tu certificado está listo.</p>
-                        <form action={emitirCertificado}>
-                          <input type="hidden" name="curso_id" value={d.curso.id} />
-                          <button className="btn btn-secundario" type="submit">Ver mi certificado</button>
-                        </form>
+                        <CierreCurso slug={d.curso.slug} cursoId={d.curso.id} total={d.total} pendientes={d.quizzesPendientes} />
                       </div>
                     )}
                   </div>
@@ -182,6 +189,8 @@ export default async function MiAprendizaje() {
             })}
           </div>
         )}
+
+        {detalles.length === 0 ? habitos : null}
 
         {otros.length > 0 ? (
           <section className="mia-otros" aria-labelledby="otros-titulo">
