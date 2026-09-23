@@ -45,8 +45,11 @@ export function ancla(texto: string): string {
 }
 
 /** Qué clase de sección es, según su título. */
-function tipoDeSeccion(titulo: string): "antes" | "resultado" | "accion" | "normal" {
+function tipoDeSeccion(titulo: string): "antes" | "resultado" | "accion" | "problemas" | "reto" | "plan" | "normal" {
   const t = ancla(titulo);
+  if (/^(si-algo-no-sale|errores-comunes|si-no-funciona)/.test(t)) return "problemas";
+  if (/^mini-reto/.test(t)) return "reto";
+  if (/^(tu-plan-despues|plan-de-accion)/.test(t)) return "plan";
   if (/^(antes-de-empezar|lo-que-necesitas|que-construyes-hoy)/.test(t)) return "antes";
   if (/^(lo-que-hiciste-hoy|guarda$)/.test(t)) return "resultado";
   if (/^(construye$|la-prueba|haz-esto|tu-turno|sube-dos-hoy|guarda-el-link)/.test(t)) return "accion";
@@ -57,6 +60,9 @@ const ETIQUETA_TIPO = {
   antes: "Antes de empezar",
   resultado: "Resultado",
   accion: "Haz esto ahora",
+  problemas: "Si algo falla",
+  reto: "Mini reto",
+  plan: "Después del curso",
   normal: "",
 } as const;
 
@@ -272,6 +278,21 @@ export function md(texto: string): string {
     if (/^[-*]\s/.test(t)) {
       const items = t.split("\n").map((l) => l.replace(/^[-*]\s+/, ""));
       const sino = items.every((l) => /^(✅|❌)/.test(l));
+      // «Si pasa X → haz Y»: reglas de decisión, una por línea.
+      const decision = items.every((l) => /^Si\s.+\s→\s.+/.test(l));
+      if (decision) {
+        salida +=
+          '<ul class="md-decision">' +
+          items
+            .map((l) => {
+              const [si, ...resto] = l.split(" → ");
+              return `<li><span class="md-si">${linea(si)}</span><span class="md-entonces"><span aria-hidden="true">→</span> ${linea(resto.join(" → "))}</span></li>`;
+            })
+            .join("") +
+          "</ul>";
+        anterior = t;
+        continue;
+      }
       if (sino) {
         salida +=
           '<ul class="md-sino">' +
@@ -292,6 +313,19 @@ export function md(texto: string): string {
     if (/^\d+\.\s/.test(t)) {
       salida += '<ol class="md-pasos">' + t.split("\n")
         .map((l) => `<li>${linea(l.replace(/^\d+\.\s+/, ""))}</li>`).join("") + "</ol>";
+      anterior = t;
+      continue;
+    }
+    // Error común: «**Problema:** … / **Causa:** … / **Solución:** …»,
+    // una línea cada uno. Se dibuja como ficha de diagnóstico.
+    const partesError = /^\*\*Problema:\*\*\s*(.+)\n\*\*Causa:\*\*\s*(.+)\n\*\*Soluci[oó]n:\*\*\s*([\s\S]+)$/.exec(t);
+    if (partesError) {
+      salida +=
+        '<div class="md-error">' +
+        `<p class="md-error-problema"><span class="md-error-et">Problema</span>${linea(partesError[1])}</p>` +
+        `<p class="md-error-causa"><span class="md-error-et">Causa</span>${linea(partesError[2])}</p>` +
+        `<p class="md-error-solucion"><span class="md-error-et">Solución</span>${linea(partesError[3].replace(/\n/g, " "))}</p>` +
+        "</div>";
       anterior = t;
       continue;
     }

@@ -37,3 +37,21 @@ describe("esencial", () => {
     expect(esencial("Solo texto plano.").ideas.length).toBe(0);
   });
 });
+
+describe("md: bloques del estándar de lección", () => {
+  it("dibuja un error común como ficha de problema, causa y solución", () => {
+    const html = md("## Si algo no sale\n\n**Problema:** No llega el código.\n**Causa:** Google eligió otro método.\n**Solución:** Espera 24 horas y vuelve a pedirlo.");
+    expect(html).toContain("md-sec-problemas");
+    expect(html).toContain('class="md-error"');
+    expect(html).toContain("md-error-solucion");
+  });
+  it("dibuja reglas «Si X → Y» como lista de decisión", () => {
+    const html = md("- Si ya existe la ficha → reclámala\n- Si no existe → créala");
+    expect(html).toContain('class="md-decision"');
+    expect(html).toContain("md-entonces");
+  });
+  it("marca el mini reto y el plan después del curso", () => {
+    expect(md("## Mini reto\n\nHaz algo.")).toContain("md-sec-reto");
+    expect(md("## Tu plan después del curso\n\nHoy.")).toContain("md-sec-plan");
+  });
+});

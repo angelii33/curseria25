@@ -219,6 +219,19 @@ export default async function Leccion({
 
               {practica ? <PreguntaPrevia clave={clave} pregunta={practica.preguntas[0]} /> : null}
 
+              {/* «Antes de empezar»: si la lección no lo dice, se muestra lo
+                  que necesita el curso, para que nadie se atore a medio paso. */}
+              {ed && !/##[^\n]*(antes de empezar|lo que necesitas)/i.test(contenido) ? (
+                <aside className="antes-leccion" aria-label="Antes de empezar">
+                  <p className="t-folio">Antes de empezar, ten a la mano</p>
+                  <ul>
+                    {ed.necesitas.map((n) => (
+                      <li key={n}>{n}</li>
+                    ))}
+                  </ul>
+                </aside>
+              ) : null}
+
               <ArticuloLeccion html={md(contenido)} />
 
               {resumen ? <LoEsencial ideas={resumen.ideas} cierre={resumen.cierre} /> : null}
@@ -252,6 +265,12 @@ export default async function Leccion({
                   <h2 className="t-titulo-2" id="comprueba-titulo">
                     {criterios.length > 0 ? "Cómo saber que quedó bien" : mision?.title ?? "Revisa tu resultado"}
                   </h2>
+                  {mision?.asset_title ? (
+                    <p className="entregable">
+                      <span className="t-folio">Entregable de esta lección</span>
+                      <strong>{mision.asset_title}</strong>
+                    </p>
+                  ) : null}
                   {criterios.length > 0 ? (
                     <ChecklistMision
                       leccionId={leccion.id}

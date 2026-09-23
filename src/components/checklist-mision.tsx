@@ -86,6 +86,12 @@ export function ChecklistMision({
             : `${hechos} de ${criterios.length} · ${faltan === 1 ? "te falta uno" : `te faltan ${faltan}`}`}
         </p>
       </div>
+      {!todos ? (
+        <p className="t-dato chk-candado">
+          No avances a la siguiente lección hasta marcar todo: la siguiente
+          parte de lo que dejas terminado aquí.
+        </p>
+      ) : null}
 
       <ul className="chk-lista">
         {criterios.map((c, i) => {

@@ -297,3 +297,38 @@
 
 /* Categoría (etapa) en la ficha */
 .ficha-etapa { font-family: var(--tipo-titular); font-size: 11.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--musgo-600); margin: 0 0 4px; }
+
+/* Lecciones: si algo falla, mini reto, plan después del curso */
+.md-sec-problemas, .md-sec-reto, .md-sec-plan { padding: 22px 22px 6px; border-radius: var(--r-hoja); }
+.md-sec-problemas { background: var(--lienzo); border: 1px solid var(--linea-firme); }
+.md-sec-problemas .md-tipo { background: var(--atencion); color: var(--lienzo); }
+.md-sec-reto { background: var(--cobre-100); border: 1px solid var(--cobre-200); }
+.md-sec-reto .md-tipo { background: var(--cobre-700); color: var(--lienzo); }
+.md-sec-plan { background: var(--musgo-100); border: 1px solid var(--musgo-200); }
+.md-sec-plan .md-tipo { background: var(--musgo-700); color: var(--lienzo); }
+.md-error { margin: 0 0 14px; border: 1px solid var(--linea); border-radius: var(--r-papel); background: var(--papel); overflow: hidden; }
+.md-error p { margin: 0; padding: 10px 14px; font-size: 16.5px; line-height: 1.5; }
+.md-error p + p { border-top: 1px dashed var(--linea); }
+.md-error-et { display: block; font-family: var(--tipo-titular); font-size: 11.5px; font-weight: 750; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 2px; }
+.md-error-problema .md-error-et { color: var(--falla); }
+.md-error-causa .md-error-et { color: var(--tinta-tenue); }
+.md-error-solucion { background: var(--musgo-100); }
+.md-error-solucion .md-error-et { color: var(--musgo-700); }
+.md-decision { list-style: none; margin: 0 0 18px; padding: 0; display: grid; gap: 8px; }
+.md-decision li { display: grid; gap: 4px; padding: 10px 14px; border-radius: var(--r-papel); background: var(--papel); border: 1px solid var(--linea); }
+@media (min-width: 640px) { .md-decision li { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 14px; align-items: baseline; } }
+.md-si { font-family: var(--tipo-titular); font-weight: 700; font-size: 15.5px; }
+.md-entonces { color: var(--tinta-media); }
+.md-entonces > span { color: var(--musgo-600); font-weight: 800; margin-right: 4px; }
+.chk-candado { margin: 4px 0 10px; color: var(--tinta-media); }
+
+/* Antes de empezar (automático) y entregable */
+.antes-leccion { margin: 0 0 var(--e-7); padding: 16px 18px; border-radius: var(--r-papel); border: 1px dashed var(--linea-firme); background: var(--lienzo); }
+.antes-leccion ul { margin: 8px 0 0; padding: 0; list-style: none; display: grid; gap: 4px; }
+.antes-leccion li { position: relative; padding-left: 22px; font-size: 16.5px; }
+.antes-leccion li::before { content: "✓"; position: absolute; left: 0; color: var(--musgo-600); font-family: var(--tipo-titular); font-weight: 800; }
+.entregable { display: grid; gap: 2px; margin: 10px 0 16px; padding: 12px 14px; border-radius: var(--r-papel); background: var(--cobre-100); }
+.entregable .t-folio { color: var(--cobre-700); }
+.entregable strong { font-family: var(--tipo-titular); font-size: 17px; }
+.md .md-decision li::before, .md-decision li::before { content: none; display: none; }
+.md .md-decision li { padding-left: 14px; }
