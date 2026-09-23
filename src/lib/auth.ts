@@ -83,7 +83,7 @@ export function mensajeDeFalla(error: ErrorAuth): string {
   switch (tipoDeFalla(error)) {
     case "limite": {
       if (!limitePorCorreo(error))
-        return "Estamos recibiendo muchas solicitudes. Espera unos minutos y vuelve a intentarlo.";
+        return "Ahora mismo no podemos mandar más correos: se alcanzó el límite de envíos por hora. Inténtalo más tarde o entra con tu contraseña si tienes una.";
       const s = segundosDeEspera(error);
       return `Por seguridad hay que esperar ${s} segundos antes de volver a intentarlo.`;
     }

@@ -60,7 +60,7 @@ filtradas (solo afecta a la vía con contraseña).
 | --- | --- |
 | `otp_expired` | El código es incorrecto, ya se usó o caducó |
 | `over_email_send_rate_limit` con «after N seconds» | Pasa al paso 2 y espera N s para reenviar |
-| `over_email_send_rate_limit` sin segundos (límite global) | Espera unos minutos |
+| `over_email_send_rate_limit` sin segundos (límite global) | Se alcanzó el límite de envíos por hora |
 | `invalid_credentials` | El correo o la contraseña no coinciden |
 | red (`AuthRetryableFetchError`) | Revisa tu internet |
 

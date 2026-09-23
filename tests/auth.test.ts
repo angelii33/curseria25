@@ -46,7 +46,7 @@ describe("errores de Supabase Auth", () => {
     expect(limitePorCorreo(limite)).toBe(true);
     expect(limitePorCorreo({ code: "over_email_send_rate_limit", message: "Email rate limit exceeded" })).toBe(false);
     expect(mensajeDeFalla({ code: "over_email_send_rate_limit", message: "Email rate limit exceeded" }))
-      .toMatch(/unos minutos/);
+      .toMatch(/límite de envíos por hora/);
     expect(mensajeDeFalla(limite)).toMatch(/56 segundos/);
   });
   it("clasifica código vencido, usado o incorrecto", () => {
