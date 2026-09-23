@@ -280,3 +280,20 @@
 .continua-objetivo { color: var(--musgo-200); }
 .continua-objetivo strong { color: var(--tinta-inversa); }
 @media (prefers-reduced-motion: reduce) { .continua-barra span { transition: none; } }
+
+/* Cuatro pilares después de la portada */
+.pilares { padding-block: clamp(32px, 5vw, 56px); border-top: 1px solid var(--linea); border-bottom: 1px solid var(--linea); background: var(--lienzo); }
+.pilares-titulo { max-width: 640px; margin-bottom: clamp(20px, 3vw, 32px); }
+.pilares-lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; counter-reset: none; }
+@media (min-width: 720px) { .pilares-lista { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1100px) { .pilares-lista { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; } }
+.pilar { position: relative; display: grid; gap: 6px; align-content: start; padding: 18px 18px 20px; border-radius: var(--r-papel); border: 1px solid var(--linea); background: var(--papel); transition: transform var(--medio) var(--curva-salida), border-color var(--medio) var(--curva), box-shadow var(--medio) var(--curva); }
+.pilar:hover { transform: translateY(-3px); border-color: var(--musgo-300); box-shadow: var(--sombra-apoyo); }
+.pilar strong { font-family: var(--tipo-titular); font-size: 19px; font-weight: 750; }
+.pilar span:last-child { color: var(--tinta-media); font-size: 15.5px; line-height: 1.45; }
+.pilar-num { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--musgo-600); color: var(--papel); font-family: var(--tipo-titular); font-weight: 800; font-size: 14px; margin-bottom: 4px; transition: background var(--medio) var(--curva); }
+.pilar:hover .pilar-num { background: var(--cobre-600); }
+@media (prefers-reduced-motion: reduce) { .pilar, .pilar-num { transition: none; } .pilar:hover { transform: none; } }
+
+/* Categoría (etapa) en la ficha */
+.ficha-etapa { font-family: var(--tipo-titular); font-size: 11.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--musgo-600); margin: 0 0 4px; }

@@ -130,6 +130,37 @@ export default async function Inicio() {
           </div>
         </section>
 
+        {/* ─── 1b · LA PROPUESTA EN CUATRO VERBOS ─── */}
+        <section className="pilares" aria-labelledby="pilares-titulo">
+          <div className="marco">
+            <h2 className="t-titulo-2 pilares-titulo" id="pilares-titulo">
+              No necesitas más teoría. Necesitas que quede hecho.
+            </h2>
+            <ol className="pilares-lista">
+              <li className="pilar">
+                <span className="pilar-num" aria-hidden="true">1</span>
+                <strong>Lees</strong>
+                <span>Lecciones de 12 a 35 minutos, con ejemplos de negocios como el tuyo.</span>
+              </li>
+              <li className="pilar">
+                <span className="pilar-num" aria-hidden="true">2</span>
+                <strong>Lo haces</strong>
+                <span>Cada lección tiene un ejercicio con tus datos reales, no un examen.</span>
+              </li>
+              <li className="pilar">
+                <span className="pilar-num" aria-hidden="true">3</span>
+                <strong>Te lo llevas</strong>
+                <span>Plantillas, mensajes e instrucciones para la IA, listos para copiar.</span>
+              </li>
+              <li className="pilar">
+                <span className="pilar-num" aria-hidden="true">4</span>
+                <strong>Lo usas hoy</strong>
+                <span>Terminas con algo funcionando en tu negocio: una ficha, un menú, un sistema.</span>
+              </li>
+            </ol>
+          </div>
+        </section>
+
         {cursos.length === 0 ? (
           <div className="marco">
             <div className="vacio">

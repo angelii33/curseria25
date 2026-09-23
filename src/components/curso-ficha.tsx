@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { horas, precio } from "@/lib/catalogo";
-import { editorialDe, NIVEL } from "@/lib/editorial";
+import { ETAPAS, editorialDe, NIVEL } from "@/lib/editorial";
 import { ESCENA_POR_SLUG } from "@/lib/escenas";
 import { Pieza, tienePieza } from "@/components/pieza";
 import { Portada, varianteDe } from "@/components/portada";
@@ -34,6 +34,8 @@ export type FichaCurso = {
   inscrito: boolean;
   completadas: number;
   pct: number;
+  /** Cuántos módulos tiene; solo se muestra si son más de uno. */
+  modulos?: number;
 };
 
 export function MediaCurso({
@@ -135,6 +137,7 @@ export function CursoFicha({
       </div>
 
       <div className="ficha-cuerpo">
+        {ed ? <p className="ficha-etapa">{ETAPAS[ed.etapa].titulo}</p> : null}
         {ed ? <p className="ficha-problema">«{ed.problema}»</p> : null}
         <h3 className="ficha-titulo">{curso.title}</h3>
 
@@ -168,6 +171,7 @@ export function CursoFicha({
           </div>
         ) : (
           <ul className="ficha-datos" aria-label="Datos del curso">
+            {curso.modulos && curso.modulos > 1 ? <li>{curso.modulos} módulos</li> : null}
             <li>{curso.lecciones} lecciones</li>
             {curso.duration_minutes ? <li>{horas(curso.duration_minutes)}</li> : null}
             {curso.level ? <li>{NIVEL[curso.level] ?? curso.level}</li> : null}
