@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { usuarioActual } from "@/lib/supabase/server";
 import { Barra } from "@/components/ui";
+import { rutaInterna } from "@/lib/rutas";
 import { Formulario } from "./formulario";
 
 export const dynamic = "force-dynamic";
@@ -12,15 +13,14 @@ export const metadata: Metadata = {
   robots: { index: false, follow: true },
 };
 
-/** Solo rutas internas: «//otro-sitio.com» también empieza con «/». */
-const interna = (r?: string) => (r && r.startsWith("/") && !r.startsWith("//") ? r : undefined);
-
 export default async function Entrar({
   searchParams,
 }: {
-  searchParams: Promise<{ volver?: string }>;
+  searchParams: Promise<{ volver?: string; error?: string }>;
 }) {
-  const volver = interna((await searchParams).volver);
+  const params = await searchParams;
+  // Solo rutas internas: nunca se redirige a otro sitio.
+  const volver = rutaInterna(params.volver, "") || undefined;
   if (await usuarioActual()) redirect(volver ?? "/mi-aprendizaje");
 
   const vieneDeCurso = volver?.startsWith("/cursos/");
@@ -44,7 +44,7 @@ export default async function Entrar({
             <li>Tu avance, tus misiones y tus certificados, en un solo lugar.</li>
           </ul>
         </div>
-        <Formulario volver={volver} />
+        <Formulario volver={volver} falloEnlace={params.error === "enlace"} />
       </main>
     </>
   );

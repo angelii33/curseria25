@@ -8,17 +8,38 @@ const clave =
   "sb_publishable_OZiGkBUbrDvp4NltADfITw_oHzWweJk";
 
 export async function proxy(request: NextRequest) {
-  let respuesta = NextResponse.next({ request });
+  const { pathname, search, searchParams } = request.nextUrl;
+
+  // Si Supabase no reconoce la URL de regreso, cae en la Site URL con
+  // ?code=… : se reenvía a donde se canjea en vez de ignorarlo.
+  if (searchParams.has("code") && !pathname.startsWith("/auth/") && !pathname.startsWith("/api/") &&
+      !pathname.startsWith("/compra/")) {
+    const destino = new URL("/auth/confirm", request.url);
+    destino.searchParams.set("code", searchParams.get("code")!);
+    return NextResponse.redirect(destino);
+  }
+
+  // La ruta actual, para que «Entrar» sepa a dónde regresar.
+  // Se arma en cada paso porque refrescar la sesión reescribe las galletas.
+  const siguiente = () => {
+    const cabeceras = new Headers(request.headers);
+    cabeceras.set("x-ruta", pathname + search);
+    return NextResponse.next({ request: { headers: cabeceras } });
+  };
+  let respuesta = siguiente();
 
   const sb = createServerClient(url, clave, {
     cookies: {
       getAll: () => request.cookies.getAll(),
-      setAll: (galletas) => {
+      setAll: (galletas, cabeceras) => {
         galletas.forEach(({ name, value }) => request.cookies.set(name, value));
-        respuesta = NextResponse.next({ request });
+        respuesta = siguiente();
         galletas.forEach(({ name, value, options }) =>
           respuesta.cookies.set(name, value, options)
         );
+        // Una respuesta con galletas de sesión nunca debe quedar en caché:
+        // la vería otra persona.
+        Object.entries(cabeceras).forEach(([k, v]) => respuesta.headers.set(k, v));
       },
     },
   });

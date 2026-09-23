@@ -1,6 +1,9 @@
 import Link from "next/link";
+import { headers } from "next/headers";
 import { usuarioActual } from "@/lib/supabase/server";
 import { salir } from "@/app/acciones";
+import { BotonSalir } from "@/components/boton-salir";
+import { rutaInterna } from "@/lib/rutas";
 import { MARCA } from "@/lib/marca";
 import { LEGAL } from "@/lib/legal";
 
@@ -19,6 +22,9 @@ export function Marca({ inversa = false }: { inversa?: boolean }) {
 
 export async function Barra({ volver }: { volver?: { href: string; texto: string } }) {
   const usuario = await usuarioActual();
+  // Entrar desde cualquier página devuelve a esa misma página.
+  const aqui = rutaInterna((await headers()).get("x-ruta"), "/");
+  const entrar = aqui === "/" || aqui.startsWith("/entrar") ? "/entrar" : `/entrar?volver=${encodeURIComponent(aqui)}`;
   return (
     <>
       <a href="#contenido" className="saltar">Saltar al contenido</a>
@@ -40,11 +46,11 @@ export async function Barra({ volver }: { volver?: { href: string; texto: string
               <>
                 <Link href="/mi-aprendizaje" className="barra-enlace">Mi aprendizaje</Link>
                 <form action={salir} className="barra-solo-ancho">
-                  <button className="barra-enlace" type="submit">Salir</button>
+                  <BotonSalir className="barra-enlace" />
                 </form>
               </>
             ) : (
-              <Link href="/entrar" className="barra-entrar">Entrar</Link>
+              <Link href={entrar} className="barra-entrar">Entrar</Link>
             )}
           </nav>
         </div>

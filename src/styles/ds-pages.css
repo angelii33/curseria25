@@ -2127,3 +2127,49 @@ body {
 .repaso-pista > span { animation: none; transition: width var(--medio) var(--curva); background: var(--cobre-400); }
 .repaso-origen { margin-top: 12px; }
 .incluye-bajada { margin-top: var(--e-4); color: var(--tinta-media); }
+
+/* ─── Acceso: código de 6 casillas y ayuda ────────────────────────────── */
+.otp { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; max-width: 360px; }
+.otp-casilla {
+  width: 100%;
+  min-width: 0;
+  height: 56px;
+  padding: 0;
+  text-align: center;
+  font-family: var(--tipo-titular);
+  font-size: 26px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--tinta);
+  background: var(--lienzo);
+  border: 1.5px solid var(--linea-firme);
+  border-radius: var(--r-placa);
+  caret-color: var(--musgo-600);
+}
+.otp-casilla:focus { outline: none; border-color: var(--musgo-600); box-shadow: 0 0 0 3px var(--musgo-anillo); }
+.otp-casilla[aria-invalid="true"] { border-color: var(--falla); }
+.otp-casilla:disabled { opacity: 0.6; }
+.acceso-enlace {
+  margin-top: var(--e-2);
+  padding: 4px 0;
+  background: none;
+  border: 0;
+  font: inherit;
+  font-weight: 650;
+  color: var(--musgo-600);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.acceso-ayuda { margin-top: var(--e-5); }
+.acceso-ayuda summary { cursor: pointer; font-weight: 650; padding: 8px 0; }
+.acceso-ayuda ol { margin: var(--e-3) 0 0; padding-left: 1.2em; display: grid; gap: var(--e-3); color: var(--tinta-media); }
+.acceso-ayuda .acceso-enlace { margin-top: 0; padding: 0; }
+.acceso-correo { overflow-wrap: anywhere; }
+.acceso-secundario { font-size: 15px; }
+@media (max-width: 359px) {
+  .acceso { padding: 20px; }
+  .acceso form + .perforacion, .acceso .perforacion { margin-left: -20px; margin-right: -20px; }
+  .otp { gap: 5px; }
+  .otp-casilla { height: 50px; font-size: 22px; }
+}

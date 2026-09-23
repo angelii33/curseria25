@@ -11,6 +11,7 @@ import { IconoFichaVacia } from "@/components/iconos-estado";
 import { CursoFicha } from "@/components/curso-ficha";
 import { Pieza } from "@/components/pieza";
 import { salir } from "@/app/acciones";
+import { BotonSalir } from "@/components/boton-salir";
 import { CierreCurso } from "@/components/cierre-curso";
 import { Logros } from "@/components/logros";
 import { ETAPAS, editorialDe, partesDe } from "@/lib/editorial";
@@ -116,7 +117,7 @@ export default async function MiAprendizaje({
           </p>
           {/* En el teléfono la barra no tiene sitio para «Salir»: vive aquí. */}
           <form action={salir} className="mia-salir">
-            <button className="btn btn-fantasma" type="submit">Salir de mi cuenta</button>
+            <BotonSalir className="btn btn-fantasma" texto="Salir de mi cuenta" />
           </form>
         </header>
 
