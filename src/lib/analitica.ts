@@ -10,7 +10,8 @@ export type Evento =
   | "leccion_completada"
   | "correo_capturado"
   | "opinion_enviada"
-  | "certificado_emitido";
+  | "certificado_emitido"
+  | "objetivo_elegido";
 
 export async function registrar(evento: Evento, propiedades: Record<string, string | number | boolean | null> = {}) {
   try {

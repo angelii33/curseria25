@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getCatalogo, getOfertas, precio } from "@/lib/catalogo";
 import { Opiniones } from "@/components/opiniones";
+import { Catalogo } from "@/components/catalogo";
 import { ETAPAS, editorialDe, type Etapa } from "@/lib/editorial";
 import { Barra, Pie } from "@/components/ui";
 import { CursoFicha } from "@/components/curso-ficha";
@@ -210,30 +211,20 @@ export default async function Inicio() {
                 </p>
               </div>
 
-              {grupos.map((g, i) => (
-                <div key={g.etapa} className="etapa">
-                  <div className="etapa-cab">
-                    <span className="etapa-num" aria-hidden="true">{i + 1}</span>
-                    <div>
-                      <h3 className="t-titulo-2">{g.titulo}</h3>
-                      <p className="t-cuerpo etapa-nota">{g.nota}</p>
-                    </div>
-                  </div>
-                  <div className="rejilla-fichas">
-                    {g.cursos.map((c) => (
-                      <CursoFicha key={c.id} curso={c} />
-                    ))}
-                  </div>
-                </div>
-              ))}
-
-              {sueltos.length > 0 ? (
-                <div className="rejilla-fichas">
-                  {sueltos.map((c) => (
-                    <CursoFicha key={c.id} curso={c} />
-                  ))}
-                </div>
-              ) : null}
+              <Catalogo
+                grupos={grupos.map((g) => ({ etapa: g.etapa, titulo: g.titulo, nota: g.nota }))}
+                items={[...grupos.flatMap((g) => g.cursos), ...sueltos].map((c) => {
+                  const ed = editorialDe(c.slug);
+                  return {
+                    id: c.id,
+                    etapa: ed?.etapa ?? null,
+                    texto: [c.title, c.subtitle, ed?.problema, ed?.promesa, ed?.pieza.nombre, ed?.buscar, ed ? ETAPAS[ed.etapa].titulo : ""]
+                      .filter(Boolean)
+                      .join(" "),
+                    ficha: <CursoFicha curso={c} />,
+                  };
+                })}
+              />
             </div>
           </section>
         ) : null}

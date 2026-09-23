@@ -51,6 +51,8 @@ export type Editorial = {
   };
   /** Verbo del botón principal: describe la acción, no "ver más". */
   accion: string;
+  /** Palabras con las que alguien buscaría este curso (buscador del catálogo). */
+  buscar?: string;
 };
 
 const CURSOS: Record<string, Editorial> = {
@@ -77,6 +79,7 @@ const CURSOS: Record<string, Editorial> = {
       ],
     },
     accion: "Reclamar mi ficha",
+    buscar: "google maps mapa ficha perfil de empresa reseñas aparecer buscar cerca de mi local clientes nuevos presencia digital",
   },
   "menu-con-link": {
     etapa: "pedir",
@@ -101,6 +104,7 @@ const CURSOS: Record<string, Editorial> = {
       ],
     },
     accion: "Armar mi menú con link",
+    buscar: "menu catalogo link carta precios pedidos fotos productos restaurante tienda whatsapp",
   },
   "whatsapp-que-contesta-solo": {
     etapa: "pedir",
@@ -125,6 +129,7 @@ const CURSOS: Record<string, Editorial> = {
       ],
     },
     accion: "Configurar mi WhatsApp",
+    buscar: "whatsapp business mensajes respuestas rapidas automaticas atencion a clientes horario catalogo etiquetas ia",
   },
   "un-mes-de-publicaciones": {
     etapa: "encontrar",
@@ -149,6 +154,7 @@ const CURSOS: Record<string, Editorial> = {
       ],
     },
     accion: "Armar mi mes de publicaciones",
+    buscar: "redes sociales instagram facebook tiktok publicar publicaciones contenido posts historias fotos calendario ia clientes",
   },
   "cotiza-en-5-minutos": {
     etapa: "comprar",
@@ -173,6 +179,7 @@ const CURSOS: Record<string, Editorial> = {
       ],
     },
     accion: "Hacer mi plantilla",
+    buscar: "cotizacion cotizar presupuesto precios cobrar pdf anticipo cerrar ventas clientes servicios ia",
   },
   "ventas-con-ia": {
     etapa: "comprar",
@@ -197,6 +204,7 @@ const CURSOS: Record<string, Editorial> = {
       ],
     },
     accion: "Construir mi sistema",
+    buscar: "ventas vender mas clientes seguimiento objeciones prospectar cerrar embudo whatsapp inteligencia artificial ia chatgpt automatizar",
   },
 };
 

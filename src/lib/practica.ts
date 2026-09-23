@@ -254,46 +254,46 @@ const P: Record<string, Practica> = {
   "ventas-con-ia/1/1": {
     preguntas: [
       {
-        texto: "Mariana escribe mensajes excelentes y aun así pierde seis de cada diez clientes. ¿Qué le falta?",
-        opciones: ["Carisma", "Seguimiento", "Anuncios"],
+        texto: "Karla le manda la cotización a una clienta y ya no vuelve a escribirle. ¿Qué pieza del sistema le falta?",
+        opciones: ["Una mejor oferta", "Seguimiento", "Más contactos"],
         correcta: 1,
         explicacion:
-          "Escribía una vez y, si no le contestaban, pasaba al siguiente. La pieza que falta se come el trabajo de las otras seis.",
+          "La cotización puede ser buena; lo que falla es lo que pasa después. Sin seguimiento, la venta se la lleva quien sí vuelve a escribir.",
       },
       {
-        texto: "¿Cuántas piezas tiene un sistema de ventas?",
+        texto: "¿Cuántas piezas tiene el sistema de ventas del curso?",
         opciones: ["Tres", "Siete", "Diez"],
         correcta: 1,
-        explicacion: "Cliente ideal, oferta, mensaje, canal, primer contacto, seguimiento y métricas.",
+        explicacion: "Cliente ideal, oferta, mensaje inicial, canal, primer contacto, seguimiento y números.",
       },
       {
-        texto: "Una pieza que tienes «a medias», ¿cómo cuenta en tu mapa?",
-        opciones: ["Como si la tuvieras", "Como una pieza que no sostiene peso", "Como media pieza"],
+        texto: "Una pieza que haces «a veces, depende del día», ¿cómo la calificas?",
+        opciones: ["La tengo", "A medias, que cuenta como no tenerla", "No importa"],
         correcta: 1,
-        explicacion: "Ser generoso contigo aquí solo retrasa el diagnóstico. A medias es no tenerla.",
+        explicacion: "Una pieza que depende de tu ánimo no sostiene peso. Calificarla con honestidad es lo que hace útil el mapa.",
       },
     ],
   },
   "ventas-con-ia/1/2": {
     preguntas: [
       {
-        texto: "Tu fuga está en el seguimiento. ¿Qué arreglas primero?",
-        opciones: ["Conseguir más contactos", "El seguimiento", "El logo y la imagen"],
+        texto: "Rubén tiene 12 cotizaciones al mes y cierra 1. ¿Qué le conviene arreglar primero?",
+        opciones: ["Pagar anuncios para conseguir más contactos", "Lo que pasa entre la propuesta y el cierre", "Su logotipo"],
         correcta: 1,
         explicacion:
-          "Mejora primero el punto más bajo del embudo. Conseguir más contactos con el seguimiento roto es llenar más rápido un cubo agujereado.",
+          "Le llega gente y cotiza bastante; se le cae todo después de la propuesta. Más contactos solo le darían más cotizaciones perdidas.",
       },
       {
-        texto: "¿Qué pregunta del diagnóstico te ahorra repetir lo que ya falló?",
-        opciones: ["¿Cuántos cierras al mes?", "¿Qué ya intentaste que no funcionó?", "¿De dónde vienen tus clientes?"],
-        correcta: 1,
-        explicacion: "Evita que la ruta te proponga algo que ya descartaste.",
-      },
-      {
-        texto: "¿Para qué sirve anotar tu métrica base hoy?",
-        opciones: ["Para compararte en un mes y saber si mejoraste", "Para presumirla", "Para calcular precios"],
+        texto: "Si la gente no contesta tu primer mensaje, ¿dónde está la fuga?",
+        opciones: ["En el mensaje inicial o el canal", "En el seguimiento", "En el precio"],
         correcta: 0,
-        explicacion: "Sin una línea base, dentro de un mes no sabrás si mejoraste o si solo te lo pareció.",
+        explicacion: "Si se cae entre contacto y respuesta, el problema está antes de cualquier conversación: el mensaje o el lugar donde lo mandas.",
+      },
+      {
+        texto: "¿Para qué sirve anotar tu línea base hoy?",
+        opciones: ["Para compararte al final y saber si mejoraste", "Para presumirla", "Para calcular precios"],
+        correcta: 0,
+        explicacion: "Sin una línea base, dentro de un mes no sabrás si mejoraste de verdad o si solo te lo pareció.",
       },
     ],
   },

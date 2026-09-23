@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
-import { usuarioActual } from "@/lib/supabase/server";
+import { clienteServidor, usuarioActual } from "@/lib/supabase/server";
+import { miObjetivo } from "@/lib/objetivos";
+import { Continua } from "@/components/continua";
+import { PrimerPaso } from "@/components/primer-paso";
 import { getCatalogo, getCurso, folio, miSemana } from "@/lib/catalogo";
 import { Barra, Pie, Sello } from "@/components/ui";
 import { IconoFichaVacia } from "@/components/iconos-estado";
@@ -22,7 +25,12 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default async function MiAprendizaje() {
+export default async function MiAprendizaje({
+  searchParams,
+}: {
+  searchParams: Promise<{ objetivo?: string }>;
+}) {
+  const { objetivo: cambiarObj } = await searchParams;
   const usuario = await usuarioActual();
   if (!usuario) redirect("/entrar?volver=/mi-aprendizaje");
 
@@ -58,6 +66,21 @@ export default async function MiAprendizaje() {
   const nombre = usuario.user_metadata?.display_name || usuario.email?.split("@")[0] || "";
   const leccionesHechas = detalles.reduce((a, d) => a + d.completadas, 0);
   const enCurso = detalles.filter((d) => d.pct < 100);
+  // El curso de la lección completada más reciente; si no hay ninguna, el
+  // primero en marcha. Sale del avance real, no de una preferencia guardada.
+  const sb = await clienteServidor();
+  const { data: ultima } = await sb
+    .from("lesson_progress")
+    .select("lesson_id")
+    .eq("status", "completed")
+    .order("completed_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const actual =
+    enCurso.find((d) => d.modulos.some((m) => m.lecciones.some((l) => l.id === ultima?.lesson_id))) ??
+    enCurso[0] ??
+    null;
+  const objetivo = detalles.length === 0 ? await miObjetivo() : null;
   const terminados = detalles.filter((d) => d.pct === 100);
   const abiertas = otros.filter((c) => c.abiertaRuta).slice(0, 3);
 
@@ -96,6 +119,26 @@ export default async function MiAprendizaje() {
             <button className="btn btn-fantasma" type="submit">Salir de mi cuenta</button>
           </form>
         </header>
+
+        {actual?.siguiente ? (
+          <Continua
+            slug={actual.curso.slug}
+            curso={actual.curso.title}
+            pieza={editorialDe(actual.curso.slug)?.pieza.nombre ?? null}
+            modulo={
+              actual.modulos.length > 1
+                ? actual.modulos.find((m) => m.sort_order === actual.siguiente!.mod)?.title ?? null
+                : null
+            }
+            siguiente={actual.siguiente}
+            completadas={actual.completadas}
+            total={actual.total}
+          />
+        ) : null}
+
+        {detalles.length === 0 ? (
+          <PrimerPaso objetivo={objetivo} cursos={cursos} cambiando={cambiarObj === "cambiar"} />
+        ) : null}
 
         {/* Con cursos, primero el avance. Sin cursos, primero la primera
             acción: los contadores en cero van después, no delante. */}

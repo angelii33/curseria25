@@ -453,3 +453,19 @@ export async function revisarBorrador(
   });
 }
 
+
+/** Guarda el objetivo inicial (user_goals, una fila por usuario, RLS propia). */
+export async function guardarObjetivo(datos: FormData) {
+  const { esObjetivo } = await import("@/lib/objetivos");
+  const objetivo = datos.get("objetivo");
+  if (!esObjetivo(objetivo)) return;
+  const sb = await clienteServidor();
+  const { data: usuario } = await sb.auth.getUser();
+  if (!usuario.user) redirect("/entrar?volver=/mi-aprendizaje");
+  await sb
+    .from("user_goals")
+    .upsert({ user_id: usuario.user.id, priority: objetivo, updated_at: new Date().toISOString() }, { onConflict: "user_id" });
+  await registrar("objetivo_elegido", { objetivo });
+  revalidatePath("/mi-aprendizaje");
+}
+
