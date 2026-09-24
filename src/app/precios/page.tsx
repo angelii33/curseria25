@@ -47,6 +47,10 @@ export default async function Precios({
               <Aviso tono="logrado" titulo="Ya tienes esto">
                 Todo lo que incluye ya está en tu cuenta. <Link href="/mi-aprendizaje">Ir a mi aprendizaje</Link>
               </Aviso>
+            ) : acceso === "error" ? (
+              <Aviso tono="falla" titulo="No se pudo abrir el pago">
+                Tu cuenta está lista. Vuelve a pulsar el botón de compra; si sigue fallando, escríbenos.
+              </Aviso>
             ) : null}
           </div>
         </header>

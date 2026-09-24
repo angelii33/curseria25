@@ -424,6 +424,10 @@ export default async function Curso({
                       Tu cuenta está lista, pero este curso todavía no se puede comprar desde
                       aquí. {rutaPrimera ? "Mientras tanto, la lección gratis está completa y abierta." : ""}
                     </Aviso>
+                  ) : acceso === "error" ? (
+                    <Aviso tono="falla" titulo="No se pudo abrir el pago">
+                      Tu cuenta está lista. Vuelve a pulsar «Comprar»; si sigue fallando, escríbenos.
+                    </Aviso>
                   ) : acceso === "ya" ? (
                     <Aviso tono="logrado" titulo="Este curso ya es tuyo">
                       Inscríbete con el botón de abajo y empieza.

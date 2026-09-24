@@ -1,5 +1,25 @@
 # Acceso: cómo funciona y qué configurar
 
+## Camino principal: cuenta con contraseña (sin correos)
+
+- `/entrar` tiene dos pestañas: «Soy nuevo» (nombre, correo, contraseña) y
+  «Ya tengo cuenta» (correo y contraseña). Google, si está activado, arriba.
+  El código por correo queda como respaldo («¿Olvidaste tu contraseña?»).
+- `crearCuenta`: con `SUPABASE_SERVICE_ROLE_KEY` crea la cuenta ya
+  confirmada (`admin.createUser`) y abre sesión al instante. Sin la llave usa
+  `signUp`, que da sesión al instante solo si en Supabase está apagado
+  **Authentication → Sign In / Providers → Email → Confirm email**. Hoy está
+  encendido: hay que poner la llave en Vercel o apagar ese interruptor.
+- Comprar sin cuenta: el botón lleva a `/entrar?crear=1&volver=/comprar?…`.
+  Al crear la cuenta (o entrar) se llega a `/comprar`, que abre Mercado Pago
+  directo, sin volver a pulsar «Comprar» (`src/lib/compra.ts`).
+- Contra robots: campo trampa invisible. Contraseña mínima de 8 caracteres.
+- Compromiso aceptado: sin correo de confirmación no se comprueba que el
+  correo sea de quien se registra. El recibo de Mercado Pago sí llega al
+  correo que la persona use al pagar.
+
+## Código por correo (respaldo)
+
 ## Flujo
 
 1. `/entrar` → la persona escribe su correo → `pedirCodigo` llama a

@@ -4,8 +4,8 @@ import {
   useActionState, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode, type RefObject,
 } from "react";
 import { useRouter } from "next/navigation";
-import { pedirCodigo, verificarCodigo, entrarConClave, entrarConGoogle, type Estado } from "../acciones";
-import { IconoSobre, IconoTicket, IconoCandado } from "@/components/iconos-acceso";
+import { pedirCodigo, verificarCodigo, entrarConClave, entrarConGoogle, crearCuenta, type Estado } from "../acciones";
+import { IconoSobre, IconoTicket } from "@/components/iconos-acceso";
 import { CodigoOtp } from "@/components/codigo-otp";
 import { BotonGoogle } from "@/components/boton-google";
 import { ocultarCorreo } from "@/lib/auth";
@@ -77,6 +77,7 @@ const conRed =
 const pedirSeguro = conRed(pedirCodigo);
 const verificarSeguro = conRed(verificarCodigo);
 const claveSegura = conRed(entrarConClave);
+const crearSeguro = conRed(crearCuenta);
 
 function useEnLinea() {
   const [enLinea, setEnLinea] = useState(true);
@@ -108,15 +109,19 @@ export function Formulario({
   volver,
   google,
   fallo,
+  crearCuentaPrimero,
 }: {
   volver?: string;
+  /** Abrir en «Soy nuevo» (p. ej. al llegar desde un botón de compra). */
+  crearCuentaPrimero?: boolean;
   /** «Entrar con Google» activado en Supabase. */
   google?: boolean;
   fallo?: "enlace" | "google";
 }) {
   const router = useRouter();
   const enLinea = useEnLinea();
-  const [modo, setModo] = useState<"codigo" | "clave">("codigo");
+  const [modo, setModo] = useState<"crear" | "entrar" | "codigo">(crearCuentaPrimero ? "crear" : "entrar");
+  const vieneAComprar = Boolean(volver?.startsWith("/comprar"));
   const flujo = useFlujo();
   const [correoEscrito, setCorreoEscrito] = useState("");
   const [aviso, setAviso] = useState<string | null>(null);
@@ -153,6 +158,7 @@ export function Formulario({
   }, inicial);
 
   const [conClave, entrarClave, entrandoClave] = useActionState(claveSegura, inicial);
+  const [creado, crear, creando] = useActionState(crearSeguro, inicial);
   const formCodigo = useRef<HTMLFormElement>(null);
 
   useEffect(
@@ -174,7 +180,7 @@ export function Formulario({
   }, [router]);
 
   // Respaldo: si el servidor no redirigió solo, se navega al destino.
-  const destino = verificado.destino ?? conClave.destino;
+  const destino = verificado.destino ?? conClave.destino ?? creado.destino;
   useEffect(() => {
     if (!destino) return;
     guardarFlujo(null);
@@ -203,155 +209,210 @@ export function Formulario({
     );
   }
 
-  if (modo === "clave") {
+  if (flujo) {
+    return (
+      <PasoCodigo
+        google={google}
+        flujo={flujo}
+        volver={volver}
+        aviso={aviso}
+        errorPedir={pedido.enviado ? pedido.error : undefined}
+        estado={verificado}
+        verificando={verificando}
+        pidiendo={pidiendo}
+        enLinea={enLinea}
+        sinConexion={sinConexion}
+        reinicio={reinicio}
+        formCodigo={formCodigo}
+        verificar={verificar}
+        pedir={pedir}
+        cambiarCorreo={cambiarCorreo}
+      />
+    );
+  }
+
+  const avisoFallo = fallo && !pedido.n && (
+    <p className="t-cuerpo aviso-falla" role="alert" style={{ marginTop: "var(--e-4)" }}>
+      {fallo === "google"
+        ? "No se completó la entrada con Google. Vuelve a intentarlo o usa tu correo."
+        : "Ese enlace ya se usó o caducó. Entra con tu contraseña o pide un código nuevo."}
+    </p>
+  );
+
+  const bloqueGoogle = google && (
+    <>
+      <form action={entrarConGoogle}>
+        {volver && <input type="hidden" name="volver" value={volver} />}
+        <BotonGoogle deshabilitado={!enLinea} />
+      </form>
+      <p className="acceso-separador"><span>o con tu correo</span></p>
+    </>
+  );
+
+  const pestanas = (
+    <div className="acceso-pestanas" role="tablist" aria-label="Cuenta">
+      <button type="button" role="tab" aria-selected={modo === "crear"} className="acceso-pestana"
+        onClick={() => setModo("crear")}>Soy nuevo</button>
+      <button type="button" role="tab" aria-selected={modo === "entrar"} className="acceso-pestana"
+        onClick={() => setModo("entrar")}>Ya tengo cuenta</button>
+    </div>
+  );
+
+  if (modo === "crear") {
+    const yaExiste = creado.tipo === "existe";
     return (
       <div className="superficie acceso">
-        <IconoCandado />
-        <div className="t-folio" style={{ marginTop: "var(--e-3)" }}>Con contraseña</div>
-        <h2 className="t-titulo-3" style={{ marginTop: "var(--e-2)" }}>
-          Entra con tu contraseña
-        </h2>
+        {pestanas}
+        <h2 className="t-titulo-3" style={{ marginTop: "var(--e-5)" }}>Crea tu cuenta en 20 segundos</h2>
         <p className="t-cuerpo" style={{ marginTop: "var(--e-3)" }}>
-          Solo si ya creaste una. Si no, entra con un código: es más rápido.
+          {vieneAComprar
+            ? "Al terminar pasas directo al pago. Sin códigos ni correos que esperar."
+            : "Sin códigos ni correos que esperar: entras en cuanto la creas."}
         </p>
+        {avisoFallo}
         <div className="perforacion perforacion-sangrada" />
+        {bloqueGoogle}
+        <form action={crear} style={{ display: "grid", gap: "var(--e-5)" }}>
+          {volver && <input type="hidden" name="volver" value={volver} />}
+          <input type="text" name="sitio" tabIndex={-1} autoComplete="off" aria-hidden="true" className="acceso-trampa" />
+          <div>
+            <label className="t-interfaz" htmlFor="r-nombre">Tu nombre</label>
+            <input id="r-nombre" name="nombre" className="campo" style={{ marginTop: "var(--e-3)" }}
+              placeholder="Como quieres que te llamemos" autoComplete="name" maxLength={80} />
+          </div>
+          <div>
+            <label className="t-interfaz" htmlFor="r-correo">Tu correo</label>
+            <input id="r-correo" name="correo" type="email" required inputMode="email" className="campo"
+              style={{ marginTop: "var(--e-3)" }} placeholder="nombre@negocio.mx" autoComplete="email"
+              autoCapitalize="none" spellCheck={false} defaultValue={creado.correo ?? correoEscrito}
+              aria-invalid={creado.tipo === "correo" || undefined} />
+          </div>
+          <CampoClave id="r-clave" nueva invalido={creado.tipo === "credenciales"} />
+          {sinConexion}
+          {creado.error && (
+            <div className="t-cuerpo aviso-falla" role="alert">
+              {creado.error}
+              {yaExiste && (
+                <button type="button" className="acceso-enlace" style={{ display: "block" }}
+                  onClick={() => { setCorreoEscrito(creado.correo ?? ""); setModo("entrar"); }}>
+                  Entrar con este correo
+                </button>
+              )}
+            </div>
+          )}
+          {creado.aviso && <p className="t-cuerpo aviso-logrado" role="status">{creado.aviso}</p>}
+          <button className="btn btn-primario btn-bloque btn-grande" disabled={creando || !enLinea}>
+            {creando ? "Creando tu cuenta…" : vieneAComprar ? "Crear cuenta y pagar" : "Crear mi cuenta"}
+          </button>
+          <p className="t-dato acceso-legal">
+            Al crear tu cuenta aceptas los <a href="/terminos">términos</a> y el{" "}
+            <a href="/aviso-de-privacidad">aviso de privacidad</a>.
+          </p>
+        </form>
+      </div>
+    );
+  }
+
+  if (modo === "entrar") {
+    return (
+      <div className="superficie acceso">
+        {pestanas}
+        <h2 className="t-titulo-3" style={{ marginTop: "var(--e-5)" }}>Entra a tu cuenta</h2>
+        {avisoFallo}
+        <div className="perforacion perforacion-sangrada" />
+        {bloqueGoogle}
         <form action={entrarClave} style={{ display: "grid", gap: "var(--e-5)" }}>
           {volver && <input type="hidden" name="volver" value={volver} />}
           <div>
             <label className="t-interfaz" htmlFor="c-correo">Tu correo</label>
-            <input id="c-correo" name="correo" type="email" required className="campo"
+            <input key={correoEscrito} id="c-correo" name="correo" type="email" required className="campo"
               style={{ marginTop: "var(--e-3)" }} autoComplete="email" inputMode="email"
-              defaultValue={conClave.correo ?? correoEscrito}
-              placeholder="nombre@negocio.mx" />
+              autoCapitalize="none" spellCheck={false}
+              defaultValue={conClave.correo ?? correoEscrito} placeholder="nombre@negocio.mx" />
           </div>
-          <div>
-            <label className="t-interfaz" htmlFor="c-clave">Contraseña</label>
-            <input id="c-clave" name="clave" type="password" required className="campo"
-              style={{ marginTop: "var(--e-3)" }} autoComplete="current-password" />
-          </div>
+          <CampoClave id="c-clave" invalido={conClave.tipo === "credenciales"} />
           {sinConexion}
-          {conClave.error && <p className="t-cuerpo aviso-falla" role="alert">{conClave.error}</p>}
-          <button className="btn btn-primario btn-bloque" disabled={entrandoClave || !enLinea}>
-            {entrandoClave ? "Comprobando…" : "Entrar"}
+          {conClave.error && (
+            <p className="t-cuerpo aviso-falla" role="alert">
+              {conClave.error}
+              {conClave.tipo === "credenciales" && " Si nunca creaste contraseña, entra con un código."}
+            </p>
+          )}
+          <button className="btn btn-primario btn-bloque btn-grande" disabled={entrandoClave || !enLinea}>
+            {entrandoClave ? "Entrando…" : vieneAComprar ? "Entrar y pagar" : "Entrar"}
           </button>
         </form>
         <div className="perforacion perforacion-sangrada" />
-        <button className="btn btn-fantasma btn-bloque" type="button" onClick={() => setModo("codigo")}>
-          ¿Olvidaste tu contraseña? Entra con un código
+        <button className="btn btn-fantasma btn-bloque acceso-secundario" type="button" onClick={() => setModo("codigo")}>
+          ¿Olvidaste tu contraseña? Entra con un código a tu correo
         </button>
       </div>
     );
   }
 
-  if (!flujo) {
-    const error = pedido.enviado ? undefined : pedido.error;
-    return (
-      <div className="superficie acceso">
-        <IconoSobre />
-        {google ? (
-          <>
-            <h2 className="t-titulo-3" style={{ marginTop: "var(--e-3)" }}>Entra a tu cuenta</h2>
-            <p className="t-cuerpo" style={{ marginTop: "var(--e-3)" }}>
-              Con tu cuenta de Google es un clic. Si es tu primera vez, la cuenta se crea sola.
-            </p>
-          </>
-        ) : (
-          <>
-            <div className="t-folio" style={{ marginTop: "var(--e-3)" }}>Paso 1 de 2</div>
-            <h2 className="t-titulo-3" style={{ marginTop: "var(--e-2)" }}>
-              Escribe tu correo
-            </h2>
-            <p className="t-cuerpo" style={{ marginTop: "var(--e-3)" }}>
-              Te mandamos un código de 6 dígitos. Sin contraseñas que inventar ni
-              recordar.
-            </p>
-          </>
-        )}
-
-        {fallo && !pedido.n && (
-          <p className="t-cuerpo aviso-falla" role="alert" style={{ marginTop: "var(--e-4)" }}>
-            {fallo === "google"
-              ? "No se completó la entrada con Google. Vuelve a intentarlo o entra con tu correo."
-              : "Ese enlace ya se usó o caducó. Pide un código nuevo aquí abajo."}
-          </p>
-        )}
-
-        <div className="perforacion perforacion-sangrada" />
-
-        {google && (
-          <>
-            <form action={entrarConGoogle}>
-              {volver && <input type="hidden" name="volver" value={volver} />}
-              <BotonGoogle deshabilitado={!enLinea} />
-            </form>
-            <p className="acceso-separador"><span>o con un código a tu correo</span></p>
-          </>
-        )}
-
-        <form action={pedir} style={{ display: "grid", gap: "var(--e-5)" }}>
-          {volver && <input type="hidden" name="volver" value={volver} />}
-          <div>
-            <label className="t-interfaz" htmlFor="nombre">Tu nombre <span className="t-dato">(opcional)</span></label>
-            <input
-              id="nombre" name="nombre" className="campo"
-              style={{ marginTop: "var(--e-3)" }}
-              placeholder="Como quieres que te llamemos"
-              autoComplete="name" maxLength={80}
-              aria-describedby="nombre-ayuda"
-            />
-            <p id="nombre-ayuda" className="t-dato" style={{ marginTop: "var(--e-2)", color: "var(--tinta-tenue)" }}>
-              Solo si es tu primera vez. Si ya tienes cuenta, déjalo vacío.
-            </p>
-          </div>
-
-          <div>
-            <label className="t-interfaz" htmlFor="correo">Tu correo</label>
-            <input
-              key={correoEscrito}
-              id="correo" name="correo" type="email" required inputMode="email"
-              className="campo" style={{ marginTop: "var(--e-3)" }}
-              placeholder="nombre@negocio.mx"
-              autoComplete="email" autoCapitalize="none" spellCheck={false}
-              defaultValue={correoEscrito}
-              aria-invalid={pedido.tipo === "correo" || undefined}
-              aria-describedby={error ? "correo-error" : undefined}
-            />
-          </div>
-
-          {sinConexion}
-          {error && <p id="correo-error" className="t-cuerpo aviso-falla" role="alert">{error}</p>}
-
-          <button className="btn btn-primario btn-bloque" disabled={pidiendo || !enLinea}>
-            {pidiendo ? "Enviando código…" : "Mandarme el código"}
-          </button>
-        </form>
-
-        <div className="perforacion perforacion-sangrada" />
-        <button className="btn btn-fantasma btn-bloque acceso-secundario" type="button" onClick={() => setModo("clave")}>
-          Tengo contraseña
-        </button>
-      </div>
-    );
-  }
-
+  // modo «codigo»: acceso por código al correo (la vía de respaldo).
+  const errorPedir = pedido.enviado ? undefined : pedido.error;
   return (
-    <PasoCodigo
-      google={google}
-      flujo={flujo}
-      volver={volver}
-      aviso={aviso}
-      errorPedir={pedido.enviado ? pedido.error : undefined}
-      estado={verificado}
-      verificando={verificando}
-      pidiendo={pidiendo}
-      enLinea={enLinea}
-      sinConexion={sinConexion}
-      reinicio={reinicio}
-      formCodigo={formCodigo}
-      verificar={verificar}
-      pedir={pedir}
-      cambiarCorreo={cambiarCorreo}
-    />
+    <div className="superficie acceso">
+      <IconoSobre />
+      <h2 className="t-titulo-3" style={{ marginTop: "var(--e-3)" }}>Entra con un código</h2>
+      <p className="t-cuerpo" style={{ marginTop: "var(--e-3)" }}>
+        Te mandamos un código de 6 dígitos a tu correo. Puede tardar un par de minutos.
+      </p>
+      {avisoFallo}
+      <div className="perforacion perforacion-sangrada" />
+      <form action={pedir} style={{ display: "grid", gap: "var(--e-5)" }}>
+        {volver && <input type="hidden" name="volver" value={volver} />}
+        <div>
+          <label className="t-interfaz" htmlFor="correo">Tu correo</label>
+          <input
+            key={correoEscrito}
+            id="correo" name="correo" type="email" required inputMode="email"
+            className="campo" style={{ marginTop: "var(--e-3)" }}
+            placeholder="nombre@negocio.mx"
+            autoComplete="email" autoCapitalize="none" spellCheck={false}
+            defaultValue={correoEscrito}
+            aria-invalid={pedido.tipo === "correo" || undefined}
+            aria-describedby={errorPedir ? "correo-error" : undefined}
+          />
+        </div>
+        {sinConexion}
+        {errorPedir && <p id="correo-error" className="t-cuerpo aviso-falla" role="alert">{errorPedir}</p>}
+        <button className="btn btn-primario btn-bloque" disabled={pidiendo || !enLinea}>
+          {pidiendo ? "Enviando código…" : "Mandarme el código"}
+        </button>
+      </form>
+      <div className="perforacion perforacion-sangrada" />
+      <button className="btn btn-fantasma btn-bloque acceso-secundario" type="button" onClick={() => setModo("entrar")}>
+        Volver a entrar con contraseña
+      </button>
+    </div>
+  );
+}
+
+/** Contraseña con botón para verla: en el teléfono es fácil equivocarse. */
+function CampoClave({ id, nueva, invalido }: { id: string; nueva?: boolean; invalido?: boolean }) {
+  const [ver, setVer] = useState(false);
+  return (
+    <div>
+      <label className="t-interfaz" htmlFor={id}>{nueva ? "Crea una contraseña" : "Contraseña"}</label>
+      <div className="campo-clave" style={{ marginTop: "var(--e-3)" }}>
+        <input id={id} name="clave" type={ver ? "text" : "password"} required className="campo"
+          minLength={nueva ? 8 : undefined}
+          autoComplete={nueva ? "new-password" : "current-password"}
+          aria-invalid={invalido || undefined}
+          aria-describedby={nueva ? `${id}-ayuda` : undefined} />
+        <button type="button" className="campo-clave-ver" onClick={() => setVer(!ver)}
+          aria-pressed={ver} aria-controls={id}>
+          {ver ? "Ocultar" : "Ver"}
+        </button>
+      </div>
+      {nueva && (
+        <p id={`${id}-ayuda`} className="t-dato" style={{ marginTop: "var(--e-2)", color: "var(--tinta-tenue)" }}>
+          Mínimo 8 caracteres.
+        </p>
+      )}
+    </div>
   );
 }
 

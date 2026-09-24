@@ -37,6 +37,7 @@ export type TipoFalla =
   | "correo"      // correo con forma inválida o rechazado
   | "credenciales"
   | "red"         // no se pudo hablar con Supabase
+  | "existe"      // al crear cuenta: ese correo ya tiene una
   | "otro";
 
 /** «…you can only request this after 42 seconds.» → 42. */

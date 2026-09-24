@@ -2184,3 +2184,23 @@ body {
   font-size: 14px; color: var(--tinta-media);
 }
 .acceso-separador::before, .acceso-separador::after { content: ""; flex: 1; border-top: 1px solid var(--linea); }
+.acceso-pestanas {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px;
+  background: var(--papel-hundido); border-radius: var(--r-papel);
+}
+.acceso-pestana {
+  padding: 10px 8px; border: 0; border-radius: var(--r-placa); background: transparent;
+  font: inherit; font-weight: 650; color: var(--tinta-media); cursor: pointer; min-height: 44px;
+}
+.acceso-pestana[aria-selected="true"] { background: var(--lienzo); color: var(--tinta); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.acceso-pestana:focus-visible { outline: 3px solid var(--musgo-anillo); }
+.acceso-trampa { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+.campo-clave { position: relative; }
+.campo-clave .campo { padding-right: 76px; }
+.campo-clave-ver {
+  position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+  padding: 8px 10px; min-height: 36px; border: 0; background: none; font: inherit; font-size: 14px;
+  font-weight: 650; color: var(--musgo-600); cursor: pointer;
+}
+.acceso-legal { color: var(--tinta-tenue); text-align: center; }
+.acceso-legal a { color: inherit; }

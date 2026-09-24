@@ -9,9 +9,10 @@ import {
   ocultarCorreo, segundosDeEspera, tipoDeFalla, type TipoFalla,
 } from "@/lib/auth";
 import { URL_SITIO } from "@/lib/sitio";
+import { clienteAdmin } from "@/lib/supabase/admin";
 import { registrar } from "@/lib/analitica";
 import { conParametro, rutaInterna } from "@/lib/rutas";
-import { crearPreferencia, crearSuscripcion, mercadoPagoListo } from "@/lib/mercadopago";
+import { iniciarCompra } from "@/lib/compra";
 
 /** Traduce los errores de la base a algo que un dueño de negocio entienda. */
 function mensaje(error: string): string {
@@ -134,6 +135,73 @@ export async function verificarCodigo(_prev: Estado, datos: FormData): Promise<E
   // Al escribir las galletas de sesión, Next vuelve a pintar /entrar, que
   // con sesión ya redirige a «volver». «destino» queda como respaldo.
   (await cookies()).delete(GALLETA_VOLVER);
+  revalidatePath("/", "layout");
+  return { correo, destino, n };
+}
+
+const CLAVE_MINIMA = 8;
+
+/**
+ * Crear cuenta en un paso: nombre, correo y contraseña, sin esperar ningún
+ * correo. Con la llave de servicio la cuenta nace confirmada (admin); sin
+ * ella se usa signUp, que da sesión al instante solo si en Supabase está
+ * apagado «Confirm email». Lo que no hay es un camino que se quede a medias
+ * sin decirlo.
+ */
+export async function crearCuenta(_prev: Estado, datos: FormData): Promise<Estado> {
+  const correo = normalizarCorreo(datos.get("correo"));
+  const nombre = String(datos.get("nombre") ?? "").trim().slice(0, 80);
+  const clave = String(datos.get("clave") ?? "");
+  const destino = rutaInterna(String(datos.get("volver") ?? ""), "/mi-aprendizaje");
+  const n = Date.now();
+
+  // Trampa para robots: un campo que una persona no ve ni llena.
+  if (String(datos.get("sitio") ?? "")) return { error: "No pudimos crear la cuenta.", n };
+  if (!correoValido(correo)) return { error: "Escribe un correo válido, como nombre@negocio.mx.", tipo: "correo", correo, n };
+  if (clave.length < CLAVE_MINIMA) {
+    return { error: `La contraseña necesita al menos ${CLAVE_MINIMA} caracteres.`, tipo: "credenciales", correo, n };
+  }
+
+  const sb = await clienteServidor();
+  const metadatos = nombre ? { display_name: nombre } : undefined;
+  const admin = clienteAdmin();
+
+  if (admin) {
+    const { error } = await admin.auth.admin.createUser({
+      email: correo, password: clave, email_confirm: true, user_metadata: metadatos,
+    });
+    if (error) {
+      if (error.code === "email_exists" || error.code === "user_already_exists" || error.status === 422) {
+        return { error: "Ese correo ya tiene cuenta. Entra con tu contraseña o con Google.", tipo: "existe", correo, n };
+      }
+      if (error.code === "weak_password") return { error: "Esa contraseña es muy fácil de adivinar. Prueba otra más larga.", tipo: "credenciales", correo, n };
+      registrarFalla("crear", correo, error);
+      return { error: mensajeDeFalla(error), tipo: tipoDeFalla(error), correo, n };
+    }
+    const { error: e2 } = await sb.auth.signInWithPassword({ email: correo, password: clave });
+    if (e2) {
+      registrarFalla("crear-entrar", correo, e2);
+      return { error: mensajeDeFalla(e2), tipo: tipoDeFalla(e2), correo, n };
+    }
+  } else {
+    const { data, error } = await sb.auth.signUp({ email: correo, password: clave, options: { data: metadatos } });
+    if (error) {
+      if (error.code === "user_already_exists") return { error: "Ese correo ya tiene cuenta. Entra con tu contraseña o con Google.", tipo: "existe", correo, n };
+      if (error.code === "weak_password") return { error: "Esa contraseña es muy fácil de adivinar. Prueba otra más larga.", tipo: "credenciales", correo, n };
+      registrarFalla("crear", correo, error);
+      return { error: mensajeDeFalla(error), tipo: tipoDeFalla(error), correo, n };
+    }
+    if (!data.session) {
+      // Supabase pide confirmar el correo (o el correo ya existía: por
+      // seguridad responde igual). Se dice tal cual, sin prometer nada.
+      console.warn("[acceso] crear sin sesión: falta SUPABASE_SERVICE_ROLE_KEY o apagar «Confirm email»");
+      return {
+        aviso: "Te mandamos un correo para confirmar tu cuenta. Ábrelo y después entra con tu contraseña. Si ya tenías cuenta, entra directamente.",
+        tipo: "existe", correo, n,
+      };
+    }
+  }
+
   revalidatePath("/", "layout");
   return { correo, destino, n };
 }
@@ -342,62 +410,14 @@ export async function emitirCertificado(datos: FormData) {
  * acceso lo abre solo el aviso de Mercado Pago tras consultar el pago.
  */
 export async function comprar(datos: FormData) {
-  const productoId = String(datos.get("producto_id") ?? "");
-  const volver = rutaInterna(String(datos.get("volver") ?? "/precios"), "/precios");
-
-  const sb = await clienteServidor();
-  const { data: usuario } = await sb.auth.getUser();
-  if (!usuario.user) redirect(`/entrar?volver=${encodeURIComponent(volver)}`);
-
-  // Sin llaves de Mercado Pago no se crea nada: se avisa con calma.
-  if (!mercadoPagoListo()) redirect(conParametro(volver, "acceso=pendiente"));
-
-  const { data, error } = await sb.rpc("create_purchase_intent", { check_product_id: productoId });
-  if (error) {
-    if (error.message.includes("already_owned")) redirect(conParametro(volver, "acceso=ya"));
-    throw new Error(mensaje(error.message));
-  }
-  const intento = Array.isArray(data) ? data[0] : data;
-  await registrar("checkout_iniciado", { producto_id: productoId, centavos: intento.amount_cents });
-  const { data: producto } = await sb.from("products").select("name").eq("id", productoId).maybeSingle();
-
-  const destino = await crearPreferencia({
-    compraId: intento.purchase_id,
-    titulo: producto?.name ?? "Curso de Listo",
-    centavos: intento.amount_cents,
-    moneda: intento.currency,
-    email: usuario.user.email,
-    volverA: volver.split("#")[0],
-  });
-  redirect(destino);
+  const r = await iniciarCompra(String(datos.get("producto_id") ?? ""), String(datos.get("volver") ?? "/precios"));
+  if ("error" in r) throw new Error(mensaje(r.error));
+  redirect(r.url);
 }
 
-/** Alta en Listo Pro (cobro mensual con Mercado Pago). */
+/** Alta en Listo Pro (cobro mensual con Mercado Pago). Mismo camino. */
 export async function suscribirse(datos: FormData) {
-  const productoId = String(datos.get("producto_id") ?? "");
-  const volver = rutaInterna(String(datos.get("volver") ?? "/precios"), "/precios");
-
-  const sb = await clienteServidor();
-  const { data: usuario } = await sb.auth.getUser();
-  if (!usuario.user?.email) redirect(`/entrar?volver=${encodeURIComponent(volver)}`);
-  if (!mercadoPagoListo()) redirect(conParametro(volver, "acceso=pendiente"));
-
-  const { data, error } = await sb.rpc("create_subscription_intent", { check_product_id: productoId });
-  if (error) {
-    if (error.message.includes("already_subscribed")) redirect(conParametro(volver, "acceso=ya"));
-    throw new Error(mensaje(error.message));
-  }
-  const intento = Array.isArray(data) ? data[0] : data;
-
-  await registrar("suscripcion_iniciada", { producto_id: productoId });
-  const destino = await crearSuscripcion({
-    suscripcionId: intento.subscription_id,
-    titulo: intento.product_name,
-    centavos: intento.amount_cents,
-    moneda: intento.currency,
-    email: usuario.user.email,
-  });
-  redirect(destino);
+  return comprar(datos);
 }
 
 /**

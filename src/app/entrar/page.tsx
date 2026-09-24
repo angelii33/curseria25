@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 export default async function Entrar({
   searchParams,
 }: {
-  searchParams: Promise<{ volver?: string; error?: string }>;
+  searchParams: Promise<{ volver?: string; error?: string; crear?: string }>;
 }) {
   const params = await searchParams;
   // Solo rutas internas: nunca se redirige a otro sitio.
@@ -25,29 +25,40 @@ export default async function Entrar({
   if (await usuarioActual()) redirect(volver ?? "/mi-aprendizaje");
 
   const vieneDeCurso = volver?.startsWith("/cursos/");
+  const vieneAComprar = volver?.startsWith("/comprar");
+  // «Volver» nunca apunta a /comprar (eso abriría el pago): a la página de
+  // donde salió la compra.
+  const atras = vieneAComprar
+    ? rutaInterna(new URLSearchParams(volver!.split("?")[1] ?? "").get("volver"), "/precios")
+    : volver ?? "/";
 
   return (
     <>
-      <Barra volver={{ href: volver ?? "/", texto: vieneDeCurso ? "Volver al curso" : "Cursos" }} />
+      <Barra volver={{ href: atras, texto: vieneDeCurso || atras.startsWith("/cursos/") ? "Volver al curso" : vieneAComprar ? "Volver" : "Cursos" }} />
       <main id="contenido" className="marco pagina-entrar">
         <div className="entrar-texto">
           <p className="sobretitulo">Tu cuenta</p>
           <h1 className="t-titulo-1">
-            {vieneDeCurso ? "Entra para seguir con tu curso" : "Entra y retoma donde lo dejaste"}
+            {vieneAComprar
+              ? "Un paso y pasas al pago"
+              : vieneDeCurso
+                ? "Entra para seguir con tu curso"
+                : "Entra y retoma donde lo dejaste"}
           </h1>
           <p className="t-lectura">
             Tu avance se guarda en tu cuenta, no en este teléfono. Empiezas una lección
             aquí y la sigues en la computadora, justo donde ibas.
           </p>
           <ul className="lista-check entrar-lista">
-            <li>Sin contraseñas: te mandamos un código de 6 dígitos.</li>
-            <li>Si es tu primera vez, la cuenta se crea sola.</li>
+            <li>Crear tu cuenta toma 20 segundos: nombre, correo y contraseña.</li>
+            <li>Pagas con Mercado Pago, con los métodos que te ofrezca al pagar.</li>
             <li>Tu avance, tus misiones y tus certificados, en un solo lugar.</li>
           </ul>
         </div>
         <Formulario
           volver={volver}
           google={await googleActivo()}
+          crearCuentaPrimero={params.crear === "1"}
           fallo={params.error === "enlace" || params.error === "google" ? params.error : undefined}
         />
       </main>
