@@ -32,7 +32,7 @@ export function TarjetaOferta({ o, volver = "/precios" }: { o: Oferta; volver?: 
         <input type="hidden" name="producto_id" value={o.id} />
         <input type="hidden" name="volver" value={volver} />
         <button className={`btn ${o.destacado || esPro ? "btn-primario" : "btn-secundario"} btn-bloque`} type="submit">
-          {esPro ? "Empezar Listo Pro" : "Comprar el paquete"}
+          {esPro ? "Empezar CurserIA Pro" : "Comprar el paquete"}
         </button>
       </form>
 

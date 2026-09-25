@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import { getCertificado, fechaLarga } from "@/lib/certificado";
 import { MARCA } from "@/lib/marca";
 
-export const alt = "Certificado verificado de Listo";
+export const alt = "Certificado verificado de CurserIA";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 // Lee Supabase con cookies(): no se puede generar en el build.
@@ -31,7 +31,7 @@ export default async function Image({ params }: { params: Promise<{ codigo: stri
             alignItems: "center",
             justifyContent: "center",
             backgroundColor: LIENZO,
-            border: `3px double ${MUSGO_600}`,
+            border: `3px solid ${MUSGO_600}`, // next/og no dibuja «double»
             borderRadius: 16,
             padding: 48,
           }}

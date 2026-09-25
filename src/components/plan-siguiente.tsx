@@ -36,7 +36,7 @@ function ics(inicio: Date, titulo: string, detalle: string, url: string) {
   return [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Listo//Plan de leccion//ES",
+    "PRODID:-//CurserIA//Plan de leccion//ES",
     "BEGIN:VEVENT",
     `UID:${Date.now()}@listo`,
     `DTSTAMP:${f(new Date())}`,
@@ -94,7 +94,7 @@ export function PlanSiguiente({
     const inicio = new Date(dias[dia].fecha);
     inicio.setHours(h, m, 0, 0);
     const url = `${window.location.origin}${ruta}`;
-    const archivo = ics(inicio, `Listo: ${accion}`, frase, url);
+    const archivo = ics(inicio, `CurserIA: ${accion}`, frase, url);
     const blob = new Blob([archivo], { type: "text/calendar;charset=utf-8" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);

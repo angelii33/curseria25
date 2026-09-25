@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Marca } from "@/components/logo";
 import { useEffect } from "react";
 
 // Lo que se ve si algo falla al cargar una página. Nunca «Error 500»:
@@ -25,10 +26,7 @@ export default function ErrorPagina({
       <header className="barra">
         <div className="barra-in">
           <Link href="/" className="marca-enlace">
-            <span className="marca">
-              <span className="marca-sello" aria-hidden="true">✓</span>
-              Listo
-            </span>
+            <Marca />
           </Link>
         </div>
       </header>

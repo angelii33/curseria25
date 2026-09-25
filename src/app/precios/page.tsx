@@ -10,7 +10,7 @@ import { URL_SITIO } from "@/lib/sitio";
 export const metadata: Metadata = {
   title: "Precios",
   description:
-    "Cursos sueltos desde $99, paquetes por etapa o Listo Pro con todos los cursos. Pago único con Mercado Pago y 7 días para pedir tu reembolso.",
+    "Cursos sueltos desde $99, paquetes por etapa o CurserIA Pro con todos los cursos. Pago único con Mercado Pago y 7 días para pedir tu reembolso.",
   alternates: { canonical: `${URL_SITIO}/precios` },
 };
 
@@ -36,7 +36,7 @@ export default async function Precios({
             <h1 className="t-titulo-1">Pagas una vez. Lo que armas se queda en tu negocio.</h1>
             <p className="t-lectura seccion-bajada">
               Empieza gratis con la primera lección de cada curso. Si te sirve, compra el curso
-              que necesitas, un paquete por etapa o todos con Listo Pro.
+              que necesitas, un paquete por etapa o todos con CurserIA Pro.
             </p>
             {acceso === "pendiente" ? (
               <Aviso tono="atencion" titulo="La compra en línea aún no está disponible">
@@ -133,7 +133,7 @@ export default async function Precios({
                 },
                 {
                   p: "¿El acceso caduca?",
-                  r: "Los cursos y paquetes se pagan una vez y son tuyos sin caducidad. Listo Pro abre todos los cursos mientras la membresía esté activa; si la cancelas, conservas el acceso hasta el final del mes que ya pagaste.",
+                  r: "Los cursos y paquetes se pagan una vez y son tuyos sin caducidad. CurserIA Pro abre todos los cursos mientras la membresía esté activa; si la cancelas, conservas el acceso hasta el final del mes que ya pagaste.",
                 },
                 {
                   p: "Pagué en efectivo, ¿cuándo se abre mi curso?",

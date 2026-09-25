@@ -86,7 +86,7 @@ export function obtenerPago(id: string) {
   return mp<PagoMP>(`/v1/payments/${encodeURIComponent(id)}`);
 }
 
-/** Suscripción mensual (Listo Pro). */
+/** Suscripción mensual (CurserIA Pro). */
 export async function crearSuscripcion(p: {
   suscripcionId: string;
   titulo: string;

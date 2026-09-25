@@ -1,9 +1,9 @@
 <!--
-  Plantilla de correo de acceso de Listo.
+  Plantilla de correo de acceso de CurserIA.
   Pegar en Supabase → Authentication → Emails → Templates, en DOS plantillas:
     · «Magic link»     (personas que ya tienen cuenta)
     · «Confirm signup» (primera vez: el mismo código crea la cuenta)
-  Asunto sugerido: Tu código de acceso a Listo: {{ .Token }}
+  Asunto sugerido: Tu código de acceso a CurserIA: {{ .Token }}
   El enlace usa token_hash y /auth/confirm: funciona aunque se abra en otro
   navegador o dispositivo. Código y enlace son el mismo acceso: al usar uno,
   el otro deja de servir.
@@ -17,7 +17,7 @@
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background:#FFFFFF;border:1px solid #E4DCCB;border-radius:12px;padding:28px;">
             <tr>
               <td>
-                <p style="margin:0 0 4px;font-size:18px;font-weight:bold;">✓ Listo</p>
+                <p style="margin:0 0 4px;font-size:20px;font-weight:bold;"><span style="color:#25341F;">Curser</span><span style="color:#C3652F;">IA</span></p>
                 <h1 style="margin:16px 0 8px;font-size:22px;">Tu código de acceso</h1>
                 <p style="margin:0 0 20px;font-size:16px;line-height:1.5;color:#4A5347;">
                   Escríbelo en la pantalla donde lo pediste:
@@ -30,8 +30,8 @@
                 </p>
                 <p style="margin:0 0 24px;text-align:center;">
                   <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email"
-                     style="display:inline-block;background:#3E5236;color:#FFFFFF;text-decoration:none;font-weight:bold;font-size:16px;padding:12px 22px;border-radius:8px;">
-                    Entrar a Listo
+                     style="display:inline-block;background:#25341F;color:#FFFFFF;text-decoration:none;font-weight:bold;font-size:16px;padding:12px 22px;border-radius:8px;">
+                    Entrar a CurserIA
                   </a>
                 </p>
                 <p style="margin:0 0 8px;font-size:13px;line-height:1.5;color:#6B7268;">

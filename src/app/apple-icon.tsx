@@ -1,10 +1,9 @@
 import { ImageResponse } from "next/og";
+import { logoDataUri } from "@/lib/logo-svg";
 
-// El ícono que queda en la pantalla de inicio al instalar la app.
-//
-// Aquí el fondo es musgo sólido y el sello va en cobre: es la misma
-// combinación del certificado, la pieza más "premium" del producto. Apple
-// no respeta transparencia en este ícono, así que el fondo es explícito.
+// El ícono que queda en la pantalla de inicio al instalar la app. Apple no
+// respeta transparencia aquí, así que el fondo es el papel de la marca y el
+// símbolo va con margen para que el recorte redondeado no lo corte.
 
 export const size = { width: 180, height: 180 };
 export const contentType = "image/png";
@@ -19,27 +18,10 @@ export default function AppleIcon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: "#22301F",
+          backgroundColor: "#FBF9F4",
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: 118,
-            height: 118,
-            borderRadius: 999,
-            border: "8px solid #9C481C",
-            backgroundColor: "#F2DFCF",
-            transform: "rotate(-7deg)",
-            color: "#9C481C",
-            fontSize: 66,
-            fontWeight: 800,
-          }}
-        >
-          ✓
-        </div>
+        <img src={logoDataUri()} width={132} height={132} alt="" />
       </div>
     ),
     size

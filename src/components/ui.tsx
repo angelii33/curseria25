@@ -8,17 +8,8 @@ import { MARCA } from "@/lib/marca";
 import { LEGAL } from "@/lib/legal";
 
 export { Perforacion, Sello, Insignia } from "@/components/ui-puro";
-
-/** La marca: el nombre con su sello. Es el mismo sello de «lección
- *  completada» — la marca es literalmente la marca de lo que quedó hecho. */
-export function Marca({ inversa = false }: { inversa?: boolean }) {
-  return (
-    <span className={`marca ${inversa ? "marca-inversa" : ""}`}>
-      <span className="marca-sello" aria-hidden="true">✓</span>
-      {MARCA.nombre}
-    </span>
-  );
-}
+export { Marca } from "@/components/logo";
+import { Marca } from "@/components/logo";
 
 export async function Barra({ volver }: { volver?: { href: string; texto: string } }) {
   const usuario = await usuarioActual();
@@ -65,6 +56,7 @@ export function Pie() {
       <div className="marco pie-in">
         <div className="pie-marca">
           <Marca inversa />
+          <p className="pie-eslogan">{MARCA.eslogan}</p>
           <p className="pie-promesa">{MARCA.promesa}</p>
           <p className="t-dato pie-nota">
             Cursos prácticos para dueños de negocio en México. Cada uno termina con

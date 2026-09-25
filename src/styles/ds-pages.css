@@ -48,23 +48,13 @@
   letter-spacing: -0.03em;
   color: var(--tinta);
 }
-.marca-sello {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px; height: 26px;
-  border-radius: 50%;
-  border: 2px solid var(--cobre-600);
-  background: var(--cobre-100);
-  color: var(--cobre-600);
-  font-size: 13px;
-  font-weight: 900;
-  transform: rotate(-7deg);
-  transition: transform var(--medio) var(--curva-cuno);
-}
-.marca-enlace:hover .marca-sello { transform: rotate(-16deg) scale(1.06); }
-.marca-inversa { color: var(--tinta-inversa); }
-.marca-inversa .marca-sello { background: transparent; border-color: var(--cobre-400); color: var(--cobre-400); }
+.marca-icono { width: 32px; height: 32px; flex: none; color: var(--marca-verde); transition: transform var(--medio) var(--curva-cuno); }
+.marca-flecha { fill: var(--marca-naranja); stroke: var(--marca-naranja); }
+.marca-nombre { color: var(--marca-verde); }
+.marca-ia { color: var(--marca-naranja); }
+.marca-enlace:hover .marca-icono { transform: rotate(-8deg); }
+.marca-inversa .marca-icono, .marca-inversa .marca-nombre { color: var(--tinta-inversa); }
+.marca-inversa .marca-ia, .marca-inversa .marca-flecha { color: var(--cobre-400); fill: var(--cobre-400); stroke: var(--cobre-400); }
 .barra-nav { display: flex; align-items: center; gap: 4px; }
 .barra-nav form:not(.barra-solo-ancho) { display: contents; }
 @media (min-width: 481px) { .barra-nav form.barra-solo-ancho { display: contents; } }
@@ -2211,3 +2201,5 @@ body {
 .hecho-tienes { margin-top: 4px; font-size: 16px; color: var(--tinta); }
 .siguiente-resultado { display: block; margin-top: 6px; font-size: 15px; line-height: 1.45; color: inherit; opacity: .88; }
 .continua-ultima { margin-top: 6px; opacity: .85; }
+.pie-eslogan { margin-top: 10px; font-family: var(--tipo-titular); font-size: 13px; font-weight: 650; letter-spacing: .18em; text-transform: uppercase; color: var(--cobre-200); }
+@media (min-width: 900px) { .marca-icono { width: 36px; height: 36px; } .marca { font-size: 23px; } }

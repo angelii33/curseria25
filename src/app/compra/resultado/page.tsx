@@ -44,7 +44,7 @@ export default async function ResultadoCompra({
         {r.estado === "aprobado" ? (
           <>
             <p className="sobretitulo">Pago confirmado</p>
-            <h1 className="t-titulo-1">{esSuscripcion ? "Ya estás en Listo Pro" : "Listo: ya es tuyo"}</h1>
+            <h1 className="t-titulo-1">{esSuscripcion ? "Ya estás en CurserIA Pro" : "Listo: ya es tuyo"}</h1>
             <p className="t-lectura">
               {esSuscripcion
                 ? "Todos los cursos están abiertos para ti mientras tu membresía esté activa. Mercado Pago te manda el comprobante a tu correo."

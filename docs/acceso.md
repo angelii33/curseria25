@@ -51,7 +51,7 @@ vuelve a `/entrar?error=google` con aviso. El perfil toma el nombre de Google
 Para activarlo:
 
 1. console.cloud.google.com → crear proyecto → «APIs y servicios» →
-   «Pantalla de consentimiento de OAuth»: tipo Externo, nombre «Listo», tu
+   «Pantalla de consentimiento de OAuth»: tipo Externo, nombre «CurserIA», tu
    correo. Publicar la app (estado «En producción»).
 2. «Credenciales» → «Crear credenciales» → «ID de cliente de OAuth» →
    Aplicación web. En «URI de redireccionamiento autorizados» pegar:
@@ -77,7 +77,7 @@ Para activarlo:
 
 Pegar `supabase/templates/codigo-acceso.html` en **Magic link** y en
 **Confirm signup** (la primera vez Supabase usa la de registro). Asunto:
-`Tu código de acceso a Listo: {{ .Token }}`. Sin `{{ .Token }}` el correo no
+`Tu código de acceso a CurserIA: {{ .Token }}`. Sin `{{ .Token }}` el correo no
 trae código y la pantalla pide algo que nunca llega.
 
 **Authentication → Emails → SMTP Settings**

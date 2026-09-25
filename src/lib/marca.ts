@@ -6,12 +6,14 @@
  * una anterior— es editar estos cuatro valores, no perseguirlos por ocho
  * archivos.
  *
- * Historial: el proyecto se llamó "Taller de Resultados" y se renombró a
- * "Listo" por instrucción explícita. Si hace falta revertir, es esta línea.
+ * Historial: "Taller de Resultados" → "Listo" → "CurserIA" (con logotipo
+ * propio en public/marca). Cada cambio fue por instrucción explícita.
  */
 export const MARCA = {
-  nombre: "Listo",
-  eslogan: "La marca de lo que ya quedó hecho.",
+  nombre: "CurserIA",
+  /** Cómo se pinta el nombre en el logotipo: «Curser» verde, «IA» naranja. */
+  partes: ["Curser", "IA"],
+  eslogan: "Aprende · Aplica · Avanza",
   promesa: "Entras con un problema. Sales con la solución lista.",
   descripcionCorta:
     "Resuelve una cosa concreta de tu negocio y sal con esa cosa hecha: " +

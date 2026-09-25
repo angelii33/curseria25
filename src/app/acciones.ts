@@ -415,7 +415,7 @@ export async function comprar(datos: FormData) {
   redirect(r.url);
 }
 
-/** Alta en Listo Pro (cobro mensual con Mercado Pago). Mismo camino. */
+/** Alta en CurserIA Pro (cobro mensual con Mercado Pago). Mismo camino. */
 export async function suscribirse(datos: FormData) {
   return comprar(datos);
 }

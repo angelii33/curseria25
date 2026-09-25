@@ -2,13 +2,14 @@ import { ImageResponse } from "next/og";
 import { getCurso, precio } from "@/lib/catalogo";
 import { ESCENA_POR_SLUG, escena } from "@/lib/escenas";
 import { MARCA } from "@/lib/marca";
+import { logoCompletoDataUri } from "@/lib/logo-svg";
 
 // La tarjeta de UN curso al compartirse. Lleva su escena propia —la misma
 // del catálogo, escalada— para que el link de "WhatsApp que contesta solo"
 // no se vea igual que el de "Cotiza en 5 minutos". Un link genérico no
 // vende; uno que ya muestra el tema, sí.
 
-export const alt = "Curso de Listo";
+export const alt = "Curso de CurserIA";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -19,7 +20,6 @@ export const contentType = "image/png";
 export const dynamic = "force-dynamic";
 
 const PAPEL = "#F2EEE4";
-const MUSGO_900 = "#22301F";
 const MUSGO_500 = "#4B6141";
 const MUSGO_300 = "#94A288";
 const TINTA = "#1E2A1C";
@@ -34,7 +34,7 @@ export default async function Image({
 }) {
   // En Next 16 los params son una Promise, igual que en el resto de la app.
   const { slug } = await params;
-  const d = await getCurso(slug);
+  const [d, logo] = await Promise.all([getCurso(slug), logoCompletoDataUri()]);
 
   // Si el curso no existe, se devuelve la tarjeta de marca en vez de
   // romper: un link mal escrito compartido por WhatsApp debe verse
@@ -56,24 +56,8 @@ export default async function Image({
           backgroundColor: PAPEL,
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            backgroundColor: MUSGO_900,
-            padding: "26px 64px",
-          }}
-        >
-          <div
-            style={{
-              fontSize: 30,
-              fontWeight: 800,
-              color: "#F4F1E7",
-              letterSpacing: "-0.02em",
-            }}
-          >
-            {MARCA.nombre}
-          </div>
+        <div style={{ display: "flex", alignItems: "center", padding: "40px 64px 0" }}>
+          <img src={logo} width={340} height={86} alt="" />
         </div>
 
         <div
@@ -121,12 +105,12 @@ export default async function Image({
                     borderRadius: 4,
                   }}
                 >
-                  {precio(precioCents, d?.moneda ?? "MXN")} MXN
+                  {`${precio(precioCents, d?.moneda ?? "MXN")} MXN`}
                 </div>
               )}
               {lecciones > 0 && (
                 <div style={{ fontSize: 24, color: TINTA_MEDIA }}>
-                  {lecciones} piezas listas
+                  {`${lecciones} piezas listas`}
                 </div>
               )}
             </div>

@@ -57,7 +57,7 @@ export async function iniciarCompra(productoId: string, volverCrudo: string): Pr
   await registrar("checkout_iniciado", { producto_id: productoId, centavos: intento.amount_cents });
   const url = await crearPreferencia({
     compraId: intento.purchase_id,
-    titulo: producto.name ?? "Curso de Listo",
+    titulo: producto.name ?? "Curso de CurserIA",
     centavos: intento.amount_cents,
     moneda: intento.currency,
     email: usuario.user.email,

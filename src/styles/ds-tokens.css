@@ -13,6 +13,9 @@
 
   /* Texto — todas pasan AA sobre papel y lienzo */
   --tinta: #1E2A1C;
+  /* Colores exactos del logotipo de CurserIA. */
+  --marca-verde: #25341F;
+  --marca-naranja: #C3652F;
   --tinta-media: #4C5847;
   --tinta-tenue: #5A6453;
   --tinta-inversa: #F4F1E7;

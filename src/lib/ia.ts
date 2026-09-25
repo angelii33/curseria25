@@ -11,7 +11,7 @@ export function iaLista() {
   return Boolean(process.env.ANTHROPIC_API_KEY) && Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY);
 }
 
-const SISTEMA = `Eres el revisor de Listo, una plataforma de cursos prácticos para dueños de pequeños negocios en México.
+const SISTEMA = `Eres el revisor de CurserIA, una plataforma de cursos prácticos para dueños de pequeños negocios en México.
 El alumno te manda el borrador que escribió para el ejercicio de una lección (un mensaje de WhatsApp, un texto para Google, un menú, una cotización, etc.).
 Tu trabajo: ayudarle a dejarlo listo para usar hoy en su negocio.
 

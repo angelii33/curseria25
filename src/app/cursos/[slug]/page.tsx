@@ -58,7 +58,7 @@ export default async function Curso({
   const usuario = await usuarioActual();
   const { curso, modulos, precio_cents, moneda, producto_id, lanzamiento, inscrito, hechas, total, completadas, pct, siguiente } = d;
 
-  // Con Listo Pro activo, has_course_access ya es verdadero: se inscribe
+  // Con CurserIA Pro activo, has_course_access ya es verdadero: se inscribe
   // directo, sin pagar otra vez. La RPC decide; aquí solo cambia el botón.
   let incluidoEnPro = false;
   if (usuario && !inscrito) {
@@ -103,7 +103,7 @@ export default async function Curso({
         <input type="hidden" name="curso_id" value={curso.id} />
         <input type="hidden" name="slug" value={slug} />
         <button className={claseCompra} type="submit">
-          {incluidoEnPro ? "Inscribirme (incluido en Listo Pro)" : esPago ? "Obtener el curso completo" : "Inscribirme gratis"}
+          {incluidoEnPro ? "Inscribirme (incluido en CurserIA Pro)" : esPago ? "Obtener el curso completo" : "Inscribirme gratis"}
         </button>
       </form>
     );

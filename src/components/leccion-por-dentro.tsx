@@ -19,7 +19,7 @@ export function LeccionPorDentro() {
         <rect x={80} y={20} width={200} height={480} rx={22} className="pd-pantalla" />
         {/* barra */}
         <circle cx={100} cy={42} r={8} className="pz-sello" />
-        <text x={114} y={46} fontSize={11} fontWeight={800} className="pz-t">Listo</text>
+        <text x={114} y={46} fontSize={11} fontWeight={800} className="pz-t">CurserIA</text>
         <rect x={80} y={58} width={200} height={1} className="pz-b2" />
         {/* posición */}
         <text x={94} y={78} fontSize={7} fontWeight={700} className="pz-tm">LECCIÓN 1 DE 5</text>

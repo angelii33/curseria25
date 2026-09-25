@@ -1,14 +1,22 @@
 {
-  "name": "Listo — Entras con un problema. Sales con la solución lista.",
-  "short_name": "Listo",
+  "name": "CurserIA — Aprende · Aplica · Avanza",
+  "short_name": "CurserIA",
   "description": "Resuelve una cosa concreta de tu negocio y sal con esa cosa hecha. Para dueños de negocio en México.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#F2EEE4",
-  "theme_color": "#22301F",
+  "background_color": "#FBF9F4",
+  "theme_color": "#25341F",
   "lang": "es-MX",
   "icons": [
-    { "src": "/apple-icon", "sizes": "180x180", "type": "image/png" },
-    { "src": "/apple-icon", "sizes": "180x180", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "/apple-icon",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/marca/curseria-icono.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
   ]
 }

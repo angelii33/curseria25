@@ -18,7 +18,7 @@ export default function Reembolsos() {
       <h2>Cómo pedirlo</h2>
       <ul>
         <li>Escribe a <Contacto /> desde el correo de tu cuenta.</li>
-        <li>Dinos qué compraste (curso, paquete o Listo Pro). Con eso basta.</li>
+        <li>Dinos qué compraste (curso, paquete o CurserIA Pro). Con eso basta.</li>
         <li>Hacemos la devolución por Mercado Pago, al mismo medio con el que pagaste, en un máximo de 5 días hábiles.</li>
       </ul>
 
@@ -28,7 +28,7 @@ export default function Reembolsos() {
         negocio —tu ficha, tu menú, tus mensajes— sigue siendo tuyo.
       </p>
 
-      <h2>Listo Pro</h2>
+      <h2>CurserIA Pro</h2>
       <p>
         El primer cobro de la membresía también tiene 7 días de garantía. Después, puedes
         cancelar cuando quieras desde tu cuenta de Mercado Pago o escribiéndonos: no se hacen

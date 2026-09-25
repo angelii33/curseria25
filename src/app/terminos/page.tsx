@@ -25,7 +25,7 @@ export default function Terminos() {
       <h2>2. Qué compras</h2>
       <ul>
         <li><strong>Curso o paquete:</strong> pago único y acceso sin caducidad a sus lecciones, ejercicios y plantillas, mientras {MARCA.nombre} opere.</li>
-        <li><strong>Listo Pro:</strong> membresía mensual con acceso a todos los cursos publicados mientras esté activa. Se renueva cada mes hasta que la canceles.</li>
+        <li><strong>CurserIA Pro:</strong> membresía mensual con acceso a todos los cursos publicados mientras esté activa. Se renueva cada mes hasta que la canceles.</li>
       </ul>
       <p>
         Los precios están en pesos mexicanos y son el total a pagar. El precio que ves antes de
