@@ -22,6 +22,8 @@ import { practicaDe } from "@/lib/practica";
 import { registrarAlResponder } from "@/lib/analitica";
 import { PreguntaPrevia, Comprobacion } from "@/components/practica";
 import { SimuladorObjeciones } from "@/components/simulador-objeciones";
+import { DiagnosticoMonetizacion } from "@/components/diagnostico-monetizacion";
+import { EscaleraResultado } from "@/components/escalera-resultado";
 import { PlanSiguiente } from "@/components/plan-siguiente";
 import { iaLista } from "@/lib/ia";
 import { tituloInsignia } from "@/lib/logros";
@@ -269,9 +271,13 @@ export default async function Leccion({
                 </aside>
               ) : null}
 
+              {/* Monetiza IA · misión gratis 1: el resultado va primero. */}
+              {clave === "monetiza-ia/1/1" ? <DiagnosticoMonetizacion /> : null}
+
               <ArticuloLeccion html={md(contenido)} />
 
-              {/* Monetiza IA · Maneja objeciones: práctica sin API. */}
+              {/* Monetiza IA: ejercicios interactivos sin API. */}
+              {clave === "monetiza-ia/2/1" ? <EscaleraResultado /> : null}
               {clave === "monetiza-ia/8/4" ? <SimuladorObjeciones /> : null}
 
               {practica ? (

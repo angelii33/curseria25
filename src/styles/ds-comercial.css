@@ -229,7 +229,9 @@
 @media (max-width: 359px) {
   .barra-enlace, .barra-volver { padding-inline: 4px; font-size: 13px; }
   /* El logotipo con nombre ocupa más que el anterior: se ajusta aquí. */
-  .marca { font-size: 18px; gap: 6px; }
+  /* 19px: el mínimo de «texto grande» en negritas; con menos, la «IA»
+     naranja no alcanza el contraste AA sobre el fondo claro. */
+  .marca { font-size: 19px; gap: 5px; letter-spacing: -0.04em; }
   .marca-icono { width: 26px; height: 26px; }
   .semana { gap: 12px; }
   .semana-anillo { width: 60px; height: 60px; }
