@@ -21,6 +21,7 @@ import { editorialDe, partesDe } from "@/lib/editorial";
 import { practicaDe } from "@/lib/practica";
 import { registrarAlResponder } from "@/lib/analitica";
 import { PreguntaPrevia, Comprobacion } from "@/components/practica";
+import { SimuladorObjeciones } from "@/components/simulador-objeciones";
 import { PlanSiguiente } from "@/components/plan-siguiente";
 import { iaLista } from "@/lib/ia";
 import { tituloInsignia } from "@/lib/logros";
@@ -269,6 +270,9 @@ export default async function Leccion({
               ) : null}
 
               <ArticuloLeccion html={md(contenido)} />
+
+              {/* Monetiza IA · Maneja objeciones: práctica sin API. */}
+              {clave === "monetiza-ia/8/4" ? <SimuladorObjeciones /> : null}
 
               {practica ? (
                 <Comprobacion clave={clave} preguntas={practica.preguntas} hayPrevia repaso={repaso} />
