@@ -192,7 +192,7 @@ export function Comprobacion({
               ) : null}
               {!cerrada && e.descartadas.length > 0 ? (
                 <p className="reactivo-pista" role="status">
-                  No es esa. Descártala y piensa qué pasaría en tu negocio con cada opción que queda.{" "}
+                  No es esa. Descártala y piensa qué pasaría en tu caso con cada opción que queda.{" "}
                   <button type="button" className="reactivo-nose" onClick={() => noSe(i)}>
                     Ver la respuesta
                   </button>
@@ -248,7 +248,7 @@ export function Comprobacion({
               {confianza === "alta" && aciertos < reactivos.length
                 ? `Ojo: ${reactivos.length - aciertos === 1 ? "una no salió a la primera. Relee esa explicación" : `${reactivos.length - aciertos} no salieron a la primera. Relee esas explicaciones`} antes de hacerlo; es justo donde se equivoca la gente.`
                 : confianza === "alta"
-                  ? "Entonces no lo dejes para después: pasa al ejercicio de abajo y hazlo ahora, con tu negocio."
+                  ? "Entonces no lo dejes para después: pasa al ejercicio de abajo y hazlo ahora, con tu caso real."
                   : confianza === "media"
                     ? "Normal. Haz el ejercicio con la lección abierta al lado: se aprende más haciéndolo que releyendo."
                     : "Vuelve a la sección que más dudas te dejó (está en el índice) y haz solo el primer paso del ejercicio. Un paso hecho vale más que la lección entera leída dos veces."}

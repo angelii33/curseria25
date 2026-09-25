@@ -573,7 +573,54 @@ const SISTEMA: Dibujo = {
   ],
 };
 
+// ─── Monetiza IA: el sistema de monetización, 11 partes ───────────────────
+// Una parte por fase. Tres filas (4, 4, 3) sobre una hoja con título y una
+// línea de avance; la última fase es el plan de 30 días, en cobre.
+const PARTES_MONETIZA = [
+  "Perfil", "Problema", "Nicho", "Oferta",
+  "Solución", "Portafolio", "Prospectos", "Venta",
+  "Entrega", "Sistema", "Plan 30d",
+];
+const casilla = (i: number) => {
+  const fila = Math.floor(i / 4);
+  const x = 16 + (i % 4) * 73 + (fila === 2 ? 36 : 0);
+  const y = 44 + fila * 56;
+  return { x, y };
+};
+const MONETIZA: Dibujo = {
+  base: (
+    <>
+      {sombra(6, 8, 308, 204, 12)}
+      <rect x={6} y={8} width={308} height={204} rx={12} className="pz-hoja" />
+      {T(16, 28, 10, "Mi sistema de monetización con IA", "pz-t", 800)}
+      {PARTES_MONETIZA.map((_, i) => {
+        const { x, y } = casilla(i);
+        return <rect key={i} x={x} y={y} width={65} height={46} rx={6} className="pz-columna" />;
+      })}
+    </>
+  ),
+  partes: PARTES_MONETIZA.map((t, i) => {
+    const { x, y } = casilla(i);
+    const final = i === PARTES_MONETIZA.length - 1;
+    return (
+      <g key={t}>
+        <rect x={x} y={y} width={65} height={46} rx={6} className={final ? "pz-cobre" : "pz-musgo-s"} />
+        {T(x + 7, y + 14, 7, String(i).padStart(2, "0"), final ? "pz-tinv" : "pz-tm", 800)}
+        {T(x + 7, y + 27, 8.2, t, final ? "pz-tinv" : "pz-t", 700)}
+        {final ? (
+          [0, 1, 2, 3, 4, 5].map((k) => (
+            <rect key={k} x={x + 7 + k * 9} y={y + 33} width={6} height={6} rx={1.5} className="pz-tinv2" />
+          ))
+        ) : (
+          barra(x + 7, y + 34, 30 + ((i * 7) % 18), "pz-b", 4)
+        )}
+      </g>
+    );
+  }),
+};
+
 const DIBUJOS: Record<string, Dibujo> = {
+  "monetiza-ia": MONETIZA,
   "tu-negocio-en-google": GOOGLE,
   "menu-con-link": MENU,
   "whatsapp-que-contesta-solo": CHAT,

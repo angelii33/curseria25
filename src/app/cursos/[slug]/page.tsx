@@ -234,7 +234,7 @@ export default async function Curso({
                     ? terminado
                       ? "Construiste todas las partes. Esto ya trabaja para tu negocio."
                       : `Cada ${ed.pieza.porModulo ? "módulo" : "lección"} construye una parte. Así va la tuya.`
-                    : `Cada ${ed.pieza.porModulo ? "módulo" : "lección"} construye una parte de la pieza. Al terminar no tienes apuntes: tienes esto funcionando en tu negocio.`}
+                    : `Cada ${ed.pieza.porModulo ? "módulo" : "lección"} construye una parte de la pieza. Al terminar no tienes apuntes: ${ed.etapa === "emprender" ? "tienes esto listo para ofrecer" : "tienes esto funcionando en tu negocio"}.`}
                 </p>
                 <PiezaPartes
                   slug={slug}

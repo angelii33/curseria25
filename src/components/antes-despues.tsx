@@ -153,6 +153,29 @@ const ANTES: Record<string, ReactNode> = {
       {T(20, 198, 8, "¿A quién le escribí? ¿Quién quedó en contestar?", "ad-tfalla", 700)}
     </>
   ),
+  // Pestañas de «ideas para ganar dinero con IA» y ninguna decisión.
+  "monetiza-ia": (
+    <>
+      {sombra(6, 8, 308, 204, 12)}
+      <rect x={6} y={8} width={308} height={204} rx={12} className="pz-hoja" />
+      {[
+        "10 ideas para ganar con IA", "La herramienta que lo cambia todo", "Hazte rico con prompts",
+        "Curso gratis de IA", "Otra app nueva de IA", "¿Freelance o producto?",
+      ].map((t, i) => (
+        <g key={t}>
+          <rect x={18 + (i % 2) * 150} y={20 + Math.floor(i / 2) * 30} width={138} height={22} rx={6} className="pz-chip" />
+          {T(26 + (i % 2) * 150, 35 + Math.floor(i / 2) * 30, 7.2, t, "pz-t", 600)}
+        </g>
+      ))}
+      {[[26, 118, -5, "¿Qué vendo?"], [118, 124, 4, "¿A quién?"], [210, 116, -3, "¿Cuánto cobro?"]].map(([x, y, r, t]) => (
+        <g key={t as string} transform={`rotate(${r} ${(x as number) + 38} ${(y as number) + 18})`}>
+          <rect x={x as number} y={y as number} width={80} height={36} rx={3} className={t === "¿A quién?" ? "ad-nota-c" : "ad-nota"} />
+          {T((x as number) + 8, (y as number) + 22, 9, t as string, "ad-tfalla", 800)}
+        </g>
+      ))}
+      {T(20, 190, 8, "Muchas ideas, ninguna oferta. Y nadie a quién ofrecérsela.", "ad-tfalla", 700)}
+    </>
+  ),
 };
 
 export function tieneAntesDespues(slug: string) {

@@ -52,7 +52,7 @@ export function ContinuarCurso({
           : `Esas eran las ${abiertas} lecciones abiertas de ${cursoTitulo}.`}{" "}
         Quedan <strong>{restantes}</strong>
         {modulos > 1 ? `, repartidas en ${modulos} módulos` : ""}, y cada una
-        termina igual que esta: con una parte hecha y aplicada a tu negocio.
+        termina igual que esta: con una parte hecha y aplicada a tu caso.
       </p>
 
       <div className="continuar-pie">
