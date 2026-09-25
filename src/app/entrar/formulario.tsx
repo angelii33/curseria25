@@ -79,6 +79,11 @@ export function Formulario({
   const [conClave, entrarClave, entrandoClave] = useActionState(claveSegura, inicial);
   const [creado, crear, creando] = useActionState(crearSeguro, inicial);
   const [recuperado, pedirEnlace, pidiendo] = useActionState(recuperarSeguro, inicial);
+  // «¿Olvidaste tu contraseña?» se abre sola tras una contraseña equivocada
+  // (o con ?olvide=1). Si la persona la abre o la cierra, manda su decisión:
+  // un error de red posterior no debe cerrarla mientras la usa.
+  const [ayudaManual, setAyudaManual] = useState<boolean | null>(null);
+  const ayudaAbierta = ayudaManual ?? (Boolean(olvide) || conClave.tipo === "credenciales");
 
   // El navegador puede restaurar esta pantalla desde su caché de «atrás»
   // tal como quedó, sin preguntar al servidor. Se pide al servidor la
@@ -225,7 +230,8 @@ export function Formulario({
           </button>
         </form>
         <div className="perforacion perforacion-sangrada" />
-        <details className="acceso-ayuda" open={olvide || conClave.tipo === "credenciales" || undefined}>
+        <details className="acceso-ayuda" open={ayudaAbierta}
+          onToggle={(e) => setAyudaManual(e.currentTarget.open)}>
           <summary>¿Olvidaste tu contraseña?</summary>
           {recuperar ? (
             <form action={pedirEnlace} style={{ display: "grid", gap: "var(--e-4)", marginTop: "var(--e-3)" }}>
