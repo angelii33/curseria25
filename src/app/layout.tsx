@@ -13,7 +13,6 @@ import { Archivo, Newsreader } from "next/font/google";
 import "./globals.css";
 import { MARCA } from "@/lib/marca";
 import { URL_SITIO } from "@/lib/sitio";
-import { EnlaceCaducado } from "@/components/enlace-caducado";
 
 // Eje de ancho variable (wdth 62–125). Es lo que habilita la regla de los
 // tres anchos del Design System: 118 rótulo / 100 interfaz / 88 folio.
@@ -76,7 +75,6 @@ export default function RootLayout({
   return (
     <html lang="es-MX" className={`${archivo.variable} ${newsreader.variable}`}>
       <body>
-        <EnlaceCaducado />
         {children}
         {/* Visitas y conversiones anónimas, sin cookies. Se activa en el
             panel de Vercel (Analytics); si no está activado, no hace nada. */}

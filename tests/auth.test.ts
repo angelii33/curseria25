@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  ESPERA_REENVIO, correoValido, limitePorCorreo, limpiarCodigo, mensajeDeFalla, normalizarCorreo,
+  ESPERA_REENVIO, correoValido, limitePorCorreo, mensajeDeFalla, normalizarCorreo,
   ocultarCorreo, segundosDeEspera, tipoDeFalla,
 } from "@/lib/auth";
 
@@ -20,15 +20,6 @@ describe("correos", () => {
     expect(ocultarCorreo("ana@taqueria.mx")).toBe("an•••@taqueria.mx");
     expect(ocultarCorreo("a@x.mx")).toBe("a•••@x.mx");
     expect(ocultarCorreo("roto")).toBe("tu correo");
-  });
-});
-
-describe("código", () => {
-  it("deja solo 6 dígitos de lo que se pegue", () => {
-    expect(limpiarCodigo("123 456")).toBe("123456");
-    expect(limpiarCodigo("Tu código: 123-456.")).toBe("123456");
-    expect(limpiarCodigo("12345678")).toBe("123456");
-    expect(limpiarCodigo(undefined)).toBe("");
   });
 });
 

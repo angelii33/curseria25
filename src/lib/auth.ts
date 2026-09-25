@@ -24,11 +24,6 @@ export function ocultarCorreo(correo: string): string {
   return `${visible}•••@${dominio}`;
 }
 
-/** Solo los dígitos, como mucho 6. Acepta «123 456», «123-456», pegados. */
-export function limpiarCodigo(valor: unknown): string {
-  return String(valor ?? "").replace(/\D/g, "").slice(0, 6);
-}
-
 type ErrorAuth = { code?: string; message?: string; status?: number; name?: string } | null | undefined;
 
 export type TipoFalla =
@@ -97,7 +92,7 @@ export function mensajeDeFalla(error: ErrorAuth): string {
     case "red":
       return "No pudimos conectar con el servidor. Revisa tu internet y vuelve a intentarlo.";
     default:
-      if (error?.code === "email_not_confirmed") return "Tu correo no está confirmado. Entra con un código y queda confirmado.";
+      if (error?.code === "email_not_confirmed") return "Tu cuenta todavía no está confirmada. Escríbenos y la activamos.";
       if (error?.code === "user_banned") return "Esta cuenta está suspendida. Escríbenos para revisarla.";
       if (error?.code === "signup_disabled" || error?.code === "otp_disabled")
         return "El acceso con código no está disponible ahora mismo. Inténtalo más tarde.";

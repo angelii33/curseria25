@@ -35,7 +35,7 @@ export default function AvisoDePrivacidad() {
       <h2>Para qué los usamos</h2>
       <p>Finalidades necesarias para darte el servicio:</p>
       <ul>
-        <li>Crear tu cuenta y dejarte entrar con un código a tu correo.</li>
+        <li>Crear tu cuenta y dejarte entrar con tu correo y contraseña, o con Google.</li>
         <li>Guardar tu avance y emitir tu certificado.</li>
         <li>Procesar tus compras, darte acceso y atender reembolsos.</li>
         <li>Responder tus mensajes.</li>

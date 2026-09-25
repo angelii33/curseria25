@@ -2,12 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { cookies, headers } from "next/headers";
+import { headers } from "next/headers";
 import { clienteServidor } from "@/lib/supabase/server";
-import {
-  ESPERA_REENVIO, correoValido, limitePorCorreo, limpiarCodigo, mensajeDeFalla, normalizarCorreo,
-  ocultarCorreo, segundosDeEspera, tipoDeFalla, type TipoFalla,
-} from "@/lib/auth";
+import { correoValido, mensajeDeFalla, normalizarCorreo, ocultarCorreo, tipoDeFalla, type TipoFalla } from "@/lib/auth";
 import { URL_SITIO } from "@/lib/sitio";
 import { clienteAdmin } from "@/lib/supabase/admin";
 import { registrar } from "@/lib/analitica";
@@ -36,18 +33,12 @@ export type Estado = {
   error?: string;
   tipo?: TipoFalla;
   aviso?: string;
-  enviado?: boolean;
   correo?: string;
-  /** Segundos que faltan para poder pedir otro código (lo dicta el servidor). */
-  esperar?: number;
   /** Adónde ir después de entrar. Solo viene cuando ya hay sesión. */
   destino?: string;
   /** Distingue dos respuestas iguales seguidas (p. ej. dos reenvíos). */
   n?: number;
 };
-
-/** Adónde volver tras abrir el enlace del correo en este mismo navegador. */
-const GALLETA_VOLVER = "listo_volver";
 
 /** Registro seguro: código de error y correo oculto. Nunca códigos ni tokens. */
 function registrarFalla(paso: string, correo: string, error: { code?: string; status?: number }) {
@@ -59,84 +50,6 @@ function registrarFalla(paso: string, correo: string, error: { code?: string; st
 async function origen(): Promise<string> {
   const o = (await headers()).get("origin");
   return o && /^https?:\/\/[\w.-]+(:\d+)?$/.test(o) ? o : URL_SITIO;
-}
-
-/**
- * Paso 1: pedir el código. Sirve para entrar Y para registrarse: si el correo
- * no existe, Supabase crea la cuenta. La respuesta es la misma exista o no,
- * así que no se puede averiguar quién tiene cuenta.
- */
-export async function pedirCodigo(_prev: Estado, datos: FormData): Promise<Estado> {
-  const correo = normalizarCorreo(datos.get("correo"));
-  const nombre = String(datos.get("nombre") ?? "").trim().slice(0, 80);
-  const volver = rutaInterna(String(datos.get("volver") ?? ""), "/mi-aprendizaje");
-  const n = Date.now();
-  if (!correoValido(correo)) {
-    return { error: "Escribe un correo válido, como nombre@negocio.mx.", tipo: "correo", correo, n };
-  }
-
-  const sb = await clienteServidor();
-  const { error } = await sb.auth.signInWithOtp({
-    email: correo,
-    options: {
-      shouldCreateUser: true,
-      emailRedirectTo: `${await origen()}/auth/confirm?next=${encodeURIComponent(volver)}`,
-      data: nombre ? { display_name: nombre } : undefined,
-    },
-  });
-
-  if (error) {
-    registrarFalla("pedir", correo, error);
-    const tipo = tipoDeFalla(error);
-    // «Espera N segundos» = a este correo ya le salió un código hace nada:
-    // ese código sigue sirviendo, así que se pasa al paso 2 con la espera.
-    if (tipo === "limite" && limitePorCorreo(error)) {
-      const esperar = segundosDeEspera(error);
-      return {
-        enviado: true, correo, esperar, n, tipo,
-        aviso: `Ya te mandamos un código hace poco. Usa ese; podrás pedir otro en ${esperar} segundos.`,
-      };
-    }
-    return { error: mensajeDeFalla(error), tipo, correo, n, enviado: datos.get("reenvio") === "1" };
-  }
-
-  (await cookies()).set(GALLETA_VOLVER, volver, {
-    httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", maxAge: 60 * 60, path: "/",
-  });
-  return {
-    enviado: true, correo, esperar: ESPERA_REENVIO, n,
-    aviso: datos.get("reenvio") === "1" ? "Te mandamos un código nuevo. El anterior ya no sirve." : undefined,
-  };
-}
-
-/** Paso 2: canjear el código de 6 dígitos por una sesión. */
-export async function verificarCodigo(_prev: Estado, datos: FormData): Promise<Estado> {
-  const correo = normalizarCorreo(datos.get("correo"));
-  const codigo = limpiarCodigo(datos.get("codigo"));
-  const destino = rutaInterna(String(datos.get("volver") ?? ""), "/mi-aprendizaje");
-  const n = Date.now();
-  if (!correoValido(correo)) return { error: "Vuelve a escribir tu correo.", tipo: "correo", n };
-  if (codigo.length !== 6) {
-    return { enviado: true, correo, error: "El código son 6 dígitos.", tipo: "codigo", n };
-  }
-
-  const sb = await clienteServidor();
-  const { error } = await sb.auth.verifyOtp({ email: correo, token: codigo, type: "email" });
-  if (error) {
-    // Si el enlace del correo u otra pestaña ya abrió sesión con este mismo
-    // correo, el código aparece como «usado»: no es un error, ya entraste.
-    const { data } = await sb.auth.getUser();
-    if (data.user?.email?.toLowerCase() !== correo) {
-      registrarFalla("verificar", correo, error);
-      return { enviado: true, correo, error: mensajeDeFalla(error), tipo: tipoDeFalla(error), n };
-    }
-  }
-
-  // Al escribir las galletas de sesión, Next vuelve a pintar /entrar, que
-  // con sesión ya redirige a «volver». «destino» queda como respaldo.
-  (await cookies()).delete(GALLETA_VOLVER);
-  revalidatePath("/", "layout");
-  return { correo, destino, n };
 }
 
 const CLAVE_MINIMA = 8;

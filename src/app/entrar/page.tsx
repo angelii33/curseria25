@@ -4,6 +4,7 @@ import { usuarioActual } from "@/lib/supabase/server";
 import { Barra } from "@/components/ui";
 import { rutaInterna } from "@/lib/rutas";
 import { googleActivo } from "@/lib/supabase/proveedores";
+import { LEGAL } from "@/lib/legal";
 import { Formulario } from "./formulario";
 
 export const dynamic = "force-dynamic";
@@ -59,6 +60,7 @@ export default async function Entrar({
           volver={volver}
           google={await googleActivo()}
           crearCuentaPrimero={params.crear === "1"}
+          contacto={LEGAL.whatsapp || LEGAL.correo ? { whatsapp: LEGAL.whatsapp, correo: LEGAL.correo } : null}
           fallo={params.error === "enlace" || params.error === "google" ? params.error : undefined}
         />
       </main>

@@ -17,9 +17,8 @@ export default function Terminos() {
 
       <h2>1. Tu cuenta</h2>
       <p>
-        Entras con tu correo y una contraseña, con tu cuenta de Google o con un código que
-        te mandamos al correo. La cuenta es personal: no la compartas ni compartas tu
-        contraseña. Eres responsable de lo que se haga con ella.
+        Entras con tu correo y una contraseña, o con tu cuenta de Google. La cuenta es
+        personal: no la compartas ni compartas tu contraseña. Eres responsable de lo que se haga con ella.
       </p>
 
       <h2>2. Qué compras</h2>
