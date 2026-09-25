@@ -30,7 +30,11 @@ export function RepasoEspaciado({
     b.preguntas.map((p, i) => ({ id: `${b.clave}#${i}`, origen: b.origen, pregunta: p }))
   );
   const vistos = todos.filter((t) => estado[t.id]);
-  const pendientes = vistos.filter((t) => estado[t.id].proxima <= ahora);
+  // Primero lo que se falló (caja más baja) y lo más atrasado: con 5
+  // preguntas por sesión, el tiempo va a donde más falta hace.
+  const pendientes = vistos
+    .filter((t) => estado[t.id].proxima <= ahora)
+    .sort((a, b) => estado[a.id].caja - estado[b.id].caja || estado[a.id].proxima - estado[b.id].proxima);
   const proxima = vistos.length ? Math.min(...vistos.map((t) => estado[t.id].proxima)) : null;
 
   const empezar = () => {

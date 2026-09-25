@@ -562,3 +562,23 @@ export async function guardarObjetivo(datos: FormData) {
   revalidatePath("/mi-aprendizaje");
 }
 
+
+/**
+ * Resultado de la práctica de una lección (cuántas a la primera, confianza).
+ * Solo para medir qué se entiende; no califica ni cuenta para el certificado.
+ */
+export async function registrarPractica(datos: {
+  clave: string;
+  aciertos: number;
+  total: number;
+  confianza: string | null;
+}) {
+  const clave = String(datos.clave ?? "").slice(0, 120);
+  const total = Math.max(0, Math.min(20, Math.trunc(Number(datos.total) || 0)));
+  const aciertos = Math.max(0, Math.min(total, Math.trunc(Number(datos.aciertos) || 0)));
+  const confianza = ["alta", "media", "baja"].includes(String(datos.confianza)) ? String(datos.confianza) : null;
+  if (!/^[a-z0-9-]+\/\d+\/\d+$/.test(clave) || total === 0) return;
+  // Dos momentos: el resultado (al cerrar la última pregunta) y, si la
+  // elige, la confianza. «tipo» evita contar dos veces los aciertos.
+  await registrar("practica_respondida", { clave, aciertos, total, confianza, tipo: confianza ? "confianza" : "resultado" });
+}

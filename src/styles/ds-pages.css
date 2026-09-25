@@ -54,7 +54,8 @@
 .marca-ia { color: var(--marca-naranja); }
 .marca-enlace:hover .marca-icono { transform: rotate(-8deg); }
 .marca-inversa .marca-icono, .marca-inversa .marca-nombre { color: var(--tinta-inversa); }
-.marca-inversa .marca-ia, .marca-inversa .marca-flecha { color: var(--cobre-400); fill: var(--cobre-400); stroke: var(--cobre-400); }
+/* Sobre el verde oscuro, el naranja de la marca un poco más claro: así «IA» cumple contraste AA aun en tamaño chico. */
+.marca-inversa .marca-ia, .marca-inversa .marca-flecha { color: #E3864F; fill: #E3864F; stroke: #E3864F; }
 .barra-nav { display: flex; align-items: center; gap: 4px; }
 .barra-nav form:not(.barra-solo-ancho) { display: contents; }
 @media (min-width: 481px) { .barra-nav form.barra-solo-ancho { display: contents; } }
@@ -2203,3 +2204,16 @@ body {
 .continua-ultima { margin-top: 6px; opacity: .85; }
 .pie-eslogan { margin-top: 10px; font-family: var(--tipo-titular); font-size: 13px; font-weight: 650; letter-spacing: .18em; text-transform: uppercase; color: var(--cobre-200); }
 @media (min-width: 900px) { .marca-icono { width: 36px; height: 36px; } .marca { font-size: 23px; } }
+.leccion-atajo { display: inline-block; margin-top: 8px; font-size: 15px; font-weight: 650; color: var(--musgo-600); text-underline-offset: 3px; }
+.indice-retomar {
+  display: block; width: 100%; margin: 6px 0 2px; padding: 10px 12px; min-height: 44px; text-align: left;
+  border: 1px solid var(--cobre-200); border-radius: var(--r-papel); background: var(--cobre-100);
+  font: inherit; font-size: 14px; font-weight: 650; color: var(--cobre-700); cursor: pointer;
+}
+.reactivo-nose {
+  margin-top: 8px; padding: 6px 2px; min-height: 36px; border: 0; background: none; font: inherit; font-size: 14px;
+  font-weight: 650; color: var(--tinta-media); text-decoration: underline; text-underline-offset: 3px; cursor: pointer;
+}
+.reactivo-pista { margin-top: 10px; padding: 10px 12px; border-radius: var(--r-papel); background: var(--atencion-fondo); font-size: 15px; }
+.reactivo-pista .reactivo-nose { margin-top: 0; padding: 0; min-height: 0; }
+.reactivo-origen { color: var(--cobre-600); margin-bottom: 4px; }

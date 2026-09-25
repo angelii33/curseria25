@@ -28,6 +28,8 @@ export type Practica = {
   preguntas: PreguntaPractica[];
 };
 
+import { PRACTICA_CURSOS } from "./practica-cursos";
+
 const P: Record<string, Practica> = {
   "tu-negocio-en-google/1/1": {
     preguntas: [
@@ -299,11 +301,39 @@ const P: Record<string, Practica> = {
   },
 };
 
+// Las lecciones que no tenían banco viven en su propio archivo.
+const CRUDO: Record<string, Practica> = { ...P, ...PRACTICA_CURSOS };
+
+/**
+ * Las opciones se escriben con la correcta donde salga natural (casi siempre
+ * quedaba en la B), y eso se aprende: el alumno responde por posición, no por
+ * lo que sabe. Aquí se revuelven con una semilla fija por pregunta: mismo
+ * orden en servidor y navegador, y en cada visita.
+ */
+export function barajar(q: PreguntaPractica): PreguntaPractica {
+  let semilla = 0;
+  for (const c of q.texto) semilla = (semilla * 31 + c.charCodeAt(0)) >>> 0;
+  const azar = () => {
+    semilla = (semilla * 1664525 + 1013904223) >>> 0;
+    return semilla / 2 ** 32;
+  };
+  const orden = q.opciones.map((_, i) => i);
+  for (let i = orden.length - 1; i > 0; i--) {
+    const j = Math.floor(azar() * (i + 1));
+    [orden[i], orden[j]] = [orden[j], orden[i]];
+  }
+  return { ...q, opciones: orden.map((i) => q.opciones[i]), correcta: orden.indexOf(q.correcta) };
+}
+
+const TODO: Record<string, Practica> = Object.fromEntries(
+  Object.entries(CRUDO).map(([k, p]) => [k, { preguntas: p.preguntas.map(barajar) }])
+);
+
 export function practicaDe(slug: string, mod: number, lec: number): Practica | null {
-  return P[`${slug}/${mod}/${lec}`] ?? null;
+  return TODO[`${slug}/${mod}/${lec}`] ?? null;
 }
 
 /** Todo el banco, para el repaso espaciado de Mi aprendizaje. */
 export function bancoCompleto() {
-  return Object.entries(P).map(([clave, p]) => ({ clave, ...p }));
+  return Object.entries(TODO).map(([clave, p]) => ({ clave, ...p }));
 }

@@ -149,6 +149,21 @@ export default async function Leccion({
   // retroalimentación y repaso espaciado. Solo donde hay banco escrito.
   const clave = `${slug}/${m}/${l}`;
   const practica = contenido ? practicaDe(slug, m, l) : null;
+  // Espaciado + intercalado: una pregunta de la lección anterior al final de
+  // la comprobación de hoy. Cuál, depende de la lección (no del azar), para
+  // que servidor y navegador pinten lo mismo.
+  const bancoAnterior = anterior ? practicaDe(slug, anterior.mod, anterior.lec) : null;
+  const repaso =
+    practica && anterior && bancoAnterior?.preguntas.length
+      ? (() => {
+          const i = (m * 7 + l) % bancoAnterior.preguntas.length;
+          return {
+            ...bancoAnterior.preguntas[i],
+            clave: `${slug}/${anterior.mod}/${anterior.lec}#${i}`,
+            origen: `de la lección ${folio(anterior.mod, anterior.lec)}`,
+          };
+        })()
+      : null;
 
   // Lección abierta y aún sin terminar: con «leccion_completada» dice en qué
   // lección se queda la gente. Nada de contenido ni datos personales.
@@ -206,6 +221,8 @@ export default async function Leccion({
             inscrito={inscrito}
             hecha={hecha}
             resultado={leccion.outcome}
+            lectura={contenido ? Math.max(1, Math.round(contenido.split(/\s+/).length / 200)) : null}
+            atajo={contenido && (criterios.length > 0 || mision) ? "comprueba" : null}
           />
 
           {aviso.mision && misionHecha ? (
@@ -218,7 +235,7 @@ export default async function Leccion({
           {contenido ? (
             <div className="leccion-trabajo">
               <div className="leccion-lado">
-                <IndiceLeccion secciones={indice} />
+                <IndiceLeccion secciones={indice} clave={clave} hecha={hecha} />
                 {construye}
               </div>
 
@@ -254,7 +271,7 @@ export default async function Leccion({
               <ArticuloLeccion html={md(contenido)} />
 
               {practica ? (
-                <Comprobacion clave={clave} preguntas={practica.preguntas} hayPrevia />
+                <Comprobacion clave={clave} preguntas={practica.preguntas} hayPrevia repaso={repaso} />
               ) : null}
 
               {/* === APLICA === Cuaderno para trabajar mientras lee. Solo si

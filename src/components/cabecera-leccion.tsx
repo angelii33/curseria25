@@ -26,6 +26,8 @@ export function CabeceraLeccion({
   inscrito,
   hecha,
   resultado,
+  lectura,
+  atajo,
 }: {
   slug: string;
   cursoTitulo: string;
@@ -44,6 +46,11 @@ export function CabeceraLeccion({
   /** El `outcome` de la lección, tal cual está en la base. Si falta, no se
    *  inventa nada: se omite el bloque entero. */
   resultado: string | null;
+  /** Minutos de lectura del texto (por conteo de palabras). El resto del
+   *  tiempo estimado es hacerlo: así quien tiene 10 minutos sabe qué cabe. */
+  lectura?: number | null;
+  /** Ancla de «Cómo saber que quedó bien», para quien ya lo tiene hecho. */
+  atajo?: string | null;
 }) {
   const pct = Math.round((posicion / total) * 100);
   return (
@@ -73,7 +80,12 @@ export function CabeceraLeccion({
       <h1 className="t-titulo-1 leccion-titulo">{leccionTitulo}</h1>
 
       <div className="leccion-metas">
-        {minutos ? <span className="t-dato">Unos {minutos} minutos</span> : null}
+        {minutos ? (
+          <span className="t-dato">
+            Unos {minutos} minutos
+            {lectura && minutos - lectura >= 3 ? ` · ${lectura} de lectura, el resto es hacerlo` : ""}
+          </span>
+        ) : null}
         {/* La insignia de gratis solo tiene sentido para quien no está
             dentro: al inscrito no le dice nada que ya no sepa. */}
         {esGratis && !inscrito ? <Insignia tono="estado">Lección gratuita completa</Insignia> : null}
@@ -88,6 +100,11 @@ export function CabeceraLeccion({
               Al terminar vas a tener
             </p>
             <p className="leccion-resultado-texto">{resultado}</p>
+            {atajo && !hecha ? (
+              <a className="leccion-atajo" href={`#${atajo}`}>
+                ¿Ya lo tienes hecho? Compruébalo directo <span aria-hidden="true">↓</span>
+              </a>
+            ) : null}
           </div>
         </section>
       ) : null}

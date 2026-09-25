@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { escribir, leer, useAlmacen } from "@/lib/almacen";
 
 // El índice de la lección, con la sección actual resaltada.
 //
@@ -15,9 +16,19 @@ import { useEffect, useState } from "react";
 
 export function IndiceLeccion({
   secciones,
+  clave,
+  hecha = false,
 }: {
   secciones: { titulo: string; id: string }[];
+  /** Para recordar hasta dónde se leyó (en este navegador). */
+  clave?: string;
+  hecha?: boolean;
 }) {
+  // Hasta qué sección llegó la última vez: quien cierra a la mitad y vuelve
+  // días después no tiene que buscar dónde iba.
+  const llaveAvance = clave ? `curseria:seccion:${clave}` : "";
+  const guardado = useAlmacen(llaveAvance || "curseria:sin-clave");
+  const llegoA = llaveAvance && guardado ? Number(guardado) : 0;
   const [activa, setActiva] = useState<string | null>(
     secciones.length ? secciones[0].id : null
   );
@@ -34,7 +45,11 @@ export function IndiceLeccion({
         const visibles = entradas
           .filter((e) => e.isIntersecting)
           .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-        if (visibles[0]) setActiva(visibles[0].target.id);
+        if (visibles[0]) {
+          setActiva(visibles[0].target.id);
+          const k = secciones.findIndex((s) => s.id === visibles[0].target.id);
+          if (llaveAvance && k > Number(leer(llaveAvance) || 0)) escribir(llaveAvance, String(k));
+        }
       },
       // El margen superior descuenta la barra fija; sin él, la sección se
       // marca activa cuando todavía está tapada por la barra.
@@ -47,7 +62,7 @@ export function IndiceLeccion({
     nodos.forEach((n) => observador.observe(n));
 
     return () => observador.disconnect();
-  }, [secciones]);
+  }, [secciones, llaveAvance]);
 
   if (secciones.length < 2) return null;
 
@@ -72,6 +87,15 @@ export function IndiceLeccion({
         </span>
         <span className="indice-flecha" aria-hidden="true" />
       </button>
+      {!hecha && llegoA > 0 && llegoA < secciones.length && pos - 1 < llegoA ? (
+        <button
+          type="button"
+          className="indice-retomar"
+          onClick={() => document.getElementById(secciones[llegoA].id)?.scrollIntoView({ behavior: "smooth", block: "start" })}
+        >
+          Te quedaste en «{secciones[llegoA].titulo}» · Seguir ahí <span aria-hidden="true">↓</span>
+        </button>
+      ) : null}
       <p className="t-folio indice-titulo">En esta lección</p>
 
       <div className="pista indice-pista" aria-hidden="true">
