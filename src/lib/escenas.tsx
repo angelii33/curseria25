@@ -28,6 +28,7 @@ export const ESCENA_POR_SLUG: Record<string, TipoEscena> = {
   "un-mes-de-publicaciones": "calendario",
   "cotiza-en-5-minutos": "documento",
   "ventas-con-ia": "sistema",
+  "monetiza-ia": "sistema",
 };
 
 /** El problema que resuelve cada curso, en las palabras del dueño del

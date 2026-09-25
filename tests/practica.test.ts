@@ -10,6 +10,9 @@ const PUBLICADAS: Record<string, string[]> = {
   "un-mes-de-publicaciones": ["1/1", "1/2", "1/3", "1/4", "1/5"],
   "cotiza-en-5-minutos": ["1/1", "1/2", "1/3", "1/4", "1/5"],
   "ventas-con-ia": ["1/1", "1/2", "2/1", "2/2", "2/3", "2/4", "3/1", "3/2", "3/3", "3/4", "4/1", "4/2", "4/3", "4/4"],
+  // Monetiza IA (borrador hasta publicarse): 11 fases, 35 misiones.
+  "monetiza-ia": [1, 3, 3, 5, 4, 3, 4, 4, 4, 3, 1].flatMap((n, m) =>
+    Array.from({ length: n }, (_, l) => `${m + 1}/${l + 1}`)),
 };
 
 describe("banco de práctica", () => {

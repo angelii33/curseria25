@@ -29,6 +29,7 @@ export type Practica = {
 };
 
 import { PRACTICA_CURSOS } from "./practica-cursos";
+import { PRACTICA_MONETIZA } from "./practica-monetiza";
 
 const P: Record<string, Practica> = {
   "tu-negocio-en-google/1/1": {
@@ -302,7 +303,7 @@ const P: Record<string, Practica> = {
 };
 
 // Las lecciones que no tenían banco viven en su propio archivo.
-const CRUDO: Record<string, Practica> = { ...P, ...PRACTICA_CURSOS };
+const CRUDO: Record<string, Practica> = { ...P, ...PRACTICA_CURSOS, ...PRACTICA_MONETIZA };
 
 /**
  * Las opciones se escriben con la correcta donde salga natural (casi siempre

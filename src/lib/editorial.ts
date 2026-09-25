@@ -14,7 +14,7 @@
 //   los cursos largos). Si el número no coincide con la base, las páginas
 //   dejan de dibujar el avance por partes en vez de mentir.
 
-export type Etapa = "encontrar" | "pedir" | "comprar";
+export type Etapa = "encontrar" | "pedir" | "comprar" | "emprender";
 
 export const ETAPAS: Record<Etapa, { titulo: string; nota: string; orden: number }> = {
   encontrar: {
@@ -31,6 +31,13 @@ export const ETAPAS: Record<Etapa, { titulo: string; nota: string; orden: number
     orden: 3,
     titulo: "Que te compren",
     nota: "Cotizar, dar seguimiento y cerrar sin regatear.",
+  },
+  // Para quien todavía no tiene negocio: convertir lo que sabe en una
+  // oferta con IA. Va después del camino del negocio que ya existe.
+  emprender: {
+    orden: 4,
+    titulo: "Vende algo tuyo con IA",
+    nota: "Convertir lo que sabes en una oferta y buscar tus primeros clientes.",
   },
 };
 
@@ -205,6 +212,40 @@ const CURSOS: Record<string, Editorial> = {
     },
     accion: "Construir mi sistema",
     buscar: "ventas vender mas clientes seguimiento objeciones prospectar cerrar embudo whatsapp inteligencia artificial ia chatgpt automatizar",
+  },
+  "monetiza-ia": {
+    etapa: "emprender",
+    problema: "Quiero ganar dinero con IA y no sé qué vender",
+    promesa:
+      "Una oferta basada en IA construida, un sistema de prospección preparado y un proceso comercial para buscar tus primeros clientes.",
+    paraQuien: [
+      "Has visto mucho sobre IA, tienes ideas, pero no sabes cuál ejecutar ni cuánto cobrar.",
+      "Quieres empezar con poca inversión y sin necesidad de audiencia ni de programar.",
+      "Puedes dedicar algunas horas por semana y estás dispuesto a contactar personas o negocios.",
+    ],
+    noEsPara:
+      "Si buscas ingresos garantizados o sin contactar a nadie: este curso te prepara para vender, pero la venta depende de tu ejecución y tu mercado.",
+    necesitas: ["ChatGPT, Claude o Gemini (la versión gratis sirve)", "Una hoja de cálculo", "Algunas horas por semana"],
+    pieza: {
+      nombre: "Tu sistema de monetización con IA",
+      porModulo: true,
+      partes: [
+        "Perfil de monetización",
+        "Oportunidad y problema real",
+        "Modelo y nicho",
+        "Oferta V1 con precio",
+        "Primera versión con control de calidad",
+        "Portafolio V1",
+        "Lista de 50 prospectos",
+        "Mensaje, diagnóstico y objeciones",
+        "Arranque, producción y seguimiento",
+        "SOP, automatización y números",
+        "Informe final y plan de 30 días",
+      ],
+    },
+    accion: "Construir mi oferta",
+    buscar:
+      "monetizar ganar dinero ia inteligencia artificial freelance servicios oferta vender clientes prospectos emprender negocio chatgpt",
   },
 };
 
