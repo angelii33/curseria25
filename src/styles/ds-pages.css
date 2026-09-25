@@ -319,7 +319,9 @@
   font-size: 14px;
   color: var(--tinta-media);
 }
-.ficha-datos li + li::before { content: "·"; margin: 0 8px; color: var(--linea-firme); }
+/* El punto va DESPUÉS de cada dato: si la lista salta de línea, la nueva
+   línea no empieza con un punto suelto. */
+.ficha-datos li:not(:last-child)::after { content: "·"; margin: 0 8px; color: var(--linea-firme); }
 .ficha-avance { display: grid; gap: 8px; }
 .ficha-avance .t-dato { color: var(--tinta-media); }
 .ficha-pie {
