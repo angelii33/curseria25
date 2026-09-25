@@ -475,24 +475,6 @@ export async function cambiarEstadoTaller(datos: FormData) {
   revalidatePath("/mi-taller");
 }
 
-export type EstadoCorreo = { ok?: boolean; error?: string };
-
-/** Deja el correo para recibir avisos. Validación y deduplicado en la RPC. */
-export async function capturarCorreo(_prev: EstadoCorreo, datos: FormData): Promise<EstadoCorreo> {
-  const correo = String(datos.get("correo") ?? "").trim().toLowerCase();
-  const origen = String(datos.get("origen") ?? "sitio").slice(0, 60);
-  const curso = String(datos.get("curso") ?? "").slice(0, 120) || null;
-  if (!datos.get("acepto")) return { error: "Marca la casilla para aceptar el aviso de privacidad." };
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(correo) || correo.length > 254) {
-    return { error: "Escribe un correo válido." };
-  }
-  const sb = await clienteServidor();
-  const { error } = await sb.rpc("capturar_lead", { p_email: correo, p_origen: origen, p_curso_slug: curso });
-  if (error) return { error: "No se pudo guardar. Intenta de nuevo en un momento." };
-  await registrar("correo_capturado", { origen, curso });
-  return { ok: true };
-}
-
 export type EstadoOpinion = { ok?: boolean; error?: string };
 
 /** Opinión de un alumno. Entra como «pendiente»: nada se publica sin revisar. */

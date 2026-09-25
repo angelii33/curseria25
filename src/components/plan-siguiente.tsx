@@ -179,10 +179,10 @@ export function PlanSiguiente({
       <p className="plan-frase" aria-live="polite">{frase}</p>
 
       <div className="acciones">
-        <button type="button" className="btn btn-primario" onClick={descargar}>
+        <button type="button" className="btn btn-secundario" onClick={descargar}>
           Agregar a mi calendario
         </button>
-        <button type="button" className="btn btn-secundario" onClick={guardar}>
+        <button type="button" className="btn btn-fantasma" onClick={guardar}>
           Solo guardar mi plan
         </button>
       </div>

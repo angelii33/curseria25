@@ -289,6 +289,7 @@ export async function getLeccion(slug: string, mod: number, lec: number) {
         mod: x.sort_order,
         lec: y.sort_order,
         titulo: y.title,
+        resultado: y.outcome,
         gratis: y.is_preview,
         hecha: datos.hechas.has(y.id),
         actual: y.id === l.id,

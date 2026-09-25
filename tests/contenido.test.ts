@@ -55,3 +55,18 @@ describe("md: bloques del estándar de lección", () => {
     expect(md("## Tu plan después del curso\n\nHoy.")).toContain("md-sec-plan");
   });
 });
+
+describe("md: «Si algo no sale» plegado", () => {
+  it("pliega la sección de problemas y cierra bien el HTML, esté donde esté", () => {
+    const enMedio = md("## Paso\n\nHaz esto.\n\n## Si algo no sale\n\n- Si no aparece → búscalo.\n\n## Mini reto\n\nHazlo.");
+    expect(enMedio).toContain('<details class="md-plegable"><summary>');
+    expect(enMedio.match(/<details/g)?.length).toBe(enMedio.match(/<\/details>/g)?.length);
+    expect(enMedio.indexOf("</details>")).toBeLessThan(enMedio.indexOf("Mini reto"));
+    const alFinal = md("## Paso\n\nHaz esto.\n\n## Si algo no sale\n\nRevisa.");
+    expect(alFinal.trim().endsWith("</details></section>")).toBe(true);
+  });
+  it("el título queda fuera del plegado: el índice sigue llevando a él", () => {
+    const h = md("## Si algo no sale\n\nRevisa.");
+    expect(h.indexOf("<h2")).toBeLessThan(h.indexOf("<details"));
+  });
+});

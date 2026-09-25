@@ -1039,10 +1039,14 @@ a.fila:hover .fila-titulo { color: var(--musgo-600); }
 .chk-avance { display: grid; gap: 8px; margin-bottom: 16px; }
 .chk-conteo { color: var(--tinta-media); font-weight: 650; }
 .chk-lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.chk-lista > li { min-width: 0; }
+.chk-texto, .chk-detalle { overflow-wrap: anywhere; }
 .chk-item {
   position: relative;
   display: grid;
-  grid-template-columns: 28px 1fr;
+  /* minmax(0,1fr): un texto largo sin espacios (una URL) no ensancha la
+     casilla más allá de la pantalla. */
+  grid-template-columns: 28px minmax(0, 1fr);
   gap: 12px;
   align-items: start;
   padding: 14px;
@@ -2204,3 +2208,6 @@ body {
 }
 .acceso-legal { color: var(--tinta-tenue); text-align: center; }
 .acceso-legal a { color: inherit; }
+.hecho-tienes { margin-top: 4px; font-size: 16px; color: var(--tinta); }
+.siguiente-resultado { display: block; margin-top: 6px; font-size: 15px; line-height: 1.45; color: inherit; opacity: .88; }
+.continua-ultima { margin-top: 6px; opacity: .85; }

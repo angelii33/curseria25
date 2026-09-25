@@ -11,6 +11,7 @@ import { IconoFichaVacia } from "@/components/iconos-estado";
 import { CursoFicha } from "@/components/curso-ficha";
 import { Pieza } from "@/components/pieza";
 import { salir } from "@/app/acciones";
+import { haceCuanto } from "@/lib/fechas";
 import { BotonSalir } from "@/components/boton-salir";
 import { CierreCurso } from "@/components/cierre-curso";
 import { Logros } from "@/components/logros";
@@ -72,7 +73,7 @@ export default async function MiAprendizaje({
   const sb = await clienteServidor();
   const { data: ultima } = await sb
     .from("lesson_progress")
-    .select("lesson_id")
+    .select("lesson_id,completed_at")
     .eq("status", "completed")
     .order("completed_at", { ascending: false })
     .limit(1)
@@ -81,6 +82,16 @@ export default async function MiAprendizaje({
     enCurso.find((d) => d.modulos.some((m) => m.lecciones.some((l) => l.id === ultima?.lesson_id))) ??
     enCurso[0] ??
     null;
+  // Lo último que terminó, para quien vuelve días después y no recuerda en
+  // qué iba. Solo si pertenece al curso que se muestra para continuar.
+  const ultimaHecha = (() => {
+    if (!actual || !ultima?.completed_at) return null;
+    for (const m of actual.modulos) {
+      const l = m.lecciones.find((x) => x.id === ultima.lesson_id);
+      if (l) return { titulo: l.title, folio: folio(m.sort_order, l.sort_order), cuando: haceCuanto(ultima.completed_at) };
+    }
+    return null;
+  })();
   const objetivo = detalles.length === 0 ? await miObjetivo() : null;
   const terminados = detalles.filter((d) => d.pct === 100);
   const abiertas = otros.filter((c) => c.abiertaRuta).slice(0, 3);
@@ -132,6 +143,7 @@ export default async function MiAprendizaje({
                 : null
             }
             siguiente={actual.siguiente}
+            ultima={ultimaHecha}
             completadas={actual.completadas}
             total={actual.total}
           />

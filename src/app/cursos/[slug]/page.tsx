@@ -477,7 +477,7 @@ export default async function Curso({
                   ) : null}
                   {!usuario ? (
                     <p className="t-dato panel-legal">
-                      Para guardar tu avance te pedimos solo tu correo. Sin contraseñas.
+                      Para guardar tu avance creas una cuenta: nombre, correo y contraseña.
                     </p>
                   ) : null}
                 </>
@@ -486,7 +486,9 @@ export default async function Curso({
           </aside>
         </div>
 
-        {inscrito && completadas > 0 ? (
+        {/* Se pide opinión a quien ya aplicó al menos la mitad del curso: antes
+            no hay experiencia que contar, y el botón competía con «Continuar». */}
+        {inscrito && completadas * 2 >= total ? (
           <section className="marco opinion-seccion" aria-labelledby="opinar-titulo">
             <h2 className="t-titulo-3" id="opinar-titulo">¿Ya lo estás usando en tu negocio?</h2>
             <p className="t-cuerpo">

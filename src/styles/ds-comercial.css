@@ -332,3 +332,15 @@
 .entregable strong { font-family: var(--tipo-titular); font-size: 17px; }
 .md .md-decision li::before, .md-decision li::before { content: none; display: none; }
 .md .md-decision li { padding-left: 14px; }
+.md-plegable { margin: 4px 0 16px; }
+.md-plegable > summary {
+  cursor: pointer; list-style: none; display: inline-flex; align-items: center; gap: 8px;
+  min-height: 44px; padding: 10px 14px; border: 1px solid var(--linea-firme); border-radius: var(--r-papel);
+  font-family: var(--tipo-titular); font-weight: 650; font-size: 15px; color: var(--tinta); background: var(--lienzo-tinte);
+}
+.md-plegable > summary::-webkit-details-marker { display: none; }
+.md-plegable > summary::before { content: "+"; font-weight: 800; color: var(--musgo-600); }
+.md-plegable[open] > summary::before { content: "−"; }
+.md-plegable[open] > summary { margin-bottom: 14px; }
+.md-plegable > summary:focus-visible { outline: 3px solid var(--musgo-anillo); outline-offset: 2px; }
+@media print { .md-plegable > *:not(summary) { display: block; } }

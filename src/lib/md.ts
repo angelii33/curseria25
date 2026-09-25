@@ -117,6 +117,14 @@ export function md(texto: string): string {
   let rotulo: string | null = null;
   let anterior = "";
   let seccionAbierta = false;
+  // «Si algo no sale» va plegado: solo sirve a quien se atoró, y abierto
+  // ocupaba pantalla y media entre la lección y su cierre.
+  let plegada = false;
+  const cerrarSeccion = () => {
+    if (plegada) salida += "</details>";
+    if (seccionAbierta) salida += "</section>";
+    plegada = false;
+  };
   let numero = 0;
   // Mensajes con etiqueta seguidos («Taquería», «Estética»…): se juntan en
   // una galería en vez de apilarse uno bajo otro.
@@ -261,7 +269,7 @@ export function md(texto: string): string {
       const titulo = crudo.replace(/\*/g, "").trim();
       const id = `s-${ancla(titulo)}`;
       const tipo = tipoDeSeccion(titulo);
-      if (seccionAbierta) salida += "</section>";
+      cerrarSeccion();
       if (tipo === "normal") numero += 1;
       const marca =
         tipo === "normal"
@@ -271,6 +279,10 @@ export function md(texto: string): string {
             ? ""
             : `<span class="md-tipo">${ETIQUETA_TIPO[tipo]}</span>`;
       salida += `<section class="md-sec md-sec-${tipo}" aria-labelledby="${id}">${marca}<h2 id="${id}">${linea(crudo)}</h2>`;
+      if (tipo === "problemas") {
+        salida += '<details class="md-plegable"><summary>Ver qué hacer si algo no sale</summary>';
+        plegada = true;
+      }
       seccionAbierta = true;
       anterior = titulo;
       continue;
@@ -349,7 +361,7 @@ export function md(texto: string): string {
   }
   cerrarCita();
   cerrarGaleria();
-  if (seccionAbierta) salida += "</section>";
+  cerrarSeccion();
   return salida;
 }
 

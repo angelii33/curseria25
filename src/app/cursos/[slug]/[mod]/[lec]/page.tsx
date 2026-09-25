@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getLeccion, folio, precio } from "@/lib/catalogo";
-import { md, secciones, esencial } from "@/lib/md";
+import { md, secciones } from "@/lib/md";
 import { completarLeccion, completarMision } from "@/app/acciones";
 import { Quiz } from "@/components/quiz";
 import { Barra, Perforacion, Sello } from "@/components/ui";
@@ -19,10 +19,9 @@ import { Pieza } from "@/components/pieza";
 import { Aviso } from "@/components/aviso";
 import { editorialDe, partesDe } from "@/lib/editorial";
 import { practicaDe } from "@/lib/practica";
+import { registrarAlResponder } from "@/lib/analitica";
 import { PreguntaPrevia, Comprobacion } from "@/components/practica";
-import { LoEsencial } from "@/components/lo-esencial";
 import { PlanSiguiente } from "@/components/plan-siguiente";
-import { CapturaCorreo } from "@/components/captura-correo";
 import { iaLista } from "@/lib/ia";
 import { tituloInsignia } from "@/lib/logros";
 import { clienteServidor, usuarioActual } from "@/lib/supabase/server";
@@ -150,9 +149,19 @@ export default async function Leccion({
   // retroalimentación y repaso espaciado. Solo donde hay banco escrito.
   const clave = `${slug}/${m}/${l}`;
   const practica = contenido ? practicaDe(slug, m, l) : null;
-  const resumen = contenido ? esencial(contenido) : null;
+
+  // Lección abierta y aún sin terminar: con «leccion_completada» dice en qué
+  // lección se queda la gente. Nada de contenido ni datos personales.
+  if (contenido && !hecha) {
+    await registrarAlResponder("lesson_started", usuario?.id ?? null, {
+      curso: slug, leccion: `${m}-${l}`, gratis: leccion.is_preview, inscrito,
+    });
+  }
 
   const tituloSiguiente = tituloDe(siguiente);
+  const resultadoSiguiente = siguiente
+    ? mapa.find((x) => x.mod === siguiente.mod && x.lec === siguiente.lec)?.resultado ?? null
+    : null;
   const siguienteAbierta = siguiente
     ? inscrito || Boolean(mapa.find((x) => x.mod === siguiente.mod && x.lec === siguiente.lec)?.gratis)
     : false;
@@ -215,14 +224,17 @@ export default async function Leccion({
 
               {/* El flujo va antes del texto: ver de entrada que hay un
                   camino corto y con final es lo que hace que alguien empiece
-                  a leer en vez de irse. */}
-              <FlujoLeccion
-                resultado={leccion.outcome}
-                mision={mision?.title ?? null}
-                criterios={criterios.length}
-                tieneQuiz={Boolean(quiz)}
-                primeraSeccion={primera}
-              />
+                  a leer en vez de irse. Solo en la primera lección: a partir
+                  de la segunda ya se sabe cómo funciona y repetirlo estorba. */}
+              {posicion === 1 ? (
+                <FlujoLeccion
+                  resultado={leccion.outcome}
+                  mision={mision?.title ?? null}
+                  criterios={criterios.length}
+                  tieneQuiz={Boolean(quiz)}
+                  primeraSeccion={primera}
+                />
+              ) : null}
 
               {practica ? <PreguntaPrevia clave={clave} pregunta={practica.preguntas[0]} /> : null}
 
@@ -240,8 +252,6 @@ export default async function Leccion({
               ) : null}
 
               <ArticuloLeccion html={md(contenido)} />
-
-              {resumen ? <LoEsencial ideas={resumen.ideas} cierre={resumen.cierre} /> : null}
 
               {practica ? (
                 <Comprobacion clave={clave} preguntas={practica.preguntas} hayPrevia />
@@ -306,23 +316,6 @@ export default async function Leccion({
                 <Quiz quizId={quiz.id} preguntas={quiz.preguntas} minimo={quiz.minimo} intento={quiz.intento} />
               ) : null}
 
-              {/* Intención de implementación: decidir cuándo se hace lo
-                  siguiente. Para quien sigue en el curso, la próxima lección;
-                  para quien no puede abrirla, aplicar lo de hoy. */}
-              {siguiente && tituloSiguiente && siguienteAbierta ? (
-                <PlanSiguiente
-                  clave={clave}
-                  accion={`abrir la lección ${posicion + 1}: ${tituloSiguiente}`}
-                  ruta={`/cursos/${slug}/${siguiente.mod}/${siguiente.lec}`}
-                />
-              ) : !inscrito ? (
-                <PlanSiguiente
-                  clave={clave}
-                  accion={`aplicar en mi negocio la lección «${leccion.title}»`}
-                  ruta={ruta}
-                />
-              ) : null}
-
               {/* === CIERRE === Completar, celebrar y seguir. */}
               <section id="cierre" className="cierre-leccion ancla-seccion" aria-label="Terminar la lección">
                 {puedeMarcar ? (
@@ -331,8 +324,11 @@ export default async function Leccion({
                       <Sello estado="logrado" />
                       <div>
                         <p className="hecho-titulo">
-                          {aviso.hecha ? "¡Lección completada!" : "Ya completaste esta lección"}
+                          {aviso.hecha ? "Listo, lección terminada" : "Ya completaste esta lección"}
                         </p>
+                        {leccion.outcome ? (
+                          <p className="hecho-tienes">Ya tienes: {leccion.outcome.replace(/\.$/, "")}.</p>
+                        ) : null}
                         <p className="t-dato">
                           {hechasCurso} de {total} lecciones del curso
                           {partes && iParte >= 0 ? ` · parte ${iParte + 1} de tu pieza construida` : ""}
@@ -365,10 +361,10 @@ export default async function Leccion({
                     <div>
                       <p className="t-titulo-4">¿Terminaste?</p>
                       <p className="t-dato">
-                        Guárdala como hecha con tu correo: sin contraseña y sin pagar nada.
+                        Crea tu cuenta gratis (20 segundos) y queda guardada como hecha. Sin pagar nada.
                       </p>
                     </div>
-                    <Link className="btn btn-primario btn-grande" href={`/entrar?volver=${encodeURIComponent(`${ruta}#cierre`)}`}>
+                    <Link className="btn btn-primario btn-grande" href={`/entrar?crear=1&volver=${encodeURIComponent(`${ruta}#cierre`)}`}>
                       Guardar mi avance
                     </Link>
                   </div>
@@ -382,6 +378,9 @@ export default async function Leccion({
                     >
                       <span className="t-folio">Siguiente · {folio(siguiente.mod, siguiente.lec)}</span>
                       <span className="siguiente-titulo">{tituloSiguiente}</span>
+                      {resultadoSiguiente ? (
+                        <span className="siguiente-resultado">Con ella consigues: {resultadoSiguiente.replace(/\.$/, "")}.</span>
+                      ) : null}
                       <span className="siguiente-accion">
                         Continuar con la siguiente lección <span aria-hidden="true">→</span>
                       </span>
@@ -410,6 +409,24 @@ export default async function Leccion({
                   </Link>
                 </nav>
               </section>
+
+              {/* Intención de implementación: decidir cuándo se hace lo
+                  siguiente. Va DESPUÉS de terminar: antes competía con
+                  «Marcar como completada». Al inscrito, cuando ya la marcó;
+                  a quien no puede seguir, para aplicar lo de hoy. */}
+              {inscrito && hecha && siguiente && tituloSiguiente && siguienteAbierta ? (
+                <PlanSiguiente
+                  clave={clave}
+                  accion={`abrir la lección ${posicion + 1}: ${tituloSiguiente}`}
+                  ruta={`/cursos/${slug}/${siguiente.mod}/${siguiente.lec}`}
+                />
+              ) : !inscrito ? (
+                <PlanSiguiente
+                  clave={clave}
+                  accion={`aplicar en mi negocio la lección «${leccion.title}»`}
+                  ruta={ruta}
+                />
+              ) : null}
             </div>
           ) : inscrito ? (
             /* ─── INSCRITO SIN CONTENIDO: nunca decirle «es del curso completo»
@@ -461,10 +478,6 @@ export default async function Leccion({
           {/* El mapa del curso: primero se ve el camino entero, luego se
               ofrece. Al inscrito le muestra su avance real. */}
           <MapaCurso slug={slug} puntos={mapa} inscrito={inscrito} />
-
-          {!usuario && contenido ? (
-            <CapturaCorreo origen="leccion_gratis" curso={slug} />
-          ) : null}
 
           {!inscrito && contenido ? (
             <ContinuarCurso

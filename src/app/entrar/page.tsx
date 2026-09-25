@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Entrar",
-  description: "Entra con un código a tu correo. Sin contraseñas.",
+  description: "Crea tu cuenta en 20 segundos o entra para seguir con tus cursos.",
   robots: { index: false, follow: true },
 };
 

@@ -13,6 +13,7 @@ export function Continua({
   siguiente,
   completadas,
   total,
+  ultima,
 }: {
   slug: string;
   curso: string;
@@ -21,6 +22,8 @@ export function Continua({
   siguiente: { mod: number; lec: number; title: string };
   completadas: number;
   total: number;
+  /** Lo último que terminó y cuándo: contexto para quien vuelve. */
+  ultima?: { titulo: string; folio: string; cuando: string } | null;
 }) {
   const pct = total ? Math.round((completadas / total) * 100) : 0;
   const despues = total ? Math.round(((completadas + 1) / total) * 100) : 0;
@@ -28,6 +31,11 @@ export function Continua({
     <section className="continua" aria-labelledby="continua-titulo">
       <p className="t-folio continua-folio">Continúa donde te quedaste</p>
       <p className="continua-curso">{curso}</p>
+      {ultima ? (
+        <p className="t-dato continua-ultima">
+          <span aria-hidden="true">✓</span> Terminaste {ultima.cuando}: {ultima.folio} {ultima.titulo}
+        </p>
+      ) : null}
       <h2 className="t-titulo-2 continua-titulo" id="continua-titulo">
         <span className="t-folio continua-lec">{folio(siguiente.mod, siguiente.lec)}</span> {siguiente.title}
       </h2>
