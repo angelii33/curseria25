@@ -46,7 +46,14 @@ export async function generateMetadata({
     alternates: { canonical: `/cursos/${slug}/${mod}/${lec}` },
     // Solo las lecciones abiertas tienen algo que indexar.
     robots: d.leccion.is_preview ? undefined : { index: false, follow: true },
-    openGraph: { title: d.leccion.title, description: descripcion, type: "article" },
+    // Al compartir una lección se ve la tarjeta de su curso.
+    openGraph: {
+      title: d.leccion.title,
+      description: descripcion,
+      type: "article",
+      images: [`/cursos/${slug}/opengraph-image`],
+    },
+    twitter: { card: "summary_large_image", title: d.leccion.title, description: descripcion },
   };
 }
 

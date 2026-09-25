@@ -18,7 +18,7 @@ import { EnlaceCaducado } from "@/components/enlace-caducado";
 // Eje de ancho variable (wdth 62–125). Es lo que habilita la regla de los
 // tres anchos del Design System: 118 rótulo / 100 interfaz / 88 folio.
 const archivo = Archivo({
-  subsets: ["latin", "latin-ext"],
+  subsets: ["latin"], // español completo (á, ñ, ¿, «»): latin-ext no hace falta
   axes: ["wdth"],
   weight: "variable",
   display: "swap",
@@ -28,7 +28,7 @@ const archivo = Archivo({
 // Eje de tamaño óptico real (opsz 6–72). Corrige el grosor del asta según
 // el tamaño de composición. Es la razón por la que el texto largo cansa menos.
 const newsreader = Newsreader({
-  subsets: ["latin", "latin-ext"],
+  subsets: ["latin"], // español completo (á, ñ, ¿, «»): latin-ext no hace falta
   axes: ["opsz"],
   weight: "variable",
   display: "swap",
