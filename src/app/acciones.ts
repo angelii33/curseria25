@@ -38,6 +38,8 @@ export type Estado = {
   destino?: string;
   /** Distingue dos respuestas iguales seguidas (p. ej. dos reenvíos). */
   n?: number;
+  /** Recuperar contraseña: el enlace ya se canjeó; el reintento va sin él. */
+  verificado?: boolean;
 };
 
 /** Registro seguro: código de error y correo oculto. Nunca códigos ni tokens. */

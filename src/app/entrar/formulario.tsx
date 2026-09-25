@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { entrarConClave, entrarConGoogle, crearCuenta, type Estado } from "../acciones";
+import { pedirRecuperacion } from "../recuperar/acciones";
 import { IconoTicket } from "@/components/iconos-acceso";
 import { BotonGoogle } from "@/components/boton-google";
 
@@ -30,6 +31,7 @@ const conRed =
   };
 const claveSegura = conRed(entrarConClave);
 const crearSeguro = conRed(crearCuenta);
+const recuperarSeguro = conRed(pedirRecuperacion);
 
 function useEnLinea() {
   const [enLinea, setEnLinea] = useState(true);
@@ -52,6 +54,8 @@ export function Formulario({
   fallo,
   crearCuentaPrimero,
   contacto,
+  recuperar,
+  olvide,
 }: {
   volver?: string;
   /** Abrir en «Soy nuevo» (p. ej. al llegar desde un botón de compra). */
@@ -61,6 +65,10 @@ export function Formulario({
   fallo?: "enlace" | "google";
   /** Para quien olvidó su contraseña: a quién escribir. */
   contacto?: { whatsapp: string | null; correo: string | null } | null;
+  /** Recuperar contraseña por correo (Resend configurado). */
+  recuperar?: boolean;
+  /** Abrir directamente «¿Olvidaste tu contraseña?». */
+  olvide?: boolean;
 }) {
   const router = useRouter();
   const enLinea = useEnLinea();
@@ -70,6 +78,7 @@ export function Formulario({
 
   const [conClave, entrarClave, entrandoClave] = useActionState(claveSegura, inicial);
   const [creado, crear, creando] = useActionState(crearSeguro, inicial);
+  const [recuperado, pedirEnlace, pidiendo] = useActionState(recuperarSeguro, inicial);
 
   // El navegador puede restaurar esta pantalla desde su caché de «atrás»
   // tal como quedó, sin preguntar al servidor. Se pide al servidor la
@@ -216,24 +225,52 @@ export function Formulario({
           </button>
         </form>
         <div className="perforacion perforacion-sangrada" />
-        <details className="acceso-ayuda">
+        <details className="acceso-ayuda" open={olvide || conClave.tipo === "credenciales" || undefined}>
           <summary>¿Olvidaste tu contraseña?</summary>
-          <p className="t-cuerpo" style={{ marginTop: "var(--e-3)" }}>
-            {contacto ? (
-              <>
-                Escríbenos{" "}
-                {contacto.whatsapp ? (
-                  <a href={`https://wa.me/${contacto.whatsapp}`} target="_blank" rel="noopener noreferrer">por WhatsApp</a>
-                ) : (
-                  <a href={`mailto:${contacto.correo}`}>a {contacto.correo}</a>
-                )}{" "}
-                desde el correo de tu cuenta y te ayudamos a recuperarla.
-              </>
-            ) : (
-              "Escríbenos desde el correo de tu cuenta y te ayudamos a recuperarla."
-            )}
-            {google ? " Si tu cuenta usa el mismo correo de Google, también puedes entrar con el botón de arriba." : ""}
-          </p>
+          {recuperar ? (
+            <form action={pedirEnlace} style={{ display: "grid", gap: "var(--e-4)", marginTop: "var(--e-3)" }}>
+              <p className="t-cuerpo">
+                Te mandamos un enlace a tu correo para que elijas una contraseña nueva.
+              </p>
+              {volver && <input type="hidden" name="volver" value={volver} />}
+              <input type="text" name="sitio" tabIndex={-1} autoComplete="off" aria-hidden="true" className="acceso-trampa" />
+              <div>
+                <label className="t-interfaz" htmlFor="o-correo">Tu correo</label>
+                <input key={conClave.correo ?? correoEscrito} id="o-correo" name="correo" type="email" required
+                  className="campo" style={{ marginTop: "var(--e-3)" }} autoComplete="email" inputMode="email"
+                  autoCapitalize="none" spellCheck={false} placeholder="nombre@negocio.mx"
+                  defaultValue={recuperado.correo ?? conClave.correo ?? correoEscrito}
+                  aria-invalid={recuperado.tipo === "correo" || undefined} />
+              </div>
+              {recuperado.error && <p className="t-cuerpo aviso-falla" role="alert">{recuperado.error}</p>}
+              {recuperado.aviso && <p className="t-cuerpo aviso-logrado" role="status">{recuperado.aviso}</p>}
+              <button className="btn btn-bloque" disabled={pidiendo || !enLinea}>
+                {pidiendo ? "Mandando…" : recuperado.aviso ? "Mandar otro enlace" : "Mandarme el enlace"}
+              </button>
+              {google && (
+                <p className="t-dato" style={{ color: "var(--tinta-tenue)" }}>
+                  Si tu cuenta usa tu correo de Google, también puedes entrar con el botón de arriba.
+                </p>
+              )}
+            </form>
+          ) : (
+            <p className="t-cuerpo" style={{ marginTop: "var(--e-3)" }}>
+              {contacto ? (
+                <>
+                  Escríbenos{" "}
+                  {contacto.whatsapp ? (
+                    <a href={`https://wa.me/${contacto.whatsapp}`} target="_blank" rel="noopener noreferrer">por WhatsApp</a>
+                  ) : (
+                    <a href={`mailto:${contacto.correo}`}>a {contacto.correo}</a>
+                  )}{" "}
+                  desde el correo de tu cuenta y te ayudamos a recuperarla.
+                </>
+              ) : (
+                "Escríbenos desde el correo de tu cuenta y te ayudamos a recuperarla."
+              )}
+              {google ? " Si tu cuenta usa el mismo correo de Google, también puedes entrar con el botón de arriba." : ""}
+            </p>
+          )}
         </details>
       </div>
     );
@@ -242,7 +279,7 @@ export function Formulario({
 }
 
 /** Contraseña con botón para verla: en el teléfono es fácil equivocarse. */
-function CampoClave({ id, nueva, invalido }: { id: string; nueva?: boolean; invalido?: boolean }) {
+export function CampoClave({ id, nueva, invalido }: { id: string; nueva?: boolean; invalido?: boolean }) {
   const [ver, setVer] = useState(false);
   return (
     <div>

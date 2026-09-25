@@ -5,6 +5,7 @@ import { Barra } from "@/components/ui";
 import { rutaInterna } from "@/lib/rutas";
 import { googleActivo } from "@/lib/supabase/proveedores";
 import { LEGAL } from "@/lib/legal";
+import { recuperacionActiva } from "@/lib/recuperacion";
 import { Formulario } from "./formulario";
 
 export const dynamic = "force-dynamic";
@@ -18,7 +19,7 @@ export const metadata: Metadata = {
 export default async function Entrar({
   searchParams,
 }: {
-  searchParams: Promise<{ volver?: string; error?: string; crear?: string }>;
+  searchParams: Promise<{ volver?: string; error?: string; crear?: string; olvide?: string }>;
 }) {
   const params = await searchParams;
   // Solo rutas internas: nunca se redirige a otro sitio.
@@ -59,7 +60,9 @@ export default async function Entrar({
         <Formulario
           volver={volver}
           google={await googleActivo()}
-          crearCuentaPrimero={params.crear === "1"}
+          crearCuentaPrimero={params.crear === "1" && params.olvide !== "1"}
+          recuperar={recuperacionActiva()}
+          olvide={params.olvide === "1"}
           contacto={LEGAL.whatsapp || LEGAL.correo ? { whatsapp: LEGAL.whatsapp, correo: LEGAL.correo } : null}
           fallo={params.error === "enlace" || params.error === "google" ? params.error : undefined}
         />
