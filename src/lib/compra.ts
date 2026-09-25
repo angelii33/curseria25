@@ -37,15 +37,21 @@ export async function iniciarCompra(productoId: string, volverCrudo: string): Pr
       return { error: error.message };
     }
     const intento = Array.isArray(data) ? data[0] : data;
+    if (!intento) return { error: "sin_intencion_suscripcion" };
     await registrar("suscripcion_iniciada", { producto_id: productoId });
-    const url = await crearSuscripcion({
-      suscripcionId: intento.subscription_id,
-      titulo: intento.product_name,
-      centavos: intento.amount_cents,
-      moneda: intento.currency,
-      email: usuario.user.email,
-    });
-    return { url };
+    try {
+      const url = await crearSuscripcion({
+        suscripcionId: intento.subscription_id,
+        titulo: intento.product_name,
+        centavos: intento.amount_cents,
+        moneda: intento.currency,
+        email: usuario.user.email,
+      });
+      return { url };
+    } catch (e) {
+      // Mercado Pago caído o lento: aviso claro, no la página de error.
+      return { error: `mp_suscripcion: ${e instanceof Error ? e.message : "desconocido"}` };
+    }
   }
 
   const { data, error } = await sb.rpc("create_purchase_intent", { check_product_id: productoId });
@@ -54,16 +60,21 @@ export async function iniciarCompra(productoId: string, volverCrudo: string): Pr
     return { error: error.message };
   }
   const intento = Array.isArray(data) ? data[0] : data;
+  if (!intento) return { error: "sin_intencion_compra" };
   await registrar("checkout_iniciado", { producto_id: productoId, centavos: intento.amount_cents });
-  const url = await crearPreferencia({
-    compraId: intento.purchase_id,
-    titulo: producto.name ?? "Curso de CurserIA",
-    centavos: intento.amount_cents,
-    moneda: intento.currency,
-    email: usuario.user.email,
-    volverA: volver.split("#")[0],
-  });
-  return { url };
+  try {
+    const url = await crearPreferencia({
+      compraId: intento.purchase_id,
+      titulo: producto.name ?? "Curso de CurserIA",
+      centavos: intento.amount_cents,
+      moneda: intento.currency,
+      email: usuario.user.email,
+      volverA: volver.split("#")[0],
+    });
+    return { url };
+  } catch (e) {
+    return { error: `mp_preferencia: ${e instanceof Error ? e.message : "desconocido"}` };
+  }
 }
 
 /** Sin sesión: crear la cuenta y, al terminar, seguir directo al pago. */

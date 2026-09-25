@@ -84,10 +84,12 @@ export async function crearCuenta(_prev: Estado, datos: FormData): Promise<Estad
       email: correo, password: clave, email_confirm: true, user_metadata: metadatos,
     });
     if (error) {
-      if (error.code === "email_exists" || error.code === "user_already_exists" || error.status === 422) {
+      // Contraseña débil también responde 422: se revisa por código, no por
+      // estado, o se le diría «ya tiene cuenta» a quien solo eligió mal.
+      if (error.code === "weak_password") return { error: "Esa contraseña es muy fácil de adivinar. Prueba otra más larga.", tipo: "credenciales", correo, n };
+      if (error.code === "email_exists" || error.code === "user_already_exists") {
         return { error: "Ese correo ya tiene cuenta. Entra con tu contraseña o con Google.", tipo: "existe", correo, n };
       }
-      if (error.code === "weak_password") return { error: "Esa contraseña es muy fácil de adivinar. Prueba otra más larga.", tipo: "credenciales", correo, n };
       registrarFalla("crear", correo, error);
       return { error: mensajeDeFalla(error), tipo: tipoDeFalla(error), correo, n };
     }
@@ -323,8 +325,13 @@ export async function emitirCertificado(datos: FormData) {
  * acceso lo abre solo el aviso de Mercado Pago tras consultar el pago.
  */
 export async function comprar(datos: FormData) {
-  const r = await iniciarCompra(String(datos.get("producto_id") ?? ""), String(datos.get("volver") ?? "/precios"));
-  if ("error" in r) throw new Error(mensaje(r.error));
+  const volver = String(datos.get("volver") ?? "/precios");
+  const r = await iniciarCompra(String(datos.get("producto_id") ?? ""), volver);
+  if ("error" in r) {
+    // Nunca la página de error genérica: de vuelta con un aviso claro.
+    console.warn("[compra] no se pudo iniciar", r.error);
+    redirect(conParametro(rutaInterna(volver, "/precios"), "acceso=error"));
+  }
   redirect(r.url);
 }
 
