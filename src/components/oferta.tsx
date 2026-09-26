@@ -38,7 +38,7 @@ export function TarjetaOferta({ o, volver = "/precios" }: { o: Oferta; volver?: 
 
       <ul className="oferta-cursos">
         {esPro ? <li className="oferta-todo">Todos los cursos publicados ({o.cursos.length}) y los que vayan saliendo</li> : null}
-        {!esPro && [...o.cursos].sort((a, b) => orden(a.slug) - orden(b.slug)).map((c) => (
+        {[...o.cursos].sort((a, b) => orden(a.slug) - orden(b.slug)).map((c) => (
           <li key={c.id}>
             <Link href={`/cursos/${c.slug}`}>{c.titulo}</Link>
           </li>

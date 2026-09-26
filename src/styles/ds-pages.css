@@ -135,6 +135,9 @@
 /* ─── Secciones ───────────────────────────────────────────────────────── */
 .seccion { padding-block: var(--seccion); }
 .seccion-hundida { background: var(--papel-hundido); }
+/* Dos secciones seguidas del mismo fondo se leen como una: sin el hueco
+   doble de padding entre ellas (precios → preguntas en la portada). */
+.seccion-hundida + .seccion-hundida { padding-top: 0; }
 .seccion-tinta { background: var(--musgo-900); color: var(--tinta-inversa); }
 .seccion-tinta .t-lectura, .seccion-tinta .seccion-bajada { color: var(--musgo-200); }
 .seccion-cab { max-width: 760px; margin-bottom: clamp(28px, 4vw, 48px); }
@@ -197,6 +200,16 @@
 }
 @media (min-width: 720px) { .problemas { grid-template-columns: repeat(2, 1fr); } }
 @media (min-width: 1080px) { .problemas { grid-template-columns: repeat(3, 1fr); } }
+/* Con 7 cursos la última tarjeta quedaba sola en su fila: ocupa la fila
+   completa y se lee como cierre, no como hueco. Igual en .abiertas. */
+@media (min-width: 720px) and (max-width: 1079px) {
+  .problemas > li:last-child:nth-child(odd),
+  .abiertas > li:last-child:nth-child(odd) { grid-column: 1 / -1; }
+}
+@media (min-width: 1080px) {
+  .problemas > li:last-child:nth-child(3n + 1),
+  .abiertas > li:last-child:nth-child(3n + 1) { grid-column: 1 / -1; }
+}
 .problema {
   display: flex;
   align-items: center;
@@ -381,6 +394,7 @@
 .mesa-calendario { background: var(--lienzo-tinte); }
 .mesa-documento { background: var(--papel-hundido); }
 .mesa-sistema { background: var(--musgo-800); }
+.mesa-ingreso { background: var(--musgo-800); }
 .mesa-generica { background: var(--musgo-100); }
 
 /* Banda generada (cursos sin ilustración) */
@@ -2139,7 +2153,7 @@ body {
   cursor: pointer;
 }
 .acceso-ayuda { margin-top: var(--e-5); }
-.acceso-ayuda summary { cursor: pointer; font-weight: 650; padding: 8px 0; }
+.acceso-ayuda summary { cursor: pointer; font-family: var(--tipo-titular); font-weight: 650; font-size: 15px; padding: 8px 0; }
 .acceso-ayuda ol { margin: var(--e-3) 0 0; padding-left: 1.2em; display: grid; gap: var(--e-3); color: var(--tinta-media); }
 .acceso-ayuda .acceso-enlace { margin-top: 0; padding: 0; }
 .acceso-correo { overflow-wrap: anywhere; }
@@ -2165,7 +2179,7 @@ body {
 }
 .acceso-pestana {
   padding: 10px 8px; border: 0; border-radius: var(--r-placa); background: transparent;
-  font: inherit; font-weight: 650; color: var(--tinta-media); cursor: pointer; min-height: 44px;
+  font: inherit; font-family: var(--tipo-titular); font-size: 15px; font-weight: 650; color: var(--tinta-media); cursor: pointer; min-height: 44px;
 }
 .acceso-pestana[aria-selected="true"] { background: var(--lienzo); color: var(--tinta); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
 .acceso-pestana:focus-visible { outline: 3px solid var(--musgo-anillo); }
@@ -2174,7 +2188,7 @@ body {
 .campo-clave .campo { padding-right: 76px; }
 .campo-clave-ver {
   position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
-  padding: 8px 10px; min-height: 36px; border: 0; background: none; font: inherit; font-size: 14px;
+  padding: 8px 10px; min-height: 36px; border: 0; background: none; font: inherit; font-family: var(--tipo-titular); font-size: 14px;
   font-weight: 650; color: var(--musgo-600); cursor: pointer;
 }
 .acceso-legal { color: var(--tinta-tenue); text-align: center; }

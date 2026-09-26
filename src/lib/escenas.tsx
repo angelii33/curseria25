@@ -1,4 +1,4 @@
-// Las 6 escenas de curso, en un lienzo propio de 56×56.
+// Las 7 escenas de curso, en un lienzo propio de 56×56.
 //
 // Antes vivían dentro de portada.tsx, dibujadas en coordenadas absolutas
 // de la banda de 360×120 — servían ahí y en ningún otro sitio. Al pasarlas
@@ -19,7 +19,8 @@ export type TipoEscena =
   | "chat"
   | "calendario"
   | "documento"
-  | "sistema";
+  | "sistema"
+  | "ingreso";
 
 export const ESCENA_POR_SLUG: Record<string, TipoEscena> = {
   "tu-negocio-en-google": "mapa",
@@ -28,7 +29,7 @@ export const ESCENA_POR_SLUG: Record<string, TipoEscena> = {
   "un-mes-de-publicaciones": "calendario",
   "cotiza-en-5-minutos": "documento",
   "ventas-con-ia": "sistema",
-  "monetiza-ia": "sistema",
+  "monetiza-ia": "ingreso",
 };
 
 /** El problema que resuelve cada curso, en las palabras del dueño del
@@ -128,6 +129,22 @@ export function escena(tipo: TipoEscena, linea: string, acento: string) {
           <circle r={10} />
           <line x1={0} y1={0} x2={0} y2={-6} strokeLinecap="round" />
           <line x1={0} y1={0} x2={4} y2={2} strokeLinecap="round" />
+        </g>
+      </g>
+    );
+  }
+  if (tipo === "ingreso") {
+    // La etiqueta de precio de algo tuyo; el logro es la moneda que entra.
+    return (
+      <g fill="none" stroke={linea}>
+        <path d="M7 27L27 7h17v17L24 44z" strokeWidth={1.7} strokeLinejoin="round" />
+        <circle cx={37} cy={14} r={2.6} strokeWidth={1.5} />
+        <line x1={17} y1={27} x2={25} y2={19} strokeWidth={1.4} strokeLinecap="round" />
+        <g stroke={acento} strokeLinecap="round">
+          <circle cx={41} cy={41} r={10} strokeWidth={2} />
+          <path d="M44.4 37.4c-.9-1.1-2.1-1.6-3.5-1.6-1.9 0-3.2 1-3.2 2.4 0 3.4 7 1.9 7 5.3 0 1.5-1.4 2.6-3.4 2.6-1.5 0-2.8-.6-3.8-1.8" strokeWidth={1.8} />
+          <line x1={41} y1={33.5} x2={41} y2={35.8} strokeWidth={1.8} />
+          <line x1={41} y1={46.3} x2={41} y2={48.5} strokeWidth={1.8} />
         </g>
       </g>
     );

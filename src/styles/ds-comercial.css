@@ -46,6 +46,8 @@
 .oferta-cursos li::before { content: "✓"; position: absolute; left: 0; color: var(--cobre-600); font-family: var(--tipo-titular); font-weight: 800; }
 .oferta-pro .oferta-cursos li::before { color: var(--cobre-200); }
 .oferta-cursos a { color: inherit; text-decoration-color: var(--linea-firme); text-underline-offset: 3px; }
+.oferta-cursos .oferta-todo { font-family: var(--tipo-titular); font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+.oferta-pro .oferta-cursos a { text-decoration-color: var(--musgo-600); }
 
 .sueltos { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--linea); }
 .suelto { display: grid; grid-template-columns: 1fr auto; gap: 2px 16px; padding: 14px 0; border-bottom: 1px solid var(--linea); align-items: baseline; }
@@ -163,7 +165,7 @@
 .ofertas { align-items: stretch; }
 .oferta { align-content: start; }
 .ofertas-sub { margin: clamp(36px, 5vw, 56px) 0 18px; }
-@media (min-width: 1100px) { .ofertas-dos { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 820px; } }
+@media (min-width: 1100px) { .ofertas-dos { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
 /* Enlaces dentro de texto: subrayados, no solo por color (WCAG 1.4.1) */
 .garantia .t-lectura a, .cuaderno-aviso a, .panel-garantia a, .legal-resumen a { text-decoration: underline; text-underline-offset: 3px; color: var(--musgo-700); }
