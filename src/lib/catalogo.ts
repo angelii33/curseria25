@@ -194,11 +194,24 @@ export async function getCurso(slug: string) {
   const todas = modulos.flatMap((m) => m.lecciones);
   const completadas = todas.filter((l) => hechas.has(l.id)).length;
 
+  // Con acceso pero sin inscripción (CurserIA Pro, acceso otorgado a mano)
+  // las lecciones salían cerradas hasta tocar «Empezar» en la ficha: quien
+  // entraba directo a una lección nunca veía la siguiente. Si la base dice
+  // que tiene acceso, se inscribe aquí; enroll_in_course vuelve a validar.
+  let inscrito = inscritos.has(curso.id);
+  if (!inscrito) {
+    const { data: acceso } = await sb.rpc("has_course_access", { check_course_id: curso.id });
+    if (acceso === true) {
+      const { error } = await sb.rpc("enroll_in_course", { check_course_id: curso.id });
+      inscrito = !error;
+    }
+  }
+
   // Quizzes del curso que faltan por aprobar. issue_certificate exige TODOS:
   // sin esto, «Ver mi certificado» aparecía y la RPC lo rechazaba. Solo se
   // consulta para quien está inscrito (RLS no deja ver quizzes sin acceso).
   let quizzesPendientes: { mod: number; lec: number; titulo: string }[] = [];
-  if (inscritos.has(curso.id) && todas.length) {
+  if (inscrito && todas.length) {
     const { data: qs } = await sb.from("quizzes").select("id,lesson_id").in("lesson_id", todas.map((l) => l.id));
     if (qs?.length) {
       const { data: aprobados } = await sb
@@ -222,7 +235,7 @@ export async function getCurso(slug: string) {
     producto_id: (prod?.id as string | undefined) ?? null,
     lanzamiento: Boolean((prod?.metadata as { es_lanzamiento?: boolean } | null)?.es_lanzamiento),
     modulos,
-    inscrito: inscritos.has(curso.id),
+    inscrito,
     hechas,
     total: todas.length,
     completadas,
