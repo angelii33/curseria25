@@ -12,16 +12,6 @@ const nextConfig: NextConfig = {
         hostname: "ppcjjmejawxjlfblbudt.supabase.co",
         pathname: "/storage/v1/object/public/portadas/**",
       },
-      {
-        // PROVISIONAL: las portadas recién generadas viven en el CDN de
-        // Gamma. Vercel las descarga, optimiza y cachea del lado del
-        // servidor, así que el teléfono nunca pega contra ese CDN: recibe
-        // un WebP ya reducido al tamaño que pidió. Se quita en cuanto las
-        // imágenes estén copiadas al bucket de arriba.
-        protocol: "https",
-        hostname: "cdn.gamma.app",
-        pathname: "/**",
-      },
     ],
   },
 };
