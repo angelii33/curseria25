@@ -7,6 +7,11 @@ describe("md: render de lecciones", () => {
     const html = md("Hola <script>alert(1)</script>");
     expect(html).not.toContain("<script>");
   });
+  it("solo enlaza http(s) y rutas internas; «//otro-sitio» no pasa por interna", () => {
+    expect(md("[ok](/cursos)")).toContain('<a href="/cursos">');
+    expect(md("[x](//malo.com)")).not.toContain("<a ");
+    expect(md("[x](javascript:alert(1))")).not.toContain("<a ");
+  });
   it("los ids del índice coinciden con los encabezados", () => {
     const texto = "## Primera parte\n\nTexto.\n\n## Segunda parte\n\nMás.";
     const html = md(texto);

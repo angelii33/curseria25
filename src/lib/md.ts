@@ -24,7 +24,7 @@ const linea = (s: string) =>
     .replace(/\*([^*\s][^*]*)\*/g, "<em>$1</em>")
     // Enlaces [texto](url): solo http(s) o rutas internas. El texto y la
     // URL ya vienen escapados.
-    .replace(/\[([^\]]+)\]\(((?:https?:\/\/|\/)[^)\s]+)\)/g, (_, t, u) =>
+    .replace(/\[([^\]]+)\]\(((?:https?:\/\/|\/(?!\/))[^)\s]+)\)/g, (_, t, u) =>
       u.startsWith("/")
         ? `<a href="${u}">${t}</a>`
         : `<a href="${u}" target="_blank" rel="noopener noreferrer">${t}</a>`
