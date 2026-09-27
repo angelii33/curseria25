@@ -8,7 +8,7 @@ export const LEGAL = {
   domicilio: process.env.NEXT_PUBLIC_LEGAL_DOMICILIO?.trim() || null,
   correo: process.env.NEXT_PUBLIC_CONTACTO_CORREO?.trim() || null,
   whatsapp: process.env.NEXT_PUBLIC_CONTACTO_WHATSAPP?.replace(/\D/g, "") || null,
-  actualizado: "22 de septiembre de 2026",
+  actualizado: "27 de septiembre de 2026",
 } as const;
 
 export const PENDIENTE = "(dato por publicar)";

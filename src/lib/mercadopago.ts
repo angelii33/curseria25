@@ -67,7 +67,7 @@ export async function crearPreferencia(p: {
       },
       auto_return: "approved",
       notification_url: `${base()}/api/pagos/mercadopago`,
-      statement_descriptor: "LISTO CURSOS",
+      statement_descriptor: "CURSERIA",
     }),
   });
   return res.init_point;

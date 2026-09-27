@@ -98,7 +98,7 @@ export function PlanSiguiente({
     const blob = new Blob([archivo], { type: "text/calendar;charset=utf-8" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = "mi-plan-listo.ics";
+    a.download = "mi-plan-curseria.ics";
     a.click();
     URL.revokeObjectURL(a.href);
     guardar();
