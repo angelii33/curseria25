@@ -2356,3 +2356,11 @@ body {
 .fg-pieza { fill: var(--musgo-100); stroke: var(--musgo-300); }
 .fg-falta { fill: var(--lienzo); stroke: var(--cobre-600); stroke-width: 1.6; stroke-dasharray: 5 4; }
 .fg-gota { fill: var(--cobre-400); }
+.fg-trazo-grueso { fill: none; stroke: var(--tinta-media); stroke-width: 2.4; stroke-linecap: round; }
+.fg-curva { fill: none; stroke: var(--musgo-500); stroke-width: 3; stroke-linecap: round; }
+.fg-t-grande { font-size: 22px; font-weight: 800; fill: var(--tinta); letter-spacing: -0.02em; }
+.fg-raya-grueso { fill: none; stroke: var(--linea-firme); stroke-width: 2; }
+.fg-tachado { fill: none; stroke: var(--cobre-600); stroke-width: 1.6; }
+.fg-t-grande.fg-t-inv { fill: #FFFFFF; }
+.fg-t-grande.fg-t-cobre { fill: var(--cobre-700); }
+.fg-t-grande.fg-t-musgo { fill: var(--musgo-600); }
