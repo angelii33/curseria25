@@ -26,6 +26,7 @@ export default async function Entrar({
   const volver = rutaInterna(params.volver, "") || undefined;
   if (await usuarioActual()) redirect(volver ?? "/mi-aprendizaje");
 
+  const google = await googleActivo();
   const vieneDeCurso = volver?.startsWith("/cursos/");
   const vieneAComprar = volver?.startsWith("/comprar");
   // «Volver» nunca apunta a /comprar (eso abriría el pago): a la página de
@@ -52,14 +53,18 @@ export default async function Entrar({
             aquí y la sigues en la computadora, justo donde ibas.
           </p>
           <ul className="lista-check entrar-lista">
-            <li>Crear tu cuenta toma 20 segundos: nombre, correo y contraseña.</li>
+            <li>
+              {google
+                ? "Entra con tu cuenta de Google en un toque, sin contraseña que recordar."
+                : "Crear tu cuenta toma 20 segundos: nombre, correo y contraseña."}
+            </li>
             <li>Pagas con Mercado Pago, con los métodos que te ofrezca al pagar.</li>
             <li>Tu avance, tus misiones y tus certificados, en un solo lugar.</li>
           </ul>
         </div>
         <Formulario
           volver={volver}
-          google={await googleActivo()}
+          google={google}
           crearCuentaPrimero={params.crear === "1" && params.olvide !== "1"}
           recuperar={recuperacionActiva()}
           olvide={params.olvide === "1"}

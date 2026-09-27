@@ -126,13 +126,20 @@ export function Formulario({
     </p>
   );
 
+  // Google es la entrada principal: sin contraseña que recordar (ni que
+  // recuperar). Si ya hay una cuenta con ese correo, Supabase la une: se
+  // entra a la misma cuenta, con el mismo avance.
+  const formGoogle = google && (
+    <form action={entrarConGoogle}>
+      {volver && <input type="hidden" name="volver" value={volver} />}
+      <BotonGoogle deshabilitado={!enLinea} />
+    </form>
+  );
   const bloqueGoogle = google && (
     <>
-      <form action={entrarConGoogle}>
-        {volver && <input type="hidden" name="volver" value={volver} />}
-        <BotonGoogle deshabilitado={!enLinea} />
-      </form>
-      <p className="acceso-separador"><span>o con tu correo</span></p>
+      {formGoogle}
+      <p className="t-dato acceso-google-nota">La forma más fácil: sin contraseña que recordar.</p>
+      <p className="acceso-separador"><span>o con correo y contraseña</span></p>
     </>
   );
 
@@ -223,6 +230,7 @@ export function Formulario({
             <p className="t-cuerpo aviso-falla" role="alert">
               {conClave.error}
               {conClave.tipo === "credenciales" && " Revisa mayúsculas y que el correo esté bien escrito."}
+              {conClave.tipo === "credenciales" && google && " ¿Tu correo es de Gmail? Entra con Google, sin contraseña."}
             </p>
           )}
           <button className="btn btn-primario btn-bloque btn-grande" disabled={entrandoClave || !enLinea}>
@@ -233,6 +241,16 @@ export function Formulario({
         <details className="acceso-ayuda" open={ayudaAbierta}
           onToggle={(e) => setAyudaManual(e.currentTarget.open)}>
           <summary>¿Olvidaste tu contraseña?</summary>
+          {google ? (
+            <div className="acceso-olvide-google">
+              <p className="t-cuerpo">
+                <strong>¿Tu correo es de Gmail?</strong> Entra con Google: es tu misma cuenta, con tu
+                avance, y no necesitas contraseña.
+              </p>
+              {formGoogle}
+              <p className="t-dato acceso-olvide-otro">¿Tu correo no es de Gmail?</p>
+            </div>
+          ) : null}
           {recuperar ? (
             <form action={pedirEnlace} style={{ display: "grid", gap: "var(--e-4)", marginTop: "var(--e-3)" }}>
               <p className="t-cuerpo">
@@ -253,11 +271,6 @@ export function Formulario({
               <button className="btn btn-bloque" disabled={pidiendo || !enLinea}>
                 {pidiendo ? "Mandando…" : recuperado.aviso ? "Mandar otro enlace" : "Mandarme el enlace"}
               </button>
-              {google && (
-                <p className="t-dato" style={{ color: "var(--tinta-tenue)" }}>
-                  Si tu cuenta usa tu correo de Google, también puedes entrar con el botón de arriba.
-                </p>
-              )}
             </form>
           ) : (
             <p className="t-cuerpo" style={{ marginTop: "var(--e-3)" }}>
@@ -274,7 +287,6 @@ export function Formulario({
               ) : (
                 "Escríbenos desde el correo de tu cuenta y te ayudamos a recuperarla."
               )}
-              {google ? " Si tu cuenta usa el mismo correo de Google, también puedes entrar con el botón de arriba." : ""}
             </p>
           )}
         </details>

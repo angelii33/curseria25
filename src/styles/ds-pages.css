@@ -2176,6 +2176,10 @@ body {
   font-weight: 650;
 }
 .boton-google:hover:not(:disabled) { border-color: var(--musgo-600); }
+.boton-google { min-height: 52px; font-size: 16px; box-shadow: 0 1px 0 var(--linea-firme); }
+.acceso-google-nota { margin-top: var(--e-2); text-align: center; color: var(--tinta-media); }
+.acceso-olvide-google { display: grid; gap: var(--e-3); margin-top: var(--e-3); }
+.acceso-olvide-otro { margin-top: var(--e-3); color: var(--tinta-media); font-weight: 650; }
 .acceso-separador {
   display: flex; align-items: center; gap: 12px; margin: var(--e-5) 0;
   font-size: 14px; color: var(--tinta-media);
