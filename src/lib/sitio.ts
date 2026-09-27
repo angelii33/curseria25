@@ -6,5 +6,5 @@
 const vercel = process.env.VERCEL_PROJECT_PRODUCTION_URL;
 export const URL_SITIO = (
   process.env.NEXT_PUBLIC_SITE_URL ??
-  (vercel ? `https://${vercel}` : "https://app-cursos-mu.vercel.app")
+  (vercel ? `https://${vercel}` : "https://curseria25.vercel.app")
 ).replace(/\/$/, "");
