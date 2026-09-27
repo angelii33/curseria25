@@ -199,7 +199,8 @@ export async function getCurso(slug: string) {
   // entraba directo a una lección nunca veía la siguiente. Si la base dice
   // que tiene acceso, se inscribe aquí; enroll_in_course vuelve a validar.
   let inscrito = inscritos.has(curso.id);
-  if (!inscrito) {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!inscrito && session) {
     const { data: acceso } = await sb.rpc("has_course_access", { check_course_id: curso.id });
     if (acceso === true) {
       const { error } = await sb.rpc("enroll_in_course", { check_course_id: curso.id });
@@ -290,6 +291,7 @@ export async function getLeccion(slug: string, mod: number, lec: number) {
     // Datos reales del curso para el cierre de las lecciones gratuitas.
     // Se derivan de lo que ya se consultó: ningún viaje extra a la base.
     precio_cents: datos.precio_cents,
+    producto_id: datos.producto_id,
     moneda: datos.moneda,
     modulosTotales: datos.modulos.length,
     leccionesAbiertas: datos.modulos

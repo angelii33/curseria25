@@ -77,7 +77,7 @@ export default async function Leccion({
   const {
     curso, modulo, leccion, contenido, mision, misionHecha, criterios, quiz,
     anterior, siguiente, posicion, total, inscrito, hecha,
-    precio_cents, moneda, modulosTotales, leccionesAbiertas, mapa,
+    precio_cents, producto_id, moneda, modulosTotales, leccionesAbiertas, mapa,
   } = d;
   const ruta = `/cursos/${slug}/${m}/${l}`;
   // XP e insignia recién ganados: solo cambian el texto del aviso.
@@ -515,6 +515,7 @@ export default async function Leccion({
               abiertas={leccionesAbiertas}
               modulos={modulosTotales}
               precioCents={precio_cents}
+              productoId={producto_id}
               moneda={moneda}
               pieza={ed?.pieza.nombre ?? null}
             />

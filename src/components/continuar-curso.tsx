@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { comprar } from "@/app/acciones";
 import { precio } from "@/lib/catalogo";
 
 // El cierre de una lección gratuita para quien todavía no tiene el curso.
@@ -19,6 +20,7 @@ export function ContinuarCurso({
   abiertas,
   modulos,
   precioCents,
+  productoId,
   moneda,
   pieza,
 }: {
@@ -30,6 +32,8 @@ export function ContinuarCurso({
   abiertas: number;
   modulos: number;
   precioCents: number | null;
+  /** Producto del curso: con él, el botón compra directo (Mercado Pago). */
+  productoId: string | null;
   moneda: string;
   /** Nombre de la pieza completa, si el curso tiene editorial. */
   pieza: string | null;
@@ -61,9 +65,20 @@ export function ContinuarCurso({
             {precio(precioCents, moneda)} <small>{moneda}</small>
           </p>
         ) : null}
-        <Link className="btn btn-claro btn-grande" href={`/cursos/${slug}#comprar`}>
-          Ver el curso completo
-        </Link>
+        {productoId && precioCents ? (
+          <>
+            <form action={comprar}>
+              <input type="hidden" name="producto_id" value={productoId} />
+              <input type="hidden" name="volver" value={`/cursos/${slug}#comprar`} />
+              <button className="btn btn-claro btn-grande" type="submit">Comprar el curso completo</button>
+            </form>
+            <Link className="continuar-enlace" href={`/cursos/${slug}#temario`}>Ver todas las lecciones</Link>
+          </>
+        ) : (
+          <Link className="btn btn-claro btn-grande" href={`/cursos/${slug}#comprar`}>
+            Ver el curso completo
+          </Link>
+        )}
       </div>
 
       <p className="t-dato continuar-nota">

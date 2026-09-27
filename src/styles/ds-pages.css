@@ -97,6 +97,12 @@
   .barra-solo-ancho { display: none; }
   .barra-volver { padding-inline: 6px; }
 }
+/* 360–389 px (teléfonos comunes): con sesión, «Mi aprendizaje» salía 3 px
+   del borde. Un poco menos de aire entre enlaces basta. */
+@media (max-width: 389px) {
+  .barra-nav { gap: 0; }
+  .barra-enlace { padding-inline: 7px; }
+}
 
 /* ─── Pie ─────────────────────────────────────────────────────────────── */
 .pie {
@@ -723,6 +729,8 @@ a.fila:hover .fila-titulo { color: var(--musgo-600); }
 .barra-accion-texto strong { font-family: var(--tipo-titular); font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .barra-accion-texto .t-dato { color: var(--cobre-700); font-weight: 650; }
 .barra-accion .btn { flex: none; min-height: 46px; }
+.barra-accion form { flex: none; }
+.barra-accion-gratis { display: inline-flex; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; align-items: center; min-height: 24px; color: var(--musgo-700); text-decoration: underline; text-underline-offset: 3px; }
 @media (min-width: 1024px) { .barra-accion { display: none; } }
 
 /* ─── Página de lección ───────────────────────────────────────────────── */
@@ -1226,6 +1234,8 @@ a.mapa-enlace:hover .mapa-punto { transform: scale(1.1); border-color: var(--mus
 .continuar-precio { font-family: var(--tipo-titular); font-size: 32px; font-weight: 800; letter-spacing: -0.03em; }
 .continuar-precio small { font-size: 14px; color: var(--musgo-300); letter-spacing: 0; }
 .continuar-nota { color: var(--musgo-300); }
+.continuar-enlace { color: var(--musgo-100); text-decoration: underline; text-underline-offset: 3px; font-family: var(--tipo-titular); font-weight: 600; }
+.continuar-enlace:hover { color: var(--tinta-inversa); }
 
 .ancla-seccion { scroll-margin-top: calc(var(--barra-alto) + 72px); }
 

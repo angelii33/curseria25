@@ -532,6 +532,24 @@ export default async function Curso({
         {/* Barra fija en el teléfono: la acción siempre a un pulgar. */}
         {!inscrito ? (
           <div className="barra-accion">
+            {esPago && producto_id && !incluidoEnPro ? (
+              /* Comprar a un pulgar: antes la barra solo llevaba a la lección
+                 gratis y en el teléfono nadie encontraba cómo pagar. */
+              <>
+                <span className="barra-accion-texto">
+                  <strong>{curso.title}</strong>
+                  {rutaPrimera ? (
+                    <Link className="t-dato barra-accion-gratis" href={rutaPrimera}>o empieza gratis</Link>
+                  ) : null}
+                </span>
+                <form action={comprar}>
+                  <input type="hidden" name="producto_id" value={producto_id} />
+                  <input type="hidden" name="volver" value={`/cursos/${slug}#comprar`} />
+                  <button className="btn btn-primario" type="submit">Comprar · {precioTexto}</button>
+                </form>
+              </>
+            ) : (
+            <>
             <span className="barra-accion-texto">
               <strong>{curso.title}</strong>
               <span className="t-dato">
@@ -542,6 +560,8 @@ export default async function Curso({
               <Link className="btn btn-primario" href={rutaPrimera}>Empezar gratis</Link>
             ) : (
               <a className="btn btn-primario" href="#comprar">Obtener</a>
+            )}
+            </>
             )}
           </div>
         ) : null}
