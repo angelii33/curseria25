@@ -225,7 +225,7 @@ export default async function Leccion({
             inscrito={inscrito}
             hecha={hecha}
             resultado={leccion.outcome}
-            lectura={contenido ? Math.max(1, Math.round(contenido.split(/\s+/).length / 200)) : null}
+            lectura={contenido ? Math.max(1, Math.round(contenido.replace(/```figura[\s\S]*?```/g, "").split(/\s+/).length / 200)) : null}
             atajo={contenido && (criterios.length > 0 || mision) ? "comprueba" : null}
           />
 

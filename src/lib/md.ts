@@ -1,4 +1,4 @@
-import { figuraHtml } from "./figuras";
+import { figuraDeBloque, figuraHtml } from "./figuras";
 
 // Renderizador de markdown de las lecciones, del lado servidor. Sin
 // dependencias. ESCAPA TODO antes de aplicar formato: el HTML que sale de
@@ -87,9 +87,10 @@ export function secciones(texto: string): { titulo: string; id: string }[] {
  *  un bloque de código una línea vacía no separa nada. */
 function sinCodigo(texto: string) {
   const codigos: string[] = [];
-  const limpio = texto.replace(/```[^\n]*\n([\s\S]*?)```/g, (_, cuerpo: string) => {
+  const limpio = texto.replace(/```([^\n]*)\n([\s\S]*?)```/g, (_, lengua: string, cuerpo: string) => {
     codigos.push(cuerpo.replace(/\n$/, ""));
-    return `\n\n\u0000CODIGO${codigos.length - 1}\u0000\n\n`;
+    const tipo = lengua.trim() === "figura" ? "FIGURA" : "CODIGO";
+    return `\n\n\u0000${tipo}${codigos.length - 1}\u0000\n\n`;
   });
   return { texto: limpio, codigos };
 }
@@ -195,6 +196,16 @@ export function md(texto: string): string {
   for (const bruto of bloques) {
     const t = bruto.trim();
     if (!t) continue;
+
+    // Ilustración guardada en el texto de la lección (bloque ```figura).
+    const deBd = t.match(/^\u0000FIGURA(\d+)\u0000$/);
+    if (deBd) {
+      cerrarCita();
+      cerrarGaleria();
+      salida += figuraDeBloque(codigos[Number(deBd[1])]) ?? "";
+      anterior = "";
+      continue;
+    }
 
     // Ilustración de la lección (marca que pone conFiguras en lib/figuras).
     const figura = figuraHtml(t);

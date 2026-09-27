@@ -29,3 +29,30 @@ describe("ilustraciones de lección", () => {
     for (const f of Object.values(FIGURAS)) expect(f.cuerpo).not.toMatch(/<script|on\w+=/i);
   });
 });
+
+describe("figuras guardadas en la lección (```figura)", () => {
+  const bloque = (cuerpo: string) => "Texto.\n\n```figura\n360x100\nUna figura\nSu pie\n" + cuerpo + "\n```\n\nMás.";
+  it("dibuja un cuerpo válido con título y pie", () => {
+    const html = md(bloque('<rect x="0" y="0" width="10" height="10" class="fg-musgo"/><text x="4" y="8" class="fg-t">Hola &amp; adiós</text>'));
+    expect(html).toContain('<figure class="md-figura">');
+    expect(html).toContain("Una figura");
+    expect(html).toContain("<figcaption>Su pie</figcaption>");
+    expect(html).toContain("Hola &amp; adiós");
+  });
+  it("rechaza lo peligroso: scripts, eventos, enlaces, estilos y clases ajenas", () => {
+    for (const malo of [
+      "<script>alert(1)</script>",
+      '<rect onclick="x()" class="fg-musgo"/>',
+      '<a href="https://x.com"><text>x</text></a>',
+      '<rect style="fill:red"/>',
+      '<rect class="boton"/>',
+      '<image href="x.png"/>',
+      '<rect fill="url(https://x)"/>',
+      '<foreignObject><div>x</div></foreignObject>',
+      '<text class="fg-t">sin cerrar',
+    ]) expect(md(bloque(malo)), malo).not.toContain("md-figura");
+  });
+  it("un bloque de código normal sigue siendo código", () => {
+    expect(md("```\n<rect/>\n```")).toContain("<pre>");
+  });
+});

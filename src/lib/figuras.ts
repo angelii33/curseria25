@@ -293,12 +293,7 @@ export function conFiguras(texto: string, clave: string): string {
   return salida;
 }
 
-/** HTML de un bloque de marca, o null si el bloque no es una figura. */
-export function figuraHtml(bloque: string): string | null {
-  const m = bloque.trim().match(MARCA);
-  const f = m ? FIGURAS[m[1]] : undefined;
-  if (!f) return null;
-  const id = `fg-${m![1]}`;
+function dibujar(f: Figura, id: string) {
   return (
     `<figure class="md-figura"><svg viewBox="0 0 ${f.ancho} ${f.alto}" role="img" aria-labelledby="${id}" class="fg">` +
     `<title id="${id}">${esc(f.alt)}</title>` +
@@ -306,4 +301,87 @@ export function figuraHtml(bloque: string): string | null {
     f.cuerpo +
     `</svg><figcaption>${esc(f.pie)}</figcaption></figure>`
   );
+}
+
+/** HTML de un bloque de marca, o null si el bloque no es una figura. */
+export function figuraHtml(bloque: string): string | null {
+  const m = bloque.trim().match(MARCA);
+  const f = m ? FIGURAS[m[1]] : undefined;
+  if (!f) return null;
+  return dibujar(f, `fg-${m![1]}`);
+}
+
+// ─── Figuras guardadas en la base, dentro del texto de la lección ─────────
+//
+// Las lecciones de pago no pueden llevar sus ilustraciones en el código (el
+// repositorio es público): van en su propio texto, protegido por RLS igual
+// que el resto de la lección, en un bloque
+//
+//   ```figura
+//   360x200
+//   Texto alternativo
+//   Pie de la figura
+//   <rect …/><text …>…</text>…
+//   ```
+//
+// El cuerpo se REVISA antes de dibujarse: solo formas SVG básicas, solo
+// clases .fg-*, sin enlaces, eventos ni estilos en línea. Lo que no pasa
+// la revisión no se dibuja (la lección se ve igual, sin la figura).
+
+const ETIQUETAS = new Set(["g", "rect", "circle", "ellipse", "line", "path", "polyline", "polygon", "text", "tspan"]);
+const ATRIBUTOS = new Set([
+  "x", "y", "x1", "y1", "x2", "y2", "cx", "cy", "r", "rx", "ry", "width", "height", "d", "points",
+  "class", "transform", "text-anchor", "dy", "dx", "marker-end", "marker-start", "opacity",
+]);
+const VALOR_SEGURO = /^[\w\s.,%#()+-]*$/;
+
+/** Devuelve el cuerpo SVG reconstruido si es seguro, o null. */
+export function svgSeguro(cuerpo: string): string | null {
+  const salida: string[] = [];
+  const pila: string[] = [];
+  const re = /<(\/?)([a-zA-Z]+)((?:\s+[a-zA-Z-]+="[^"<>]*")*)\s*(\/?)>|([^<]+)/g;
+  let m: RegExpExecArray | null;
+  let visto = 0;
+  while ((m = re.exec(cuerpo))) {
+    if (m.index !== visto) return null;
+    visto = re.lastIndex;
+    const [, cierre, etiqueta, attrs, sola, texto] = m;
+    if (texto !== undefined) {
+      if (/[<>]/.test(texto)) return null;
+      salida.push(texto.replace(/&(?!(amp|lt|gt|quot|#\d+);)/g, "&amp;"));
+      continue;
+    }
+    const nombre = etiqueta.toLowerCase();
+    if (!ETIQUETAS.has(nombre)) return null;
+    if (cierre) {
+      if (pila.pop() !== nombre) return null;
+      salida.push(`</${nombre}>`);
+      continue;
+    }
+    const partes: string[] = [];
+    for (const a of attrs.matchAll(/([a-zA-Z-]+)="([^"]*)"/g)) {
+      const [, n, v] = a;
+      if (!ATRIBUTOS.has(n) || !VALOR_SEGURO.test(v)) return null;
+      if (n === "class" && !v.split(/\s+/).every((c) => c === "fg" || c.startsWith("fg-"))) return null;
+      if ((n === "marker-end" || n === "marker-start") && v !== "url(#fg-punta)") return null;
+      if (n !== "marker-end" && n !== "marker-start" && /url\(/i.test(v)) return null;
+      partes.push(`${n}="${v}"`);
+    }
+    salida.push(`<${nombre}${partes.length ? " " + partes.join(" ") : ""}${sola ? "/" : ""}>`);
+    if (!sola) pila.push(nombre);
+  }
+  if (visto !== cuerpo.length || pila.length) return null;
+  return salida.join("");
+}
+
+let contadorBd = 0;
+/** Dibuja un bloque ```figura de la base, o null si no es válido. */
+export function figuraDeBloque(fuente: string): string | null {
+  const [dims, alt, pie, ...resto] = fuente.split("\n");
+  const d = dims?.trim().match(/^(\d{2,4})x(\d{2,4})$/);
+  if (!d || !alt?.trim() || !pie?.trim()) return null;
+  const cuerpo = svgSeguro(resto.join("\n").trim());
+  if (!cuerpo) return null;
+  contadorBd = (contadorBd + 1) % 100000;
+  return dibujar({ ancho: +d[1], alto: +d[2], alt: alt.trim(), pie: pie.trim(), cuerpo }, `fg-bd-${contadorBd}`);
 }
