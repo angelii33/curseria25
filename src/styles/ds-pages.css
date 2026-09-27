@@ -386,6 +386,19 @@
 }
 .media-cabecera .media-hoja { width: 44%; }
 .ficha:hover .media-hoja { transform: rotate(-4deg) translateY(-3px); }
+.media-credito {
+  position: absolute;
+  left: 10px; bottom: 10px;
+  max-width: 48%;
+  margin: 0;
+  padding: 3px 8px;
+  font-size: 11px;
+  line-height: 1.35;
+  color: #FFFFFF;
+  background: rgba(20, 28, 18, 0.62);
+  border-radius: 999px;
+}
+.media-credito a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
 .mesa { display: flex; align-items: center; justify-content: center; padding: 13% 6% 4%; }
 .media-cabecera.mesa { padding: 9%; }
 .mesa .pieza {
