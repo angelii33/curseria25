@@ -461,7 +461,8 @@ export default async function Curso({
                   </ul>
                   {esPago && !incluidoEnPro ? (
                     <p className="t-dato panel-garantia">
-                      Pago seguro con Mercado Pago. <Link href="/reembolsos">7 días para pedir tu reembolso.</Link>
+                      Pago seguro con Mercado Pago. Sin reembolsos: prueba antes la lección gratis.{" "}
+                      <Link href="/reembolsos">Política</Link>
                     </p>
                   ) : null}
                   {esPago && !incluidoEnPro && alternativas.length ? (

@@ -51,8 +51,8 @@ export default async function ResultadoCompra({
                 : "Tus cursos ya están en tu cuenta, con acceso sin caducidad. Mercado Pago te manda el comprobante a tu correo."}
             </p>
             <p className="t-dato">
-              Tienes 7 días para pedir tu reembolso si no te sirvió.{" "}
-              <Link href="/reembolsos">Cómo funciona</Link>
+              Si algo no abre o ves un cobro duplicado, escríbenos.{" "}
+              <Link href="/reembolsos">Política de reembolsos</Link>
             </p>
             <div className="acciones">
               <Link className="btn btn-primario" href={volver === "/precios" ? "/mi-aprendizaje" : volver}>

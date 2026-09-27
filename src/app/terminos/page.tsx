@@ -39,8 +39,9 @@ export default function Terminos() {
 
       <h2>4. Reembolsos</h2>
       <p>
-        Tienes 7 días naturales después de pagar para pedir el reembolso completo. Detalles en{" "}
-        <Link href="/reembolsos">Reembolsos</Link>.
+        La lección 1 de cada curso es gratis para que la pruebes antes de pagar; por eso las
+        compras no se reembolsan, salvo cobro duplicado o una falla técnica que no resolvamos en
+        72 horas. Detalles en <Link href="/reembolsos">Reembolsos</Link>.
       </p>
 
       <h2>5. Uso del contenido</h2>

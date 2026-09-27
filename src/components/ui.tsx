@@ -75,7 +75,7 @@ export function Pie() {
           <p className="t-folio pie-folio">Lo legal</p>
           <Link href="/terminos">Términos y condiciones</Link>
           <Link href="/aviso-de-privacidad">Aviso de privacidad</Link>
-          <Link href="/reembolsos">Reembolsos (7 días)</Link>
+          <Link href="/reembolsos">Reembolsos</Link>
           {LEGAL.correo ? <a href={`mailto:${LEGAL.correo}`}>{LEGAL.correo}</a> : null}
         </nav>
       </div>

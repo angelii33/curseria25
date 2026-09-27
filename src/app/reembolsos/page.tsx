@@ -4,42 +4,44 @@ import { Contacto, PaginaLegal } from "@/components/pagina-legal";
 
 export const metadata: Metadata = {
   title: "Reembolsos",
-  description: "7 días para pedir el reembolso completo de tu curso o paquete.",
+  description: "Prueba gratis la lección 1 antes de comprar. Solo devolvemos el dinero por cobro duplicado o una falla técnica que no resolvamos en 72 horas.",
 };
 
 export default function Reembolsos() {
   return (
-    <PaginaLegal sobretitulo="Garantía" titulo="7 días para pedir tu reembolso">
+    <PaginaLegal sobretitulo="Antes de pagar" titulo="Prueba primero, paga después">
       <p className="legal-resumen">
-        Si en los primeros 7 días naturales después de pagar ves que el curso no es para ti,
-        te devolvemos el dinero completo. No te pedimos que expliques por qué.
+        La lección 1 de cada curso es gratis y completa, para que veas cómo es antes de pagar.
+        Por eso las compras no tienen reembolso, salvo en los dos casos de abajo.
       </p>
+
+      <h2>Cuándo sí devolvemos el dinero</h2>
+      <ul>
+        <li><strong>Cobro duplicado:</strong> si Mercado Pago te cobró dos veces lo mismo, te devolvemos el cobro de más.</li>
+        <li>
+          <strong>Falla técnica:</strong> si pagaste y el curso no se abre en tu cuenta, y no lo
+          resolvemos en 72 horas desde que nos avisas, te devolvemos el dinero completo.
+        </li>
+      </ul>
 
       <h2>Cómo pedirlo</h2>
       <ul>
         <li>Escribe a <Contacto /> desde el correo de tu cuenta.</li>
-        <li>Dinos qué compraste (curso, paquete o CurserIA Pro). Con eso basta.</li>
-        <li>Hacemos la devolución por Mercado Pago, al mismo medio con el que pagaste, en un máximo de 5 días hábiles.</li>
+        <li>Dinos qué compraste y qué pasó (el comprobante de Mercado Pago ayuda).</li>
+        <li>La devolución se hace por Mercado Pago, al mismo medio con el que pagaste, en un máximo de 5 días hábiles.</li>
       </ul>
-
-      <h2>Qué pasa con tu acceso</h2>
-      <p>
-        Al hacer el reembolso se cierra el acceso a lo que compraste. Lo que ya armaste para tu
-        negocio —tu ficha, tu menú, tus mensajes— sigue siendo tuyo.
-      </p>
 
       <h2>CurserIA Pro</h2>
       <p>
-        El primer cobro de la membresía también tiene 7 días de garantía. Después, puedes
-        cancelar cuando quieras desde tu cuenta de Mercado Pago o escribiéndonos: no se hacen
-        más cobros y conservas el acceso hasta el final del mes que ya pagaste. Los meses ya
-        cobrados después de la garantía no se reembolsan.
+        Puedes cancelar cuando quieras desde tu cuenta de Mercado Pago o escribiéndonos: no se
+        hacen más cobros y conservas el acceso hasta el final del mes que ya pagaste. Los meses
+        ya cobrados no se reembolsan, salvo cobro duplicado o falla técnica como arriba.
       </p>
 
       <h2>Pagos en efectivo</h2>
       <p>
-        Si pagaste en OXXO u otra tienda, Mercado Pago devuelve el dinero a tu cuenta de
-        Mercado Pago o te indica cómo recibirlo.
+        Si pagaste en OXXO u otra tienda y aplica una devolución, Mercado Pago devuelve el dinero
+        a tu cuenta de Mercado Pago o te indica cómo recibirlo.
       </p>
 
       <p>

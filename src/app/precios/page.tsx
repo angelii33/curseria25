@@ -10,7 +10,7 @@ import { URL_SITIO } from "@/lib/sitio";
 export const metadata: Metadata = {
   title: "Precios",
   description:
-    "Cursos sueltos desde $99, paquetes por etapa o CurserIA Pro con todos los cursos. Pago único con Mercado Pago y 7 días para pedir tu reembolso.",
+    "Cursos sueltos desde $99, paquetes por etapa o CurserIA Pro con todos los cursos. Pago único con Mercado Pago; la lección 1 de cada curso es gratis.",
   alternates: { canonical: `${URL_SITIO}/precios` },
 };
 
@@ -110,13 +110,14 @@ export default async function Precios({
 
         <section className="seccion seccion-hundida" aria-labelledby="garantia-titulo">
           <div className="marco garantia">
-            <span className="garantia-sello" aria-hidden="true">7</span>
+            <span className="garantia-sello" aria-hidden="true">1</span>
             <div>
-              <h2 className="t-titulo-2" id="garantia-titulo">7 días para pedir tu reembolso</h2>
+              <h2 className="t-titulo-2" id="garantia-titulo">Prueba primero, paga después</h2>
               <p className="t-lectura">
-                Si en los primeros 7 días después de pagar ves que el curso no es para ti,
-                escríbenos y te devolvemos el dinero completo. Sin cuestionario.{" "}
-                <Link href="/reembolsos">Cómo funciona</Link>
+                La lección 1 de cada curso es gratis y completa: la terminas con algo hecho antes de
+                pagar un peso. Por eso las compras no tienen reembolso, salvo cobro duplicado o una
+                falla técnica que no resolvamos en 72 horas.{" "}
+                <Link href="/reembolsos">Política de reembolsos</Link>
               </p>
             </div>
           </div>

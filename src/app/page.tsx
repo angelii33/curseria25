@@ -53,8 +53,8 @@ const PREGUNTAS = [
     r: "En tu cuenta, no en el teléfono. Empiezas una lección en el celular y la sigues en la computadora donde la dejaste.",
   },
   {
-    p: "¿Cómo pago y qué pasa si no me sirve?",
-    r: "Pagas con Mercado Pago: tarjeta, saldo o efectivo en OXXO. Si en los primeros 7 días ves que no era para ti, te devolvemos el dinero completo.",
+    p: "¿Cómo pago y hay reembolsos?",
+    r: "Pagas con Mercado Pago: tarjeta, saldo o efectivo en OXXO. La lección 1 de cada curso es gratis y completa para que la pruebes antes; por eso no hay reembolsos, salvo cobro duplicado o una falla técnica que no resolvamos en 72 horas.",
   },
   {
     p: "¿Tengo que usar inteligencia artificial?",
@@ -443,7 +443,7 @@ export default async function Inicio() {
               </ul>
               <div className="acciones precios-resumen-acciones">
                 <Link className="btn btn-primario" href="/precios">Ver precios y paquetes</Link>
-                <span className="t-dato">Pago con Mercado Pago · 7 días para pedir tu reembolso</span>
+                <span className="t-dato">Pago con Mercado Pago · prueba gratis la lección 1 antes de pagar</span>
               </div>
             </div>
           </section>
