@@ -2287,3 +2287,72 @@ body {
 .escalera-ok span { color: var(--musgo-600); font-weight: 800; }
 .escalera-ojo span { color: var(--cobre-700); font-weight: 800; }
 @media (max-width: 380px) { .diag { padding: 18px; } .escalera-peldano { margin-left: 0 !important; } }
+
+/* ─── Ilustraciones de lección (lib/figuras.ts) ───────────────────────── */
+.md-figura {
+  margin: var(--e-6) 0;
+  padding: 18px 16px 14px;
+  background: var(--lienzo);
+  border: 1px solid var(--linea);
+  border-radius: var(--r-hoja);
+}
+.md-figura svg { display: block; width: 100%; height: auto; max-width: 560px; margin-inline: auto; overflow: visible; }
+.md-figura figcaption {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--linea-firme);
+  font-family: var(--tipo-titular);
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--tinta-media);
+}
+.fg text { font-family: var(--tipo-titular); }
+.fg-t { font-size: 12.5px; font-weight: 600; fill: var(--tinta); }
+.fg-t-s { font-size: 11px; font-weight: 500; fill: var(--tinta); }
+.fg-t-xs { font-size: 9.5px; font-weight: 600; fill: var(--tinta-media); }
+.fg-t-b { font-weight: 750; }
+.fg-t-inv { fill: #FFFFFF; }
+.fg-t-cobre { fill: var(--cobre-700); }
+.fg-t-musgo { fill: var(--musgo-600); }
+.fg-t-num { font-size: 11px; font-weight: 800; fill: #FFFFFF; }
+.fg-lienzo { fill: var(--lienzo); }
+.fg-hundido { fill: var(--papel-hundido); }
+.fg-musgo { fill: var(--musgo-600); }
+.fg-musgo-medio { fill: var(--musgo-500); }
+.fg-musgo-claro { fill: var(--musgo-100); stroke: var(--musgo-200); }
+.fg-cobre { fill: var(--cobre-600); }
+.fg-cobre-claro { fill: var(--cobre-100); }
+.fg-tinta { fill: var(--tinta); }
+.fg-tinta-suave { fill: var(--musgo-300); }
+.fg-gris { fill: var(--linea); }
+.fg-hoja { fill: #FFFFFF; stroke: var(--linea-firme); filter: drop-shadow(0 6px 10px rgba(34, 48, 31, 0.12)); }
+.fg-telefono { fill: var(--musgo-900); }
+.fg-pantalla { fill: #F7F4EC; }
+.fg-burbuja { fill: #FFFFFF; stroke: var(--linea); }
+.fg-burbuja-cliente { fill: #DDEBD3; }
+.fg-parte1 { fill: var(--musgo-600); }
+.fg-parte2 { fill: var(--cobre-600); }
+.fg-parte3 { fill: var(--musgo-300); }
+.fg-calle { fill: #F7F4EC; }
+.fg-raya { stroke: var(--linea-firme); stroke-width: 2; stroke-dasharray: 8 7; fill: none; }
+.fg-raya-fina { stroke: var(--linea); stroke-width: 1; fill: none; }
+.fg-edificio { fill: var(--musgo-200); }
+.fg-negocio { fill: var(--musgo-600); }
+.fg-pin-bien { fill: var(--musgo-700); }
+.fg-pin-mal { fill: var(--cobre-600); }
+.fg-ruta { fill: none; stroke: var(--cobre-600); stroke-width: 2; stroke-dasharray: 4 4; }
+.fg-ruta-bien { stroke: var(--musgo-600); }
+.fg-trazo-inv { fill: none; stroke: #FFFFFF; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.fg-flecha { fill: none; stroke: var(--tinta-media); stroke-width: 1.6; }
+.fg-punta { fill: var(--tinta-media); }
+.fg-guia { fill: none; stroke: var(--linea-firme); stroke-width: 1.2; stroke-dasharray: 3 3; }
+.fg-borroso { fill: #E9E4D6; filter: blur(0.6px); }
+.fg-borroso-linea { fill: #BDB5A2; filter: blur(1.6px); }
+.fg-foto1 { fill: var(--cobre-200); }
+.fg-foto2 { fill: var(--musgo-200); }
+.fg-foto3 { fill: #E9D9A6; }
+.fg-foto-vieja { fill: var(--linea); opacity: 0.7; }
+.fg-vacio { fill: none; stroke: var(--linea-firme); stroke-dasharray: 4 3; }
+.fg-pieza { fill: var(--musgo-100); stroke: var(--musgo-300); }
+.fg-falta { fill: var(--lienzo); stroke: var(--cobre-600); stroke-width: 1.6; stroke-dasharray: 5 4; }
+.fg-gota { fill: var(--cobre-400); }

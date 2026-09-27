@@ -1,3 +1,5 @@
+import { figuraHtml } from "./figuras";
+
 // Renderizador de markdown de las lecciones, del lado servidor. Sin
 // dependencias. ESCAPA TODO antes de aplicar formato: el HTML que sale de
 // aquí solo contiene etiquetas que este archivo escribe.
@@ -193,6 +195,16 @@ export function md(texto: string): string {
   for (const bruto of bloques) {
     const t = bruto.trim();
     if (!t) continue;
+
+    // Ilustración de la lección (marca que pone conFiguras en lib/figuras).
+    const figura = figuraHtml(t);
+    if (figura) {
+      cerrarCita();
+      cerrarGaleria();
+      salida += figura;
+      anterior = "";
+      continue;
+    }
 
     // Una cita, o una etiqueta pegada a su cita («**Taquería**» y en la
     // línea siguiente «> "¡Hola!…"»).

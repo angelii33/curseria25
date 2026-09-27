@@ -14,6 +14,7 @@ import { ChecklistMision } from "@/components/checklist-mision";
 import { CuadernoLeccion } from "@/components/cuaderno-leccion";
 import { MapaCurso } from "@/components/mapa-curso";
 import { Autochequeo } from "@/components/autochequeo";
+import { conFiguras } from "@/lib/figuras";
 import { ArticuloLeccion } from "@/components/articulo-leccion";
 import { Pieza } from "@/components/pieza";
 import { Aviso } from "@/components/aviso";
@@ -274,7 +275,7 @@ export default async function Leccion({
               {/* Monetiza IA · misión gratis 1: el resultado va primero. */}
               {clave === "monetiza-ia/1/1" ? <DiagnosticoMonetizacion /> : null}
 
-              <ArticuloLeccion html={md(contenido)} />
+              <ArticuloLeccion html={md(conFiguras(contenido, clave))} />
 
               {/* Monetiza IA: ejercicios interactivos sin API. */}
               {clave === "monetiza-ia/2/1" ? <EscaleraResultado /> : null}
