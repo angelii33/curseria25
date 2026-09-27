@@ -36,6 +36,12 @@ export default async function ResultadoCompra({
   }
 
   const esSuscripcion = Boolean(suscripcionId) || q.tipo === "suscripcion";
+  // Sin número de pago Mercado Pago no cobró nada: el cliente cerró el pago,
+  // tocó «Volver al sitio» o la tarjeta no pasó. Antes esto caía en «Estamos
+  // revisando tu pago», que lo dejaba esperando un acceso que nunca llegaría.
+  const sinPago = r.estado === "ignorado" && !suscripcionId && (!pagoId || pagoId === "null");
+  const estadoMP = q.collection_status ?? q.status;
+  const reintentar = volver.startsWith("/cursos/") ? `${volver}#comprar` : "/precios";
 
   return (
     <>
@@ -74,7 +80,7 @@ export default async function ResultadoCompra({
               <Link className="btn btn-primario" href="/mi-aprendizaje">Ir a mi aprendizaje</Link>
             </div>
           </>
-        ) : r.estado === "rechazado" ? (
+        ) : r.estado === "rechazado" || (sinPago && estadoMP === "rejected") ? (
           <>
             <p className="sobretitulo">Pago no completado</p>
             <h1 className="t-titulo-1">El pago no pasó</h1>
@@ -83,7 +89,20 @@ export default async function ResultadoCompra({
               puedes intentar con otra tarjeta, con saldo de Mercado Pago o en efectivo.
             </p>
             <div className="acciones">
-              <Link className="btn btn-primario" href={`${volver}#comprar`}>Intentar de nuevo</Link>
+              <Link className="btn btn-primario" href={reintentar}>Intentar de nuevo</Link>
+            </div>
+          </>
+        ) : sinPago ? (
+          <>
+            <p className="sobretitulo">Pago no completado</p>
+            <h1 className="t-titulo-1">No se completó el pago</h1>
+            <p className="t-lectura">
+              No se hizo ningún cargo. Si cerraste Mercado Pago antes de terminar, puedes
+              intentarlo otra vez: tu cuenta y tu avance siguen aquí.
+            </p>
+            <div className="acciones">
+              <Link className="btn btn-primario" href={reintentar}>Intentar de nuevo</Link>
+              <Link className="btn btn-secundario" href="/mi-aprendizaje">Ir a mi aprendizaje</Link>
             </div>
           </>
         ) : (
