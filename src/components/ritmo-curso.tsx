@@ -13,9 +13,14 @@ export function RitmoCurso({
   if (lecciones.length < 2 || lecciones.some((l) => !l.minutos)) return null;
   const max = Math.max(...lecciones.map((l) => l.minutos!));
   const total = lecciones.reduce((a, l) => a + l.minutos!, 0);
+  // Con muchas lecciones (Monetiza IA tiene 35) no caben un número arriba y
+  // otro abajo de cada barra: se encimaban. En modo denso solo se rotula la
+  // más larga y el eje va de 5 en 5; el detalle sigue para lector de pantalla.
+  const denso = lecciones.length > 14;
+  const iMax = lecciones.findIndex((l) => l.minutos === max);
 
   return (
-    <figure className="ritmo">
+    <figure className={`ritmo${denso ? " ritmo-denso" : ""}`}>
       <figcaption className="ritmo-cab">
         <span className="ritmo-total">
           {total}
@@ -30,9 +35,11 @@ export function RitmoCurso({
         {lecciones.map((l, i) => (
           <li key={l.id} className={`${l.gratis ? "ritmo-gratis" : ""} ${l.hecha ? "ritmo-hecha" : ""}`}>
             <span className="ritmo-barra" style={{ height: `${Math.round((l.minutos! / max) * 100)}%` }}>
-              <span className="ritmo-min">{l.minutos}</span>
+              {!denso || i === iMax ? <span className="ritmo-min">{l.minutos}</span> : null}
             </span>
-            <span className="ritmo-num" aria-hidden="true">{i + 1}</span>
+            {!denso || i === 0 || (i + 1) % 5 === 0 ? (
+              <span className="ritmo-num" aria-hidden="true">{i + 1}</span>
+            ) : null}
             <span className="sr-only">
               Lección {i + 1}, {l.titulo}: {l.minutos} minutos{l.gratis ? ", gratis" : ""}
               {l.hecha ? ", completada" : ""}
