@@ -12,12 +12,6 @@ const nextConfig: NextConfig = {
         hostname: "ppcjjmejawxjlfblbudt.supabase.co",
         pathname: "/storage/v1/object/public/portadas/**",
       },
-      {
-        // Fotografías de portada de Unsplash (ver src/lib/fotos-portada.ts).
-        protocol: "https",
-        hostname: "images.unsplash.com",
-        pathname: "/photo-*",
-      },
     ],
   },
 };

@@ -5,7 +5,6 @@ import { ETAPAS, editorialDe, NIVEL } from "@/lib/editorial";
 import { ESCENA_POR_SLUG } from "@/lib/escenas";
 import { Pieza, tienePieza } from "@/components/pieza";
 import { Portada, varianteDe } from "@/components/portada";
-import { FOTOS_PORTADA } from "@/lib/fotos-portada";
 
 // La ficha de un curso en el catálogo. Una sola, con variantes: antes había
 // dos copias casi idénticas en la Home y en Mi aprendizaje.
@@ -62,13 +61,11 @@ export function MediaCurso({
 
   // Con fotografía: la foto pone el contexto real y la pieza terminada va
   // encima, como una hoja impresa apoyada sobre la mesa.
-  const foto = FOTOS_PORTADA[slug];
-  const src = foto?.src ?? cover;
-  if (src) {
+  if (cover) {
     return (
       <div className={`media media-${contexto} media-foto`}>
         <Image
-          src={src}
+          src={cover}
           alt=""
           fill
           sizes={
@@ -80,12 +77,6 @@ export function MediaCurso({
           className="media-img"
         />
         {pieza ? <div className="media-hoja">{pieza}</div> : null}
-        {foto && contexto === "cabecera" ? (
-          <p className="media-credito">
-            Foto: <a href={foto.perfil} target="_blank" rel="noopener noreferrer">{foto.autor}</a> en{" "}
-            <a href={foto.pagina} target="_blank" rel="noopener noreferrer">Unsplash</a>
-          </p>
-        ) : null}
       </div>
     );
   }
