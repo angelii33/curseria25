@@ -88,11 +88,11 @@ const bienvenida: Figura = {
     t(36, 199, ["Menú con precios:", "elguero.site/menu"], "fg-t-s", 13),
     `<path d="M200 113h22M200 158h22M200 200h22" class="fg-guia"/>`,
     `<circle cx="232" cy="113" r="10" class="fg-parte1"/>`, t(232, 117, "1", "fg-t-num", 0, "middle"),
-    t(248, 110, ["Saludo", "Quién eres"], "fg-t fg-t-b", 14),
+    t(248, 110, "Saludo", "fg-t-s fg-t-b"), t(248, 124, "Quién eres", "fg-t-xs"),
     `<circle cx="232" cy="158" r="10" class="fg-parte2"/>`, t(232, 162, "2", "fg-t-num", 0, "middle"),
-    t(248, 155, ["Qué debe hacer", "Pide datos concretos"], "fg-t fg-t-b", 14),
+    t(248, 155, "Qué debe hacer", "fg-t-s fg-t-b"), t(248, 169, "Pide datos concretos", "fg-t-xs"),
     `<circle cx="232" cy="200" r="10" class="fg-parte3"/>`, t(232, 204, "3", "fg-t-num", 0, "middle"),
-    t(248, 197, ["Qué pasa después", "Cuándo contestas"], "fg-t fg-t-b", 14),
+    t(248, 197, "Qué pasa después", "fg-t-s fg-t-b"), t(248, 211, "Cuándo contestas", "fg-t-xs"),
   ].join(""),
 };
 
