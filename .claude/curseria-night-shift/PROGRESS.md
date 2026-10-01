@@ -14,3 +14,10 @@
 - Analítica: `lesson_started` ignora bots, vistas previas y precargas.
 - Auditorías sin hallazgos: accesibilidad, inyección en el renderizador, texto de las 74 lecciones, enlaces.
 - Hallazgo de negocio: casi no hay tráfico real todavía; 2 intentos de compra abandonados.
+
+## Turno 3 (2026-10-01) — lecciones gratis
+- 8 de las 9 lecciones gratis abren ahora con una prueba de un minuto con el negocio del alumno, y su cierre la retoma.
+- Corrección en WhatsApp: la prueba pedía escribir desde el celular de alguien de la casa, pero el saludo automático no llega a quien te escribió en los últimos 14 días.
+- Monetiza: dos secciones «Por qué importa» con títulos que dicen algo.
+- Producción: respaldo en `respaldo.lesson_resources_20261001`, ensayo con md5 y UPDATE con guarda; 8/8 verificadas.
+- Estándar de lecciones: regla de la prueba de un minuto.

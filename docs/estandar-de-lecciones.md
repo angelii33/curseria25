@@ -25,7 +25,13 @@ y qué hacer si falla.
 4. **`## Si algo no sale`**: reglas de decisión y errores comunes.
 5. **`## Mini reto`**: una acción concreta, no una pregunta teórica.
 6. **`## Lo que hiciste hoy`**: resultado y qué sigue.
-7. Solo en la última lección: **`## Tu plan después del curso`** con Hoy,
+7. Solo en la lección gratis de cada curso: **una prueba de un minuto con
+   el negocio del alumno** al principio (sección `## La prueba…` o párrafo
+   que empieza con `**Haz esto ahora:**`): buscarse en Google, contar sus
+   mensajes tardíos, mirar la fecha de su última publicación. Que vea su
+   problema antes de leer la solución, y que `## Lo que hiciste hoy` retome
+   esa prueba.
+8. Solo en la última lección: **`## Tu plan después del curso`** con Hoy,
    Esta semana, Próximos 30 días y Después.
 
 ## Convenciones que el renderizador reconoce (`src/lib/md.ts`)
