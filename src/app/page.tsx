@@ -13,8 +13,32 @@ import { Pestanas } from "@/components/pestanas";
 import { AntesDespues, tieneAntesDespues } from "@/components/antes-despues";
 import { LeccionPorDentro } from "@/components/leccion-por-dentro";
 import { MARCA } from "@/lib/marca";
+import { URL_SITIO } from "@/lib/sitio";
 
 export const dynamic = "force-dynamic";
+
+// Para buscadores: quién publica el sitio y con qué logotipo.
+const DATOS_SITIO = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${URL_SITIO}/#organizacion`,
+      name: MARCA.nombre,
+      url: URL_SITIO,
+      logo: `${URL_SITIO}/marca/curseria-logo.png`,
+      description: MARCA.descripcionCorta,
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${URL_SITIO}/#sitio`,
+      name: MARCA.nombre,
+      url: URL_SITIO,
+      inLanguage: "es-MX",
+      publisher: { "@id": `${URL_SITIO}/#organizacion` },
+    },
+  ],
+};
 
 type CursoCatalogo = Awaited<ReturnType<typeof getCatalogo>>[number];
 
@@ -78,6 +102,10 @@ export default async function Inicio() {
     <>
       <Barra />
       <main id="contenido">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(DATOS_SITIO).replace(/</g, "\\u003c") }}
+        />
         {/* ─── 1 · PROBLEMA → PROMESA ─── */}
         <section className="portada-home">
           <div className="marco portada-home-in">
