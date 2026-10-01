@@ -1,3 +1,7 @@
+import { cache } from "react";
+// Las cargas que exporta este archivo van envueltas en `cache`: dentro de una
+// misma petición, los metadatos, la cabecera y la página comparten un solo
+// resultado en vez de repetir las consultas (y la RPC de acceso).
 import { clienteServidor } from "./supabase/server";
 
 export type Curso = {
@@ -89,7 +93,7 @@ async function misCompletadas() {
   return new Set((data ?? []).map((p) => p.lesson_id as string));
 }
 
-export async function getCatalogo() {
+export const getCatalogo = cache(async () => {
   const sb = await clienteServidor();
   const { data: cursos } = await sb
     .from("courses")
@@ -158,9 +162,9 @@ export async function getCatalogo() {
       };
     })
     .filter((c) => c.lecciones > 0);
-}
+});
 
-export async function getCurso(slug: string) {
+export const getCurso = cache(async (slug: string) => {
   const sb = await clienteServidor();
   const { data: curso } = await sb
     .from("courses").select("id,slug,title,subtitle,level,duration_minutes,cover_url")
@@ -249,9 +253,9 @@ export async function getCurso(slug: string) {
       return null;
     })(),
   };
-}
+});
 
-export async function getLeccion(slug: string, mod: number, lec: number) {
+export const getLeccion = cache(async (slug: string, mod: number, lec: number) => {
   const sb = await clienteServidor();
   const datos = await getCurso(slug);
   if (!datos) return null;
@@ -311,7 +315,7 @@ export async function getLeccion(slug: string, mod: number, lec: number) {
       }))
     ),
   };
-}
+});
 
 /** Fechas en que el usuario completó lecciones en los últimos 7 días.
  *  Pasa por RLS: cada quien solo ve su propio avance. */
@@ -342,7 +346,7 @@ export type Oferta = {
 };
 
 /** Paquetes y membresía activos, con los cursos que abren. Todo de la base. */
-export async function getOfertas(): Promise<Oferta[]> {
+export const getOfertas = cache(async (): Promise<Oferta[]> => {
   const sb = await clienteServidor();
   const [{ data: prods }, { data: enlaces }, { data: cursos }, { data: sueltos }] = await Promise.all([
     sb.from("products").select("id,slug,name,type,price_cents,currency,metadata")
@@ -376,4 +380,4 @@ export async function getOfertas(): Promise<Oferta[]> {
       suelto_cents: lista.reduce((s, c) => s + (c.precio_cents ?? 0), 0),
     };
   }).filter((o) => o.tipo === "membership" || o.cursos.length > 0);
-}
+});

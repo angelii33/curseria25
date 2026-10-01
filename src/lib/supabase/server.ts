@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
@@ -32,8 +33,9 @@ export async function clienteServidor() {
   });
 }
 
-export async function usuarioActual() {
+/** Una sola consulta al servidor de autenticación por petición. */
+export const usuarioActual = cache(async () => {
   const sb = await clienteServidor();
   const { data } = await sb.auth.getUser();
   return data.user ?? null;
-}
+});

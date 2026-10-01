@@ -72,7 +72,8 @@ export default async function Leccion({
   const m = Number(mod), l = Number(lec);
   if (!Number.isInteger(m) || !Number.isInteger(l)) notFound();
 
-  const d = await getLeccion(slug, m, l);
+  // La sesión se pide a la vez que la lección: no depende de ella.
+  const [d, usuario] = await Promise.all([getLeccion(slug, m, l), usuarioActual()]);
   if (!d) notFound();
 
   const {
@@ -86,7 +87,6 @@ export default async function Leccion({
   const insignia = aviso.hecha && aviso.insignia ? await tituloInsignia(aviso.insignia) : null;
 
   // Con sesión, el cuaderno arranca con lo que ya guardó en su taller.
-  const usuario = await usuarioActual();
   // Quien tiene cuenta puede marcar la lección gratis aunque no tenga el
   // curso (mark_lesson_complete lo permite solo para is_preview).
   const puedeMarcar = inscrito || (leccion.is_preview && Boolean(usuario));

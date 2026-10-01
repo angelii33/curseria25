@@ -53,5 +53,10 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|webp)$).*)"],
+  // Fuera quedan los archivos estáticos y las imágenes generadas (iconos,
+  // tarjetas para redes, robots y sitemap): no llevan sesión, y pasar por
+  // aquí costaría una consulta a Supabase Auth en cada una.
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|(?:apple-)?icon$|robots\\.txt$|sitemap\\.xml$|.*opengraph-image(?:-\\w+)?$|.*\\.(?:svg|png|jpg|webp)$).*)",
+  ],
 };
