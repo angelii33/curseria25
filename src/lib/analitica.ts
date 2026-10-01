@@ -1,4 +1,5 @@
 import { after } from "next/server";
+import { headers } from "next/headers";
 import { clienteServidor } from "./supabase/server";
 
 // Eventos del embudo en analytics_events (RLS: cada quien inserta los suyos,
@@ -41,6 +42,7 @@ export async function registrarAlResponder(
   usuarioId: string | null,
   propiedades: Record<string, string | number | boolean | null> = {}
 ) {
+  if (!esVisitaHumana(await headers())) return;
   const sb = await clienteServidor();
   after(async () => {
     try {
@@ -49,4 +51,16 @@ export async function registrarAlResponder(
       // Medir nunca es más importante que lo que el usuario está haciendo.
     }
   });
+}
+
+// Buscadores, vistas previas de enlaces (WhatsApp, Facebook…) y monitores
+// también abren lecciones; contarlos inflaría el embudo.
+const BOT = /bot|crawl|spider|slurp|facebookexternalhit|whatsapp|telegram|preview|headless|lighthouse|vercel|curl|wget|python|node-fetch|axios|go-http/i;
+
+/** Falso para bots y para precargas del navegador o de Next (nadie la vio aún). */
+export function esVisitaHumana(h: Pick<Headers, "get">): boolean {
+  const ua = h.get("user-agent") ?? "";
+  if (!ua || BOT.test(ua)) return false;
+  if (h.get("next-router-prefetch") || h.get("purpose") === "prefetch" || h.get("sec-purpose")?.includes("prefetch")) return false;
+  return true;
 }
