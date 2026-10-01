@@ -1,0 +1,32 @@
+# Corre lo mismo que `npm run verify` en cada push y pull request, para que
+# un error de tipos, de lint o una prueba rota se vea antes de desplegar.
+# No usa secretos: la compilación cae en los valores públicos por defecto.
+name: Verificar
+
+on:
+  push:
+    branches: [main, "claude/**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verificar-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
