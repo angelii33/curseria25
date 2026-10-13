@@ -32,7 +32,13 @@ export async function Barra({ volver }: { volver?: { href: string; texto: string
             ) : (
               <Link href="/#cursos" className="barra-enlace barra-solo-ancho">Cursos</Link>
             )}
-            <Link href="/precios" className="barra-enlace barra-solo-ancho">Precios</Link>
+            {/* En el teléfono, «Precios» solo cabe cuando no hay «volver» ni sesión. */}
+            <Link
+              href="/precios"
+              className={`barra-enlace ${!volver && !usuario ? "barra-precios-movil" : "barra-solo-ancho"}`}
+            >
+              Precios
+            </Link>
             {usuario ? (
               <>
                 <Link href="/mi-aprendizaje" className="barra-enlace">Mi aprendizaje</Link>

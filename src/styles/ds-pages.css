@@ -93,6 +93,7 @@
   text-decoration: none;
 }
 .barra-entrar:hover { border-color: var(--musgo-600); }
+@media (max-width: 359px) { .barra-precios-movil { display: none; } }
 @media (max-width: 480px) {
   .barra-solo-ancho { display: none; }
   .barra-volver { padding-inline: 6px; }
