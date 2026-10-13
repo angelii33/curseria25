@@ -259,7 +259,16 @@
   letter-spacing: -0.01em;
 }
 .problema-sol { font-size: 16px; color: var(--musgo-600); font-family: var(--tipo-titular); font-weight: 550; }
-.problema-meta { color: var(--tinta-tenue); font-weight: 500; }
+.problema-meta { color: var(--tinta-tenue); font-weight: 500; white-space: nowrap; }
+/* En el teléfono: filas más bajas, para que las 7 opciones se vean de un
+   vistazo y no parezcan otra lista larga más. */
+@media (max-width: 719px) {
+  .problemas { gap: 8px; }
+  .problema { min-height: 0; gap: 12px; padding: 12px 14px 12px 12px; }
+  .problema-icono { width: 40px; height: 40px; padding: 5px; }
+  .problema-dolor { font-size: 17px; }
+  .problema-sol { font-size: 14.5px; }
+}
 .problema-flecha {
   flex: none;
   font-family: var(--tipo-titular);
