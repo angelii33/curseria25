@@ -1337,6 +1337,18 @@ a.mapa-enlace:hover .mapa-punto { transform: scale(1.1); border-color: var(--mus
 @media (min-width: 900px) {
   .pagina-entrar { grid-template-columns: 1fr 460px; gap: 72px; }
 }
+/* En el teléfono el formulario quedaba debajo de las razones, con el botón
+   fuera de la primera pantalla: primero el título y el formulario, después
+   el porqué. */
+@media (max-width: 899px) {
+  .pagina-entrar { gap: 0; padding-block: 24px 40px; }
+  .entrar-texto { display: contents; }
+  .entrar-texto > .sobretitulo { order: 1; }
+  .entrar-texto > h1 { order: 2; margin-bottom: 20px; }
+  .pagina-entrar > .acceso { order: 3; }
+  .entrar-texto > .t-lectura { order: 4; margin-top: 28px; }
+  .entrar-texto > .entrar-lista { order: 5; margin-top: 12px; }
+}
 
 /* ─── Certificado ─────────────────────────────────────────────────────── */
 .diploma {
@@ -2189,7 +2201,10 @@ body {
   cursor: pointer;
 }
 .acceso-ayuda { margin-top: var(--e-5); }
-.acceso-ayuda summary { cursor: pointer; font-family: var(--tipo-titular); font-weight: 650; font-size: 15px; padding: 8px 0; }
+.acceso-ayuda summary { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; cursor: pointer; font-family: var(--tipo-titular); font-weight: 650; font-size: 15px; color: var(--musgo-700); list-style: none; }
+.acceso-ayuda summary::-webkit-details-marker { display: none; }
+.acceso-ayuda summary::before { content: "+"; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--linea-firme); font-size: 15px; line-height: 1; }
+.acceso-ayuda[open] summary::before { content: "−"; }
 .acceso-ayuda ol { margin: var(--e-3) 0 0; padding-left: 1.2em; display: grid; gap: var(--e-3); color: var(--tinta-media); }
 .acceso-ayuda .acceso-enlace { margin-top: 0; padding: 0; }
 .acceso-correo { overflow-wrap: anywhere; }

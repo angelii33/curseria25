@@ -41,7 +41,10 @@ export async function Barra({ volver }: { volver?: { href: string; texto: string
                 </form>
               </>
             ) : (
-              <Link href={entrar} className="barra-entrar">Entrar</Link>
+              // En la propia página de entrar el botón no lleva a ningún lado.
+              aqui.startsWith("/entrar") || aqui.startsWith("/recuperar") ? null : (
+                <Link href={entrar} className="barra-entrar">Entrar</Link>
+              )
             )}
           </nav>
         </div>
