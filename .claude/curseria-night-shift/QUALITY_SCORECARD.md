@@ -9,7 +9,7 @@ Nada se declara «perfecto»; STABLE significa sin riesgo conocido de prioridad 
 | Pagos | MEDIUM | Firma, ruta del aviso y procesamiento con pruebas; falta compra real de prueba |
 | Seguridad web | LOW | Cabeceras de endurecimiento añadidas (turno 1); sin CSP completa a propósito |
 | Contenido | LOW | 74 lecciones; sin negritas rotas ni signos faltantes; figuras auditadas |
-| UX / móvil | MEDIUM | Falta recorrido real en teléfono de las lecciones gratis |
+| UX / móvil | LOW | Auditoría visual completa (turno 4); falta probar en un teléfono físico |
 | Aprendizaje / retención | LOW | Quiz, práctica, repaso espaciado, logros, meta semanal |
 | Accesibilidad | STABLE | axe (WCAG A/AA + buenas prácticas) sin hallazgos en 17 páginas, 390 y 1280 px, con y sin sesión |
 | SEO | LOW | sitemap, robots, OG por curso y certificado |
