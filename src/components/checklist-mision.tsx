@@ -38,6 +38,8 @@ export function ChecklistMision({
   criterios,
   misionHecha,
   inscrito,
+  guardaEnCuenta = inscrito,
+  gratis = false,
   children,
 }: {
   leccionId: string;
@@ -46,6 +48,10 @@ export function ChecklistMision({
    *  el estado real del servidor manda sobre el estado local. */
   misionHecha: boolean;
   inscrito: boolean;
+  /** Si su avance ya se guarda en la cuenta (inscrito, o lección gratis con sesión). */
+  guardaEnCuenta?: boolean;
+  /** Lección gratis: para guardar basta una cuenta, no hace falta el curso. */
+  gratis?: boolean;
   /** El botón de sellar (Server Action) se inyecta desde la página, para
    *  no meter lógica de servidor dentro de un componente de cliente. */
   children?: React.ReactNode;
@@ -127,10 +133,13 @@ export function ChecklistMision({
         </div>
       ) : null}
 
-      {!inscrito ? (
+      {!guardaEnCuenta ? (
         <p className="t-dato chk-aviso">
           Tus marcas se guardan en este navegador para que no pierdas el hilo si
-          cambias de pestaña. Para guardar tu avance en tu cuenta, necesitas el curso.
+          cambias de pestaña.{" "}
+          {gratis
+            ? "Para guardarlas en tu cuenta basta con crearla gratis."
+            : "Para guardar tu avance en tu cuenta, necesitas el curso."}
         </p>
       ) : null}
 

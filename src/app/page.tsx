@@ -158,37 +158,6 @@ export default async function Inicio() {
           </div>
         </section>
 
-        {/* ─── 1b · LA PROPUESTA EN CUATRO VERBOS ─── */}
-        <section className="pilares" aria-labelledby="pilares-titulo">
-          <div className="marco">
-            <h2 className="t-titulo-2 pilares-titulo" id="pilares-titulo">
-              No necesitas más teoría. Necesitas que quede hecho.
-            </h2>
-            <ol className="pilares-lista">
-              <li className="pilar">
-                <span className="pilar-num" aria-hidden="true">1</span>
-                <strong>Lees</strong>
-                <span>Lecciones de 12 a 35 minutos, con ejemplos de negocios como el tuyo.</span>
-              </li>
-              <li className="pilar">
-                <span className="pilar-num" aria-hidden="true">2</span>
-                <strong>Lo haces</strong>
-                <span>Cada lección tiene un ejercicio con tus datos reales, no un examen.</span>
-              </li>
-              <li className="pilar">
-                <span className="pilar-num" aria-hidden="true">3</span>
-                <strong>Te lo llevas</strong>
-                <span>Plantillas, mensajes e instrucciones para la IA, listos para copiar.</span>
-              </li>
-              <li className="pilar">
-                <span className="pilar-num" aria-hidden="true">4</span>
-                <strong>Lo usas hoy</strong>
-                <span>Terminas con algo funcionando en tu negocio: una ficha, un menú, un sistema.</span>
-              </li>
-            </ol>
-          </div>
-        </section>
-
         {cursos.length === 0 ? (
           <div className="marco">
             <div className="vacio">
@@ -381,16 +350,12 @@ export default async function Inicio() {
               <p className="sobretitulo">Qué hay dentro</p>
               <h2 className="t-titulo-1" id="incluye-titulo">Hecho para terminar, no para acumular</h2>
               <p className="t-lectura incluye-bajada">
-                Cada lección usa técnicas con evidencia científica sobre cómo se aprende
-                de verdad: las mismas que usan las mejores plataformas del mundo,
-                pensadas para quien tiene un negocio y poco tiempo.
+                Cada lección usa lo que la investigación sobre aprendizaje sabe que
+                funciona: adivinar antes de leer, recordar en vez de releer y repasar
+                con días de por medio. Pensado para quien tiene un negocio y poco tiempo.
               </p>
             </div>
             <ul className="incluye-lista">
-              <li>
-                <strong>Pasos con resultado.</strong> Cada lección dice con qué sales y
-                cómo saber que ya lo tienes.
-              </li>
               <li>
                 <strong>Plantillas para copiar.</strong> Mensajes, textos e
                 instrucciones para la IA, con botón de copiar.
@@ -400,12 +365,8 @@ export default async function Inicio() {
                 cabeza para lo que viene, aunque falles.
               </li>
               <li>
-                <strong>Comprobación de memoria.</strong> Preguntas al terminar, con el
-                porqué de cada respuesta. Recordar fija más que releer.
-              </li>
-              <li>
-                <strong>Repaso espaciado.</strong> Las preguntas vuelven días después,
-                justo cuando empiezan a olvidarse.
+                <strong>Preguntas que fijan.</strong> Al terminar, con el porqué de cada
+                respuesta; y vuelven días después, justo cuando empiezan a olvidarse.
               </li>
               <li>
                 <strong>Tu plan de cuándo hacerlo.</strong> Eliges día y hora, y te lo
@@ -414,14 +375,6 @@ export default async function Inicio() {
               <li>
                 <strong>Tu cuaderno y tu taller.</strong> Escribes tu versión en la misma
                 página y queda guardada en tu cuenta, lista para copiar.
-              </li>
-              <li>
-                <strong>Lista de comprobación.</strong> Criterios concretos para que
-                la pieza quede bien la primera vez.
-              </li>
-              <li>
-                <strong>Avance guardado.</strong> Ves qué parte de tu pieza ya está
-                construida y cuál sigue.
               </li>
               <li>
                 <strong>Certificado verificable.</strong> Al terminar un curso, con

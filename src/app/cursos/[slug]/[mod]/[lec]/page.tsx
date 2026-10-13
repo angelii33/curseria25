@@ -322,6 +322,8 @@ export default async function Leccion({
                       criterios={criterios}
                       misionHecha={misionHecha}
                       inscrito={inscrito}
+                      guardaEnCuenta={puedeMarcar}
+                      gratis={leccion.is_preview}
                     >
                       {sellarMision}
                     </ChecklistMision>

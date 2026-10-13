@@ -12,6 +12,17 @@ export async function Logros() {
   const l = await misLogros();
   const ganadas = l.insignias.filter((i) => i.ganada).length;
   const proxima = l.insignias.find((i) => !i.ganada);
+  const visibles = l.insignias.filter((i) => i.ganada || i === proxima);
+  const resto = l.insignias.filter((i) => !i.ganada && i !== proxima);
+  const insignia = (i: (typeof l.insignias)[number]) => (
+    <li key={i.code} className={`insignia-item ${i.ganada ? "insignia-ganada" : ""}`}>
+      <span className="insignia-sello" aria-hidden="true">{i.ganada ? "✓" : ""}</span>
+      <span>
+        <strong>{i.titulo}</strong>
+        <span className="t-dato">{i.ganada ? "Ganada" : comoMeta(i.descripcion)}</span>
+      </span>
+    </li>
+  );
 
   return (
     <section className="logros" aria-labelledby="logros-titulo">
@@ -49,17 +60,15 @@ export async function Logros() {
         </p>
         {proxima ? <p className="t-dato">Siguiente: {proxima.titulo}: {comoMeta(proxima.descripcion).toLowerCase()}</p> : null}
       </div>
-      <ul className="insignias">
-        {l.insignias.map((i) => (
-          <li key={i.code} className={`insignia-item ${i.ganada ? "insignia-ganada" : ""}`}>
-            <span className="insignia-sello" aria-hidden="true">{i.ganada ? "✓" : ""}</span>
-            <span>
-              <strong>{i.titulo}</strong>
-              <span className="t-dato">{i.ganada ? "Ganada" : comoMeta(i.descripcion)}</span>
-            </span>
-          </li>
-        ))}
-      </ul>
+      {/* A la vista, las ganadas y la siguiente. Las demás, plegadas: a
+          alguien que empieza, una rejilla de casillas vacías lo desanima. */}
+      <ul className="insignias">{visibles.map(insignia)}</ul>
+      {resto.length ? (
+        <details className="insignias-mas">
+          <summary>Ver las {resto.length} que faltan</summary>
+          <ul className="insignias">{resto.map(insignia)}</ul>
+        </details>
+      ) : null}
     </section>
   );
 }

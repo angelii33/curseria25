@@ -50,7 +50,7 @@ export function Catalogo({ grupos, items }: { grupos: GrupoCatalogo[]; items: It
             type="search"
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="¿Qué quieres resolver? Ej.: Google, WhatsApp, clientes"
+            placeholder="Busca: Google, WhatsApp, menú…"
             autoComplete="off"
             enterKeyHint="search"
           />

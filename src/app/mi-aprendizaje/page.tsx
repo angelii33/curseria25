@@ -250,7 +250,7 @@ export default async function MiAprendizaje({
 
         {otros.length > 0 ? (
           <section className="mia-otros" aria-labelledby="otros-titulo">
-            <p className="sobretitulo">Tu siguiente pieza</p>
+            <p className="sobretitulo">{detalles.length ? "Tu siguiente pieza" : "Explora"}</p>
             <h2 className="t-titulo-2" id="otros-titulo">
               {detalles.length ? "Lo que puedes resolver después" : "Todos los cursos"}
             </h2>

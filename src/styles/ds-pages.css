@@ -137,6 +137,14 @@
 @media (min-width: 800px) {
   .pie-in { grid-template-columns: 1fr auto auto; column-gap: clamp(32px, 5vw, 72px); }
 }
+/* En el teléfono el pie ocupaba casi una pantalla entera: las dos listas de
+   enlaces van lado a lado y la marca arriba, a todo lo ancho. */
+@media (max-width: 799px) {
+  .pie { padding: var(--e-8) 0 calc(var(--e-7) + env(safe-area-inset-bottom)); }
+  .pie-in { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 20px; row-gap: var(--e-6); }
+  .pie-marca { grid-column: 1 / -1; }
+  .pie-enlaces a { overflow-wrap: anywhere; }
+}
 
 /* ─── Secciones ───────────────────────────────────────────────────────── */
 .seccion { padding-block: var(--seccion); }
@@ -281,6 +289,12 @@
 .rejilla-fichas { display: grid; gap: 20px; }
 @media (min-width: 720px) { .rejilla-fichas { grid-template-columns: repeat(2, 1fr); gap: 24px; } }
 @media (min-width: 1080px) { .rejilla-fichas-3 { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 900px) {
+  .rejilla-fichas:has(> .catalogo-item:only-child) { grid-template-columns: 1fr; }
+  .rejilla-fichas > .catalogo-item:only-child > .ficha { flex-direction: row; }
+  .rejilla-fichas > .catalogo-item:only-child > .ficha > .ficha-media { flex: 0 0 46%; }
+  .rejilla-fichas > .catalogo-item:only-child > .ficha .media-tarjeta { height: 100%; aspect-ratio: auto; min-height: 260px; }
+}
 
 /* ─── Ficha de curso ──────────────────────────────────────────────────── */
 .ficha {
@@ -420,6 +434,14 @@
 .metodo li > .t-titulo-4 { margin: 4px 0 6px; }
 .metodo li > .t-cuerpo { color: var(--tinta-media); }
 .metodo-num { margin-top: 14px; font-family: var(--tipo-titular); font-size: 12.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--cobre-700); }
+/* En el teléfono, cada paso es una fila: icono a la izquierda, texto a la
+   derecha. Antes eran tres tarjetas altas con el icono encima. */
+@media (max-width: 859px) {
+  .metodo { gap: 12px; }
+  .metodo li { display: grid; grid-template-columns: 44px minmax(0, 1fr); column-gap: 14px; padding: 16px 16px 18px; }
+  .metodo li > svg { grid-row: 1 / span 3; }
+  .metodo li > .metodo-num { margin-top: 2px; }
+}
 @media (min-width: 860px) {
   .metodo { grid-template-columns: repeat(3, 1fr); gap: 20px; }
   .metodo li:not(:last-child)::after {
@@ -433,6 +455,12 @@
 
 /* ─── Home: lecciones abiertas ────────────────────────────────────────── */
 .abiertas { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+@media (max-width: 719px) {
+  .abiertas { gap: 10px; }
+  .abierta { padding: 16px 16px 14px; gap: 6px; }
+  .abierta-titulo { font-size: 19px; }
+  .abierta-resultado { font-size: 15px; line-height: 1.45; }
+}
 @media (min-width: 720px) { .abiertas { grid-template-columns: repeat(2, 1fr); } }
 @media (min-width: 1080px) { .abiertas { grid-template-columns: repeat(3, 1fr); } }
 .abierta {

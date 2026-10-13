@@ -12,7 +12,7 @@ import { escribir, leer, useAlmacen } from "@/lib/almacen";
 //
 // En el teléfono vive pegado bajo la barra, plegado: una línea con la
 // sección actual y el avance. En escritorio va en la columna lateral con la
-// lista completa. Usa IntersectionObserver, nativo del navegador.
+// lista completa.
 
 export function IndiceLeccion({
   secciones,
@@ -37,31 +37,39 @@ export function IndiceLeccion({
   useEffect(() => {
     if (!secciones.length) return;
 
-    const observador = new IntersectionObserver(
-      (entradas) => {
-        // Se toma la sección visible que esté más arriba, no la última que
-        // disparó: al hacer scroll rápido llegan varias entradas juntas y
-        // sin ordenar, y sin esto el resaltado va dando saltos.
-        const visibles = entradas
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-        if (visibles[0]) {
-          setActiva(visibles[0].target.id);
-          const k = secciones.findIndex((s) => s.id === visibles[0].target.id);
-          if (llaveAvance && k > Number(leer(llaveAvance) || 0)) escribir(llaveAvance, String(k));
-        }
-      },
-      // El margen superior descuenta la barra fija; sin él, la sección se
-      // marca activa cuando todavía está tapada por la barra.
-      { rootMargin: "-120px 0px -55% 0px", threshold: 0 }
-    );
-
+    // La sección activa es la última cuyo título ya cruzó la mitad
+    // superior de la pantalla. Antes se usaba IntersectionObserver con una
+    // franja: solo reaccionaba a los títulos que entraban o salían de ella,
+    // y con secciones cortas (como «Si algo no sale» plegada) el siguiente
+    // título ya estaba dentro y el indicador se quedaba atascado.
     const nodos = secciones
-      .map((s) => document.getElementById(s.id))
-      .filter((n): n is HTMLElement => n !== null);
-    nodos.forEach((n) => observador.observe(n));
-
-    return () => observador.disconnect();
+      .map((s) => ({ id: s.id, nodo: document.getElementById(s.id) }))
+      .filter((x): x is { id: string; nodo: HTMLElement } => x.nodo !== null);
+    let cuadro = 0;
+    const medir = () => {
+      cuadro = 0;
+      const corte = Math.min(window.innerHeight * 0.45, 420);
+      let actual = nodos[0]?.id ?? null;
+      for (const { id, nodo } of nodos) {
+        if (nodo.getBoundingClientRect().top <= corte) actual = id;
+        else break;
+      }
+      if (!actual) return;
+      setActiva(actual);
+      const k = secciones.findIndex((s) => s.id === actual);
+      if (llaveAvance && k > Number(leer(llaveAvance) || 0)) escribir(llaveAvance, String(k));
+    };
+    const alMover = () => {
+      if (!cuadro) cuadro = requestAnimationFrame(medir);
+    };
+    medir();
+    window.addEventListener("scroll", alMover, { passive: true });
+    window.addEventListener("resize", alMover);
+    return () => {
+      window.removeEventListener("scroll", alMover);
+      window.removeEventListener("resize", alMover);
+      if (cuadro) cancelAnimationFrame(cuadro);
+    };
   }, [secciones, llaveAvance]);
 
   if (secciones.length < 2) return null;
